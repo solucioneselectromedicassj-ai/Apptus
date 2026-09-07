@@ -163,12 +163,12 @@ function getModulosHabilitados(){
   var cat=CATS[i];
   if(cat.id==='empresa'){
    // Custom modules loaded from Supabase
-   if(enabled.indexOf('empresa')>=0&&S.moduloEmpresa)result.push({cat:cat.id,catLabel:cat.label,catIcon:cat.icon,...S.moduloEmpresa,id:'empresa_custom'});
+   if(enabled.indexOf('empresa')>=0&&S.moduloEmpresa){var em=Object.assign({},S.moduloEmpresa,{cat:cat.id,catLabel:cat.label,catIcon:cat.icon,id:'empresa_custom'});result.push(em);}
    continue;
   }
   for(var j=0;j<cat.modulos.length;j++){
    var mod=cat.modulos[j];
-   if(enabled.indexOf(mod.id)>=0){result.push({...mod,cat:cat.id,catLabel:cat.label,catIcon:cat.icon});}
+   if(enabled.indexOf(mod.id)>=0){var m2=Object.assign({},mod,{cat:cat.id,catLabel:cat.label,catIcon:cat.icon});result.push(m2);}
   }
  }
  return result;
