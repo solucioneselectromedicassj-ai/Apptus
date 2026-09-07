@@ -103,7 +103,7 @@ var S={
  zone:null,ak:null,al:null,chk:{},
  qIdx:0,ans:[],chosen:null,mq:null,reviewMode:false,
  adminMonth:'',adminEmpresaData:null,
- superEmpresas:null,superEditEmpresa:null,
+ superEmpresas:null,superEditEmpresa:null,superError:'',
  form:{nombre:'',legajo:'',codigo_empresa:'',rol:'Tecnico/a'},
  loginErr:'',loading:false,
  progress:{} // local cache: {modulo_id: {...}}
@@ -722,7 +722,7 @@ function rSuper(){
  var o='<div class="w"><button class="back" onclick="go(\'home\')">&larr; Volver</button>';
  o+='<h2 style="font-size:18px;font-weight:500;margin-bottom:12px">Gestionar empresas</h2>';
  o+='<button class="btn btn-ok" onclick="newEmpresa()">+ Nueva empresa</button>';
- if(!S.superEmpresas){loadSuperData();return o+'<p class="muted" style="text-align:center;padding:20px">Cargando...</p></div>';}
+ if(S.superEmpresas===null){loadSuperData();return o+'<p class="muted" style="text-align:center;padding:20px">Cargando...</p></div>';}
  var emps=S.superEmpresas;
  for(var i=0;i<emps.length;i++){
   var e=emps[i];
@@ -809,7 +809,7 @@ async function doLogin(){
  if(!nom||!leg||!cod){S.loginErr='Completa todos los campos';render();return;}
  // Super-admin: verificacion local
  if(cod==='SUPER'&&leg==='SEM2026super'){
-  S.user={id:'super',nombre:nom,legajo:leg,rol:'super_admin'};
+  S.user={id:'super',nombre:nom,legajo:leg,rol:'super_admin'};S.superEmpresas=null;
   S.empresa={id:'super',nombre:'SEM - Administracion',codigo:'SUPER',color_principal:'#1a3a6b',modulos_habilitados:[]};
   S.rol='super_admin';
   var cached=localStorage.getItem('at_prog_super');
@@ -886,8 +886,26 @@ async function loadAdminData(){
 }
 
 async function loadSuperData(){
- var res=await apiGet('super_empresas',{pw:S.user&&S.user.legajo?S.user.legajo:'SEM2026super'});
- if(res.ok){S.superEmpresas=res.empresas;}render();
+ // Load from localStorage first (instant)
+ var local=localStorage.getItem('at_super_empresas');
+ if(local){try{S.superEmpresas=JSON.parse(local);}catch(e){S.superEmpresas=[];}}else{S.superEmpresas=[];}
+ render();
+ // Try to sync from server in background
+ try{
+  var res=await apiGet('super_empresas',{pw:'SEM2026super'});
+  if(res.ok&&res.empresas&&res.empresas.length>0){
+   S.superEmpresas=res.empresas;
+   localStorage.setItem('at_super_empresas',JSON.stringify(res.empresas));
+   render();
+  }
+ }catch(e){}
+}
+function saveSuperLocal(empresa){
+ var list=S.superEmpresas||[];
+ var idx=list.findIndex(function(e){return e.id===empresa.id;});
+ if(idx>=0)list[idx]=empresa;else list.push(empresa);
+ S.superEmpresas=list;
+ localStorage.setItem('at_super_empresas',JSON.stringify(list));
 }
 
 function newEmpresa(){S.superEditEmpresa={modulos_habilitados:[]};S.superError='';go('edit_empresa');}
@@ -900,17 +918,26 @@ async function saveEmpresa(){
  e.codigo=document.getElementById('ecode').value.toUpperCase();
  e.plan=document.getElementById('eplan').value;
  e.activa=document.getElementById('eact').value==='true';
- var pw=S.user&&S.user.legajo?S.user.legajo:'SEM2026super';
- var res=await apiPost('super_empresa',{pw,...e});
- if(res.ok){S.superEmpresas=null;go('super');}
- else{S.superError=res.error||'Error al guardar';render();}
+ // Save locally immediately
+ if(!e.id)e.id='local_'+Date.now();
+ saveSuperLocal(e);
+ go('super');
+ // Sync to server in background
+ try{
+  var res=await apiPost('super_empresa',Object.assign({pw:'SEM2026super'},e));
+  if(res.ok&&res.empresa){
+   // Update local with server ID
+   var idx=S.superEmpresas.findIndex(function(x){return x.id===e.id;});
+   if(idx>=0){S.superEmpresas[idx]=res.empresa;localStorage.setItem('at_super_empresas',JSON.stringify(S.superEmpresas));}
+  }
+ }catch(err){}
 }
 
 async function toggleActivaEmpresa(){
  var e=S.superEditEmpresa;e.activa=!e.activa;
- var pw=S.user&&S.user.legajo?S.user.legajo:'SEM2026super';
- await apiPost('super_empresa',{pw,...e});
- S.superEmpresas=null;go('super');
+ saveSuperLocal(e);
+ go('super');
+ try{await apiPost('super_empresa',Object.assign({pw:'SEM2026super'},e));}catch(err){}
 }
 
 render();
