@@ -803,10 +803,22 @@ function render(){
 function go(s){S.screen=s;S.zone=null;S.ak=null;S.al=null;render();}
 
 async function doLogin(){
- if(!S.form.nombre.trim()||!S.form.legajo.trim()||!S.form.codigo_empresa.trim()){S.loginErr='Completa todos los campos';render();return;}
+ var cod=S.form.codigo_empresa.trim().toUpperCase();
+ var leg=S.form.legajo.trim();
+ var nom=S.form.nombre.trim();
+ if(!nom||!leg||!cod){S.loginErr='Completa todos los campos';render();return;}
+ // Super-admin: verificacion local
+ if(cod==='SUPER'&&leg==='SEM2026super'){
+  S.user={id:'super',nombre:nom,legajo:leg,rol:'super_admin'};
+  S.empresa={id:'super',nombre:'SEM - Administracion',codigo:'SUPER',color_principal:'#1a3a6b',modulos_habilitados:[]};
+  S.rol='super_admin';
+  var cached=localStorage.getItem('at_prog_super');
+  if(cached){try{S.progress=JSON.parse(cached);}catch(e){}}
+  S.screen='home';render();return;
+ }
  S.loading=true;S.loginErr='';render();
  var dh=getDeviceHash();
- var res=await apiPost('login',{codigo_empresa:S.form.codigo_empresa,nombre:S.form.nombre,legajo:S.form.legajo,device_hash:dh});
+ var res=await apiPost('login',{codigo_empresa:cod,nombre:nom,legajo:leg,device_hash:dh});
  S.loading=false;
  if(!res.ok){S.loginErr=res.error||'Error al ingresar';render();return;}
  S.user=res.usuario;S.empresa=res.empresa;S.rol=res.rol;
