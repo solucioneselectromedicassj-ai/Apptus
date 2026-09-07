@@ -583,7 +583,7 @@ function rHome(){
    o+='<div class="eqli" style="border-color:'+bc+';cursor:pointer" onclick="openMod(\''+mod.id+'\')">'
     +'<span style="font-size:22px">'+mod.icon+'</span>'
     +'<div style="flex:1"><p style="font-weight:500;font-size:14px;margin-bottom:2px">'+mod.label+'</p><p class="muted" style="font-size:12px">'+mod.sub+'</p>'
-    +(cert?'<p style="font-size:11px;color:var(--mu);margin-top:1px">Vence: '+p.certExpiry+'</p>':'')
+    +(cert?'<p style="font-size:11px;color:var(--mu);margin-top:1px">Vence: '+p.certExpiry+' | Repasos: '+((p.accessLog||[]).filter(function(l){return l.type==='review';}).length||0)+'</p>':'')
     +'</div>'
     +'<div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px">'+badge+'<span style="font-size:16px;color:'+(cert?'var(--ok)':expd?'var(--err)':'var(--mu)')+'">'+  (cert?'📖':'&rsaquo;')+'</span></div></div>';
    if(allMods&&!cert&&!expd){o+='<button class="btn" style="background:#1a3a6b;color:white;margin-top:-4px;border-radius:0 0 10px 10px;margin-bottom:8px;padding:10px" onclick="beginQuiz(\''+mod.id+'\')">Rendir evaluacion de certificacion &rarr;</button>';}
@@ -596,6 +596,8 @@ function rHome(){
  if(S.rol==='super_admin'){
   o+='<button class="btn btn-g" onclick="go(\'super\')">Super-admin: gestionar empresas</button>';
  }
+ o+='<div style="margin-top:4px"><button class="btn btn-g" onclick="shareApp()">Compartir AppTus</button></div>';
+ o+='<button class="btn btn-g" onclick="go('survey')">Encuesta de satisfaccion</button>';
  o+='</div>';
  return o;
 }
@@ -743,53 +745,132 @@ function rSuper(){
 function rEditEmpresa(){
  var e=S.superEditEmpresa||{};
  var allMods=['se3','dfm100','iram9808','hs_basico','empresa'];
+ var modLabels={'se3':'EDAN SE-3','dfm100':'Philips DFM100','iram9808':'IRAM 9808 Ambulancias','hs_basico':'Higiene y Seguridad','empresa':'Modulo Empresa'};
  var enabled=e.modulos_habilitados||[];
  var o='<div class="w"><button class="back" onclick="go(\'super\')">&larr; Empresas</button>';
  o+='<h2 style="font-size:18px;font-weight:500;margin-bottom:12px">'+(e.id?'Editar empresa':'Nueva empresa')+'</h2>';
  o+='<div class="card">';
- o+='<label>Nombre de la empresa</label><input id="ename" value="'+(e.nombre||'')+'" placeholder="Razon social">';
- o+='<label>Codigo de acceso</label><input id="ecode" value="'+(e.codigo||'')+'" placeholder="Ej: LINDE2026" style="text-transform:uppercase">';
- o+='<label>Plan</label><select id="eplan"><option'+(e.plan==='basico'?' selected':'')+'>basico</option><option'+(e.plan==='profesional'?' selected':'')+'>profesional</option><option'+(e.plan==='completo'?' selected':'')+'>completo</option></select>';
- o+='<label>Estado</label><select id="eact"><option value="true"'+(e.activa!==false?' selected':'')+'>Activa</option><option value="false"'+(e.activa===false?' selected':'')+'>Inactiva</option></select>';
- o+='<label>Modulos habilitados</label>';
- for(var i=0;i<allMods.length;i++){var m=allMods[i],checked=enabled.indexOf(m)>=0;o+='<div onclick="toggleMod(\''+m+'\')" style="display:flex;gap:10px;align-items:center;padding:10px;background:var(--card2);border-radius:8px;margin-bottom:6px;cursor:pointer"><span style="font-size:18px">'+(checked?'✅':'⬜')+'</span><span>'+m+'</span></div>';}
+ o+='<p style="font-size:12px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Datos de la empresa</p>';
+ o+='<label>Razon social / Nombre</label><input id="ename" value="'+(e.nombre||'')+'" placeholder="Nombre de la empresa">';
+ o+='<label>Codigo de acceso para empleados</label><input id="ecode" value="'+(e.codigo||'')+'" placeholder="Ej: LINDE2026" style="text-transform:uppercase">';
+ o+='<p class="muted" style="font-size:11px;margin-top:2px;margin-bottom:6px">Este codigo es el que van a escribir los empleados al ingresar</p>';
+ o+='<div class="g2">';
+ o+='<div><label>CUIT</label><input id="ecuit" value="'+(e.cuit||'')+'" placeholder="20-12345678-9"></div>';
+ o+='<div><label>Rubro</label><input id="erubro" value="'+(e.rubro||'')+'" placeholder="Salud, Industria..."></div>';
+ o+='</div>';
+ o+='<label>Contacto (nombre)</label><input id="econtacto" value="'+(e.contacto||'')+'" placeholder="Nombre del responsable">';
+ o+='<label>Telefono</label><input id="etelefono" value="'+(e.telefono||'')+'" placeholder="+54 264 ...">';
+ o+='<label>Email</label><input id="eemail" value="'+(e.email||'')+'" placeholder="capacitacion@empresa.com">';
+ o+='<label>Direccion</label><input id="edireccion" value="'+(e.direccion||'')+'" placeholder="Calle, numero, ciudad">';
+ o+='<label>Localidad / Provincia</label><input id="elocalidad" value="'+(e.localidad||'')+'" placeholder="San Juan, San Juan">';
+ o+='<div class="g2">';
+ o+='<div><label>Plan</label><select id="eplan"><option'+(e.plan==='basico'?' selected':'')+'>basico</option><option'+(e.plan==='profesional'?' selected':'')+'>profesional</option><option'+(e.plan==='completo'?' selected':'')+'>completo</option></select></div>';
+ o+='<div><label>Estado</label><select id="eact"><option value="true"'+(e.activa!==false?' selected':'')+'>Activa</option><option value="false"'+(e.activa===false?' selected':'')+'>Inactiva</option></select></div>';
+ o+='</div>';
+ o+='<label>Notas internas</label><input id="enotas" value="'+(e.notas||'')+'" placeholder="Observaciones para el admin">';
+ o+='</div>';
+ o+='<div class="card">';
+ o+='<p style="font-size:12px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Modulos habilitados</p>';
+ for(var i=0;i<allMods.length;i++){var m=allMods[i],checked=enabled.indexOf(m)>=0;o+='<div onclick="toggleMod(\''+m+'\')" style="display:flex;gap:10px;align-items:center;padding:10px;background:var(--card2);border-radius:8px;margin-bottom:6px;cursor:pointer;border:.5px solid '+(checked?'var(--ok-bd)':'var(--bd)')+'">'+'<span style="font-size:18px">'+(checked?'✅':'⬜')+'</span><div><p style="font-size:14px;font-weight:500">'+modLabels[m]+'</p><p class="muted" style="font-size:11px">'+m+'</p></div></div>';}
  if(S.superError)o+='<p style="color:var(--err);font-size:13px;margin-top:4px">'+S.superError+'</p>';
- o+='<button class="btn btn-p" style="background:#1a3a6b;margin-top:8px" onclick="saveEmpresa()">Guardar</button>';
- if(e.id){o+='<button class="btn" style="background:var(--err);color:white" onclick="toggleActivaEmpresa()">'+(e.activa?'Desactivar empresa':'Activar empresa')+'</button>';}
+ o+='<button class="btn btn-p" style="background:#1a3a6b;margin-top:8px" onclick="saveEmpresa()">Guardar empresa</button>';
+ if(e.id){o+='<button class="btn" style="background:'+(e.activa?'var(--err)':'var(--ok)')+';color:white" onclick="toggleActivaEmpresa()">'+(e.activa?'Desactivar':'Activar')+' empresa</button>';}
  o+='</div></div>';
  return o;
 }
 
-// ═══ RENDER ═══
-
 function rTC(){
- return '<div class="w" style="padding-top:20px">'
-  +'<div style="text-align:center;margin-bottom:20px">'
-  +'<svg width="60" height="60" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="#1a3a6b"/><path d="M50 18 L75 30 L75 54 Q75 72 50 82 Q25 72 25 54 L25 30 Z" fill="none" stroke="white" stroke-width="4"/><path d="M35 52 L45 62 L67 40" fill="none" stroke="#22c55e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-  +'<h1 style="font-size:22px;font-weight:700;color:#1a3a6b;margin:12px 0 4px">AppTus</h1>'
-  +'<p class="muted" style="font-size:13px">Consulta tecnica y soporte operativo de equipos biomedicos</p></div>'
-  +'<div class="card"><p style="font-weight:600;font-size:15px;margin-bottom:10px">Antes de continuar</p>'
-  +'<p style="font-size:13px;line-height:1.7;color:var(--tx);margin-bottom:10px">'
-  +'AppTus es una <strong>herramienta de consulta tecnica y soporte operativo</strong> sobre equipamiento biomedico. '
-  +'El contenido esta basado en los manuales oficiales de los fabricantes.</p>'
-  +'<div style="background:var(--warn-bg);border:1px solid var(--warn-bd);border-radius:10px;padding:12px;margin-bottom:12px">'
-  +'<p style="font-size:13px;color:var(--warn);font-weight:600;margin-bottom:6px">Importante</p>'
-  +'<p style="font-size:12px;color:var(--warn);line-height:1.65">'
-  +'Esta herramienta no es un programa de habilitacion profesional y no reemplaza la supervision tecnica, '
-  +'el criterio medico ni las habilitaciones requeridas por normativa. '
-  +'La empresa contratante es responsable de la supervision operativa de su personal.</p></div>'
-  +'<div style="background:var(--card2);border-radius:10px;padding:12px;margin-bottom:16px">'
-  +'<p style="font-size:12px;color:var(--mu);line-height:1.65">'
-  +'Al continuar, el usuario y su empleador aceptan los terminos de uso de AppTus y confirman que '
-  +'esta herramienta es utilizada como recurso complementario de referencia interna.</p></div>'
-  +'<button class="btn btn-p" style="background:#1a3a6b" onclick="acceptTC()">Entendido - Continuar</button>'
-  +'</div></div>';
+ var perms=[
+  {ic:'📱',t:'Almacenamiento local',d:'Guardamos tu progreso en este dispositivo para que puedas continuar donde lo dejaste'},
+  {ic:'🔗',t:'Acceso a internet',d:'Para sincronizar tu progreso con el servidor de tu empresa y acceder a actualizaciones'},
+  {ic:'📤',t:'Compartir contenido',d:'Para que puedas compartir tus resultados por WhatsApp con tu equipo'},
+  {ic:'📋',t:'Datos personales basicos',d:'Nombre y legajo, solo para identificarte dentro de la plataforma de tu empresa. Ley 25326'},
+ ];
+ var o='<div class="w" style="padding-top:16px">';
+ o+='<div style="text-align:center;margin-bottom:20px">';
+ o+='<svg width="64" height="64" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="#1a3a6b"/><path d="M50 18 L75 30 L75 54 Q75 72 50 82 Q25 72 25 54 L25 30 Z" fill="none" stroke="white" stroke-width="4"/><path d="M35 52 L45 62 L67 40" fill="none" stroke="#22c55e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+ o+='<h1 style="font-size:24px;font-weight:700;color:#1a3a6b;margin:12px 0 4px">AppTus</h1>';
+ o+='<p style="font-size:13px;color:var(--mu)">Consulta tecnica y soporte operativo de equipos biomedicos</p></div>';
+ o+='<div class="card"><p style="font-weight:600;font-size:15px;margin-bottom:12px">Bienvenido a AppTus</p>';
+ o+='<p style="font-size:13px;line-height:1.7;margin-bottom:14px">AppTus es una <strong>herramienta de consulta tecnica y soporte operativo</strong> sobre equipamiento biomedico. El contenido esta basado en los manuales oficiales de los fabricantes.</p>';
+ o+='<p style="font-size:12px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Esta app necesita acceso a</p>';
+ for(var i=0;i<perms.length;i++){o+='<div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:.5px solid var(--bd)">'+'<span style="font-size:20px;min-width:28px">'+perms[i].ic+'</span><div><p style="font-size:13px;font-weight:500;margin-bottom:2px">'+perms[i].t+'</p><p class="muted" style="font-size:11px;line-height:1.5">'+perms[i].d+'</p></div></div>';}
+ o+='<div style="background:var(--warn-bg);border:1px solid var(--warn-bd);border-radius:10px;padding:12px;margin:14px 0">';
+ o+='<p style="font-size:12px;color:var(--warn);line-height:1.65"><strong>Aviso legal:</strong> Esta herramienta no es un programa de habilitacion profesional y no reemplaza la supervision tecnica, el criterio medico ni las habilitaciones requeridas por normativa. La empresa contratante es responsable de la supervision operativa de su personal.</p></div>';
+ o+='<button class="btn btn-p" style="background:#1a3a6b;margin-top:4px" onclick="acceptTC()">Aceptar y continuar</button>';
+ o+='<p class="muted" style="text-align:center;font-size:11px;margin-top:8px">Al continuar aceptas los terminos de uso y la politica de privacidad de AppTus (Ley 25326)</p>';
+ o+='</div></div>';
+ return o;
 }
 function acceptTC(){localStorage.setItem('at_tc','1');S.tcAccepted=true;S.screen='login';render();}
 
+
+
+
+function openModAt(modId,modIdx){
+ S.modId=modId;S.modIdx=modIdx;S.slideIdx=0;S.zone=null;S.ak=null;S.al=null;
+ var p=getProg(modId);
+ S.reviewMode=p.certified&&!isExpired(p.certExpiry);
+ if(!S.reviewMode)logAcceso('capacitacion',modId);
+ S.screen='module';render();
+}
+
+function toggleAccordion(modId){S.openMods=S.openMods||{};S.openMods[modId]=!S.openMods[modId];render();}
+
+function shareApp(){
+ var url=window.location.href.split('?')[0];
+ if(navigator.share){navigator.share({title:'AppTus - Capacitacion Empresarial',text:'Accede a la plataforma de consulta tecnica',url:url});}
+ else{navigator.clipboard.writeText(url).then(function(){alert('Link copiado: '+url);}).catch(function(){prompt('Copia este link:',url);});}
+}
+
+
+function rSurvey(){
+ var o='<div class="w"><button class="back" onclick="go(\'home\')">&larr; Volver</button>';
+ o+='<h2 style="font-size:18px;font-weight:500;margin-bottom:4px">Encuesta de satisfaccion</h2>';
+ o+='<p class="muted" style="margin-bottom:16px">Tus respuestas son anonimas y van al administrador</p>';
+ var qs=[
+  {id:'q1',txt:'El contenido fue claro y facil de entender',type:'stars'},
+  {id:'q2',txt:'La plataforma es facil de usar',type:'stars'},
+  {id:'q3',txt:'La informacion es util para tu trabajo diario',type:'stars'},
+  {id:'q4',txt:'Recomendarias AppTus a companeros',type:'stars'},
+  {id:'q5',txt:'Que mejoraras o que te gustaria ver en la plataforma?',type:'text'},
+ ];
+ var sv=S.survey||{};
+ o+='<div class="card">';
+ for(var i=0;i<qs.length;i++){
+  var q=qs[i];
+  o+='<p style="font-size:14px;font-weight:500;margin-bottom:8px;'+(i>0?'margin-top:16px;border-top:.5px solid var(--bd);padding-top:16px;':'')+'">'+q.txt+'</p>';
+  if(q.type==='stars'){
+   o+='<div style="display:flex;gap:8px;margin-bottom:4px">';
+   for(var s=1;s<=5;s++){var sel=(sv[q.id]||0)>=s;o+='<span onclick="setStar(\''+q.id+'\','+s+')" style="font-size:28px;cursor:pointer">'+(sel?'⭐':'☆')+'</span>';}
+   var labels=['','Muy malo','Malo','Regular','Bueno','Excelente'];
+   o+='<span class="muted" style="align-self:center;font-size:12px">'+(sv[q.id]?labels[sv[q.id]]:'')+'</span></div>';
+  }else{
+   o+='<textarea id="'+q.id+'" style="width:100%;background:var(--card2);border:.5px solid var(--bds);border-radius:8px;padding:10px;color:var(--tx);font-size:13px;resize:none;min-height:80px" placeholder="Escribe tu comentario...">'+(sv[q.id]||'')+'</textarea>';
+  }
+ }
+ o+='<button class="btn btn-p" style="background:#1a3a6b;margin-top:16px" onclick="sendSurvey()">Enviar encuesta</button>';
+ o+='</div></div>';
+ return o;
+}
+function setStar(qid,val){S.survey=S.survey||{};S.survey[qid]=val;render();}
+async function sendSurvey(){
+ var q5=document.getElementById('q5');if(q5)S.survey=Object.assign({},S.survey,{q5:q5.value});
+ var sv=S.survey||{};
+ var msg='Encuesta AppTus\nEmpresa: '+(S.empresa?S.empresa.nombre:'')+'\n'
+  +'Contenido claro: '+sv.q1+'/5\n'
+  +'Facilidad de uso: '+sv.q2+'/5\n'
+  +'Utilidad practica: '+sv.q3+'/5\n'
+  +'Recomendaria: '+sv.q4+'/5\n'
+  +'Comentarios: '+(sv.q5||'-');
+ try{await logAcceso('encuesta',null,{survey:sv});}catch(e){}
+ window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+ S.survey={};go('home');
+}
+
 function render(){
  var app=document.getElementById('app');
- var sc={login:rLogin,home:rHome,module:rModule,miniquiz:rMiniQuiz,mq_result:rMQResult,quiz:rQuiz,result:rResult,admin:rAdmin,super:rSuper,edit_empresa:rEditEmpresa};
+ var sc={login:rLogin,home:rHome,module:rModule,miniquiz:rMiniQuiz,mq_result:rMQResult,quiz:rQuiz,result:rResult,admin:rAdmin,super:rSuper,edit_empresa:rEditEmpresa,survey:rSurvey};
  if(!S.tcAccepted){app.innerHTML=rTC();return;}
  app.innerHTML=(sc[S.screen]||rLogin)();
  setWatermark();
@@ -910,7 +991,15 @@ function saveSuperLocal(empresa){
 
 function newEmpresa(){S.superEditEmpresa={modulos_habilitados:[]};S.superError='';go('edit_empresa');}
 function editEmpresa(id){var e=S.superEmpresas.find(function(x){return x.id===id;});S.superEditEmpresa=Object.assign({},e);S.superError='';go('edit_empresa');}
-function toggleMod(m){var e=S.superEditEmpresa;var mods=e.modulos_habilitados||[];var idx=mods.indexOf(m);if(idx>=0)mods.splice(idx,1);else mods.push(m);e.modulos_habilitados=mods;render();}
+function toggleMod(m){
+ var en=document.getElementById('ename');if(en)S.superEditEmpresa.nombre=en.value;
+ var ec=document.getElementById('ecode');if(ec)S.superEditEmpresa.codigo=ec.value.toUpperCase();
+ var ep=document.getElementById('eplan');if(ep)S.superEditEmpresa.plan=ep.value;
+ var ea=document.getElementById('eact');if(ea)S.superEditEmpresa.activa=(ea.value==='true');
+ var e=S.superEditEmpresa;var mods=e.modulos_habilitados||[];
+ var idx=mods.indexOf(m);if(idx>=0)mods.splice(idx,1);else mods.push(m);
+ e.modulos_habilitados=mods;render();
+}
 
 async function saveEmpresa(){
  var e=S.superEditEmpresa;
@@ -918,6 +1007,14 @@ async function saveEmpresa(){
  e.codigo=document.getElementById('ecode').value.toUpperCase();
  e.plan=document.getElementById('eplan').value;
  e.activa=document.getElementById('eact').value==='true';
+ e.cuit=(document.getElementById('ecuit')||{}).value||e.cuit||'';
+ e.rubro=(document.getElementById('erubro')||{}).value||e.rubro||'';
+ e.contacto=(document.getElementById('econtacto')||{}).value||e.contacto||'';
+ e.telefono=(document.getElementById('etelefono')||{}).value||e.telefono||'';
+ e.email=(document.getElementById('eemail')||{}).value||e.email||'';
+ e.direccion=(document.getElementById('edireccion')||{}).value||e.direccion||'';
+ e.localidad=(document.getElementById('elocalidad')||{}).value||e.localidad||'';
+ e.notas=(document.getElementById('enotas')||{}).value||e.notas||'';
  // Save locally immediately
  if(!e.id)e.id='local_'+Date.now();
  saveSuperLocal(e);
