@@ -175,11 +175,12 @@ function getModulosHabilitados(){
 }
 
 function getModData(modId){
+ var MQB=typeof MQ!=='undefined'?MQ:{};
  var maps={
-  'se3':{mods:typeof MODS_SE3!=='undefined'?MODS_SE3:[],quiz:typeof QUIZ_SE3!=='undefined'?QUIZ_SE3:[],mq:typeof MQ_SE3!=='undefined'?MQ_SE3:{}},
-  'dfm100':{mods:typeof MODS_DFM100!=='undefined'?MODS_DFM100:[],quiz:typeof QUIZ_DFM100!=='undefined'?QUIZ_DFM100:[],mq:typeof MQ_DFM100!=='undefined'?MQ_DFM100:{}},
-  'iram9808':{mods:typeof MODS_IRAM9808!=='undefined'?MODS_IRAM9808:[],quiz:typeof QUIZ_IRAM9808!=='undefined'?QUIZ_IRAM9808:[],mq:typeof MQ_IRAM9808!=='undefined'?MQ_IRAM9808:{}},
-  'hs_basico':{mods:typeof MODS_HS!=='undefined'?MODS_HS:[],quiz:typeof QUIZ_HS!=='undefined'?QUIZ_HS:[],mq:typeof MQ_HS!=='undefined'?MQ_HS:{}},
+  'se3':{mods:typeof MODS_SE3!=='undefined'?MODS_SE3:[],quiz:typeof QUIZ_SE3!=='undefined'?QUIZ_SE3:[],mq:MQB.se3||{}},
+  'dfm100':{mods:typeof MODS_DFM100!=='undefined'?MODS_DFM100:[],quiz:typeof QUIZ_DFM100!=='undefined'?QUIZ_DFM100:[],mq:MQB.dfm100||{}},
+  'iram9808':{mods:typeof MODS_IRAM9808!=='undefined'?MODS_IRAM9808:[],quiz:typeof QUIZ_IRAM9808!=='undefined'?QUIZ_IRAM9808:[],mq:MQB.iram9808||{}},
+  'hs_basico':{mods:typeof MODS_HS!=='undefined'?MODS_HS:[],quiz:typeof QUIZ_HS!=='undefined'?QUIZ_HS:[],mq:MQB.hs_basico||{}},
  };
  return maps[modId]||{mods:[],quiz:[],mq:{}};
 }
@@ -759,7 +760,9 @@ function rEditEmpresa(){
  o+='<div><label>Rubro</label><input id="erubro" value="'+(e.rubro||'')+'" placeholder="Salud, Industria..."></div>';
  o+='</div>';
  o+='<label>Contacto (nombre)</label><input id="econtacto" value="'+(e.contacto||'')+'" placeholder="Nombre del responsable">';
- o+='<label>Telefono</label><input id="etelefono" value="'+(e.telefono||'')+'" placeholder="+54 264 ...">';
+ o+='<label>Telefono empresa</label><input id="etelefono" value="'+(e.telefono||'')+'" placeholder="+54 264 ...">';
+ o+='<label>Telefono para solicitudes de capacitacion presencial</label><input id="etelefono_admin" value="'+(e.telefono_admin||'')+'" placeholder="+54 264 ... (WhatsApp donde llegan las solicitudes)">';
+ o+='<p class="muted" style="font-size:11px;margin-top:2px;margin-bottom:6px">Los empleados que pidan capacitacion en vivo van a escribir a este numero</p>';
  o+='<label>Email</label><input id="eemail" value="'+(e.email||'')+'" placeholder="capacitacion@empresa.com">';
  o+='<label>Direccion</label><input id="edireccion" value="'+(e.direccion||'')+'" placeholder="Calle, numero, ciudad">';
  o+='<label>Localidad / Provincia</label><input id="elocalidad" value="'+(e.localidad||'')+'" placeholder="San Juan, San Juan">';
@@ -957,7 +960,22 @@ function tZ(id){S.zone=S.zone===id?null:id;render();}
 function tK(i){S.ak=S.ak===i?null:i;render();}
 function tL(id){S.al=S.al===id?null:id;render();}
 function tC(key,i){if(!S.chk[key])S.chk[key]={};if(S.chk[key][i])delete S.chk[key][i];else S.chk[key][i]=true;render();}
-function reqLive(){var u=S.user||{};var msg='Solicitud de capacitacion en vivo - AppTus\nEmpresa: '+(S.empresa?S.empresa.nombre:'')+'\nNombre: '+(u.nombre||'')+'\nLegajo: '+(u.legajo||'')+'\nModulo: '+S.modId+'\nFecha: '+new Date().toLocaleDateString('es-AR');window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');}
+function reqLive(){
+ var u=S.user||{},emp=S.empresa||{};
+ var modLabel=S.modId;
+ for(var i=0;i<CATS.length;i++){for(var j=0;j<CATS[i].modulos.length;j++){if(CATS[i].modulos[j].id===S.modId)modLabel=CATS[i].modulos[j].label;}}
+ var msg='Solicitud de capacitacion presencial - AppTus\n'
+  +'Empresa: '+emp.nombre+'\n'
+  +'Contacto: '+(emp.contacto||'-')+'\n'
+  +'Empleado: '+(u.nombre||'')+'\n'
+  +'Legajo/DNI: '+(u.legajo||'-')+'\n'
+  +'Funcion: '+(S.form&&S.form.rol?S.form.rol:'-')+'\n'
+  +'Modulo: '+modLabel+'\n'
+  +'Fecha: '+new Date().toLocaleDateString('es-AR');
+ var phone=(emp.telefono_admin||emp.telefono||'').replace(/\D/g,'');
+ var waUrl=phone?'https://wa.me/'+phone+'?text='+encodeURIComponent(msg):'https://wa.me/?text='+encodeURIComponent(msg);
+ window.open(waUrl,'_blank');
+}
 
 async function loadAdminData(){
  if(!S.empresa)return;
@@ -1012,6 +1030,7 @@ async function saveEmpresa(){
  e.contacto=(document.getElementById('econtacto')||{}).value||e.contacto||'';
  e.telefono=(document.getElementById('etelefono')||{}).value||e.telefono||'';
  e.email=(document.getElementById('eemail')||{}).value||e.email||'';
+ e.telefono_admin=(document.getElementById('etelefono_admin')||{}).value||e.telefono_admin||'';
  e.direccion=(document.getElementById('edireccion')||{}).value||e.direccion||'';
  e.localidad=(document.getElementById('elocalidad')||{}).value||e.localidad||'';
  e.notas=(document.getElementById('enotas')||{}).value||e.notas||'';
