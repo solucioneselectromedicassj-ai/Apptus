@@ -7,6 +7,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="AppTus">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-touch-fullscreen" content="yes">
+<meta name="format-detection" content="telephone=no">
+<meta name="msapplication-tap-highlight" content="no">
 <link id="pwa-manifest" rel="manifest">
 <title>AppTus - Capacitacion Empresarial</title>
 <style>
@@ -16,7 +20,15 @@
 --err:#ef4444;--err-bg:#450a0a;--err-bd:#991b1b;
 --p:#1a3a6b;--p2:#22c55e;--tx:#f1f5f9;--mu:#94a3b8;--acc:#60a5fa}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--tx);font-size:15px;min-height:100vh}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--tx);font-size:15px;min-height:100vh;overscroll-behavior:none;-webkit-overflow-scrolling:touch}
+html{overscroll-behavior:none}
+input,select,textarea{-webkit-appearance:none;border-radius:8px}
+.btn{-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
+.eqli,.opt,.chk,.cat-card{-webkit-touch-callout:none;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.back{touch-action:manipulation;min-height:44px;min-width:44px;display:inline-flex;align-items:center}
+#app{padding-bottom:env(safe-area-inset-bottom,0)}
+.w{padding-bottom:calc(16px + env(safe-area-inset-bottom,0))}
+@media (display-mode:standalone){body{padding-top:env(safe-area-inset-top,0)}}
 .w{max-width:500px;margin:0 auto;padding:16px}
 .card{background:var(--card);border:.5px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:12px}
 .muted{color:var(--mu);font-size:13px;line-height:1.5}
@@ -62,7 +74,12 @@ input,select{width:100%;padding:10px 12px;border-radius:8px;border:.5px solid va
 </style>
 </head>
 <body>
-<div id="app">Cargando...</div>
+<div id="splash" style="position:fixed;inset:0;background:#0f172a;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999">
+<svg width="90" height="90" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="#1a3a6b"/><path d="M50 18 L75 30 L75 54 Q75 72 50 82 Q25 72 25 54 L25 30 Z" fill="none" stroke="white" stroke-width="4"/><path d="M35 52 L45 62 L67 40" fill="none" stroke="#22c55e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<p style="color:white;font-size:28px;font-weight:700;margin:16px 0 4px;font-family:system-ui">AppTus</p>
+<p style="color:rgba(255,255,255,0.5);font-size:13px;font-family:system-ui">Soporte tecnico operativo</p>
+</div>
+<div id="app"></div>
 <div class="watermark" id="wm"></div>
 <script>
 var IMG={
@@ -86,7 +103,61 @@ var API = 'https://drfyicdwwltzzahqixlz.supabase.co/functions/v1/apptus-api';
 var PASS_QUIZ = 8;
 var EXPIRY = {'Residente':6,'Medico/a':12,'Enfermero/a':12,'Tecnico/a':12,'Operario/a':12,'Conductor/a':12,'Administrativo/a':12,'RRHH':12,'Gerente':12,'Otro':12};
 
-try{var mf={name:"AppTus - Capacitacion Empresarial",short_name:"AppTus",start_url:"./",display:"standalone",theme_color:"#1a3a6b",background_color:"#0f172a"};document.getElementById('pwa-manifest').href=URL.createObjectURL(new Blob([JSON.stringify(mf)],{type:'application/manifest+json'}));}catch(e){}
+// Generate icon using canvas (works in any browser)
+
+// Splash screen
+function showSplash(){
+ var sp=document.getElementById('splash');if(!sp)return;
+ setTimeout(function(){
+  sp.style.opacity='0';sp.style.transition='opacity .4s';
+  setTimeout(function(){sp.parentNode&&sp.parentNode.removeChild(sp);},400);
+ },1200);
+}
+
+function makeIcon(sz){
+ var c=document.createElement('canvas');c.width=c.height=sz;
+ var x=c.getContext('2d');if(!x)return null;
+ var r=sz*0.18;
+ x.beginPath();x.moveTo(r,0);x.lineTo(sz-r,0);x.quadraticCurveTo(sz,0,sz,r);
+ x.lineTo(sz,sz-r);x.quadraticCurveTo(sz,sz,sz-r,sz);
+ x.lineTo(r,sz);x.quadraticCurveTo(0,sz,0,sz-r);
+ x.lineTo(0,r);x.quadraticCurveTo(0,0,r,0);x.closePath();
+ x.fillStyle='#1a3a6b';x.fill();
+ var s=sz/100;
+ x.strokeStyle='rgba(255,255,255,0.9)';x.lineWidth=3.5*s;x.lineJoin='round';
+ x.beginPath();x.moveTo(50*s,17*s);x.lineTo(74*s,29*s);x.lineTo(74*s,53*s);
+ x.bezierCurveTo(74*s,68*s,63*s,75*s,50*s,82*s);
+ x.bezierCurveTo(37*s,75*s,26*s,68*s,26*s,53*s);
+ x.lineTo(26*s,29*s);x.closePath();x.stroke();
+ x.strokeStyle='#22c55e';x.lineWidth=4.5*s;x.lineCap='round';x.lineJoin='round';
+ x.beginPath();x.moveTo(35*s,51*s);x.lineTo(45*s,61*s);x.lineTo(66*s,39*s);x.stroke();
+ return c.toDataURL('image/png');
+}
+// Setup PWA manifest with canvas-generated icons
+try{
+ var icon192=makeIcon(192);
+ var icon512=makeIcon(512);
+ var icons=[];
+ if(icon192)icons.push({src:icon192,sizes:'192x192',type:'image/png',purpose:'any maskable'});
+ if(icon512)icons.push({src:icon512,sizes:'512x512',type:'image/png',purpose:'any maskable'});
+ var mf={name:'AppTus - Capacitacion Empresarial',short_name:'AppTus',
+  description:'Soporte tecnico operativo de equipos biomedicos',
+  start_url:'./',display:'standalone',orientation:'portrait',
+  theme_color:'#1a3a6b',background_color:'#0f172a',
+  icons:icons,
+  screenshots:[],
+  categories:['education','business']};
+ var mfBlob=new Blob([JSON.stringify(mf)],{type:'application/manifest+json'});
+ document.getElementById('pwa-manifest').href=URL.createObjectURL(mfBlob);
+ // Also set apple touch icon dynamically
+ if(icon192){
+  var al=document.querySelector('link[rel="apple-touch-icon"]');
+  if(al)al.href=icon192;
+  // Add shortcut icon
+  var fi=document.createElement('link');fi.rel='icon';fi.href=icon192;
+  document.head.appendChild(fi);
+ }
+}catch(e){}
 
 // ═══ DEVICE HASH ═══
 function getDeviceHash(){
@@ -528,6 +599,175 @@ function rSlide(mod,slide,mi,si){
 }
 
 
+
+// ═══ FAQ POR MODULO ═══
+var FAQ = {
+ se3:[
+  {q:'El equipo muestra Lead Off pero los electrodos parecen conectados',a:'Revisá que los cables de extremidades y precordiales estén firmemente sujetos a los electrodos. Limpiá la piel con alcohol si hay humedad o crema. Verificá que los tornillos del conector de cable estén apretados.'},
+  {q:'El ECG sale con mucho ruido o con artefactos',a:'Causas más frecuentes: paciente en movimiento, piel no preparada (rasurar y limpiar con alcohol), electrodos en mal estado o secos, interferencia eléctrica de otros equipos. Asegurate de que el paciente esté quieto y callado durante la toma.'},
+  {q:'No imprime nada al presionar PRINT/STOP',a:'Verificá que el papel esté correctamente cargado con el lado térmico hacia abajo. Comprobá que la carcasa del registrador cierre con el clic. Si el papel está agotado, reemplazarlo. Si sigue sin imprimir, llamar a Ingeniería Clínica.'},
+  {q:'Cómo reimprimir el último ECG?',a:'Presionar la tecla 1mV/COPY inmediatamente después de que termine la impresión automática (modo AUTO). Solo funciona si el equipo no fue apagado desde el último registro.'},
+  {q:'El equipo indica batería baja pero está conectado a la red',a:'La lámpara amarilla en modo carga puede tardar varias horas en volver a verde. Si el equipo está enchufado correctamente y la lámpara no prende, verificar el cable de red y el contacto del enchufe. Avisar a Ingeniería Clínica si persiste.'},
+  {q:'Cómo se cambia el rollo de papel?',a:'1) Tomar las dos pestañas laterales de la carcasa y tirar hacia ARRIBA. 2) Insertar el nuevo rollo con el lado térmico (suave/brillante) hacia ABAJO. 3) Cerrar hasta escuchar el clic. Si no imprime, el papel está al revés.'},
+ ],
+ dfm100:[
+  {q:'El RFU muestra X roja sólida',a:'Falla crítica: el equipo NO puede entregar terapia. Retirarlo del servicio de inmediato y llamar a Ingeniería Clínica. Nunca usar en ese estado.'},
+  {q:'El desfibrilador no carga al presionar CHARGE',a:'Verificá que el Therapy Knob esté en una posición de energía (50J/100J/150J/200J), no en MON o AED. Comprobá que el cable de terapia esté bien conectado al puerto verde. Si la batería está por debajo del 20%, conectar a la red primero.'},
+  {q:'Después de la descarga, qué hago primero?',a:'Reiniciar RCP inmediatamente. No esperar para ver el ritmo. Continuar 2 minutos de RCP, después analizar el ritmo. El desfibrilador se recarga automáticamente si el Therapy Knob sigue en la misma posición de energía.'},
+  {q:'Cómo se activa el modo SYNC para cardioversión?',a:'1) Conectar ECG y verificar señal limpia. 2) Presionar el botón SYNC. 3) El indicador SYNC aparece en pantalla. 4) Cargar y dar el shock. ATENCIÓN: el SYNC se desactiva después de cada descarga, hay que reactivarlo.'},
+  {q:'El equipo muestra batería al 70% aunque estuvo enchufado toda la guardia',a:'Verificar que el cable CA esté bien conectado al equipo y al tomacorriente. La lámpara AC debe estar verde. Si la batería no carga con el equipo enchufado, avisar a Ingeniería Clínica para revisión.'},
+  {q:'Los pads se despegaron durante la RCP, qué hago?',a:'Si se despegaron los pads, usar paletas externas si están disponibles. Si no, colocar nuevos pads (si hay stock). Nunca interrumpir la RCP más de lo necesario para reposicionar los electrodos.'},
+ ],
+ iram9808:[
+  {q:'Cuándo usar Tipo A vs Tipo B?',a:'Tipo A: paciente estable que no necesita monitoreo ni medicación durante el traslado. Tipo B: paciente con riesgo potencial que necesita monitoreo y posible intervención. Ante la duda, siempre consultar al médico de guardia antes de decidir el tipo de ambulancia.'},
+  {q:'Qué pasa si el nivel de oxígeno está por debajo del 75% al inicio del turno?',a:'No salir en servicio hasta recargar o cambiar el tubo. Registrar el incidente en el libro de guardia. Si no hay tubo de reemplazo disponible, avisar al jefe de servicio para no dejar la unidad sin oxígeno operativo.'},
+  {q:'El checklist de turno lo completa solo el médico?',a:'No. La responsabilidad es de toda la tripulación. El médico o enfermero responsable del turno firma el checklist, pero cualquier integrante puede y debe reportar si algo no está en condiciones.'},
+  {q:'Cuánto hay que archivar el checklist de turno?',a:'Mínimo 1 año según normativa. Muchas instituciones mantienen 2-3 años. Consultar el protocolo de la institución. El checklist firmado es un documento legal en caso de siniestro.'},
+ ],
+ hs_basico:[
+  {q:'Qué hacer si el EPP está dañado al momento de usarlo?',a:'Retirarlo de servicio inmediatamente. Nunca usar EPP en mal estado. Notificar al supervisor y solicitar el reemplazo. Registrar el incidente. Usar EPP dañado puede generar el mismo riesgo que no usar ninguno.'},
+  {q:'Cuál es la diferencia entre guantes de nitrilo y de látex?',a:'Los guantes de nitrilo son preferibles porque no causan reacciones alérgicas y tienen mayor resistencia a pinchazos. El látex puede causar alergias y es sensible a ciertos químicos. Para trabajo biomédico o sanitario, siempre preferir nitrilo.'},
+  {q:'Puedo usar agua para apagar un incendio eléctrico?',a:'NO bajo ningún concepto. El agua conduce electricidad y puede electrocutar al operador. Para fuegos Clase C (equipos energizados), usar CO2 o polvo BC. Desconectar la alimentación eléctrica primero si es posible hacerlo de forma segura.'},
+  {q:'Qué significa LOTO?',a:'Lock Out / Tag Out (Bloqueo y Etiquetado). Es el procedimiento para aislar energías peligrosas antes de trabajar en equipos. Cada persona que trabaja pone su propio candado. Solo quien puso el candado puede sacarlo. Es obligatorio antes de cualquier mantenimiento.'},
+ ],
+};
+
+// ═══ YOUTUBE POR MODULO ═══
+var YT_DEFAULT = {
+ se3: '',
+ dfm100: 'https://www.youtube.com/results?search_query=philips+efficia+dfm100+training',
+ iram9808: '',
+ hs_basico: '',
+};
+
+function getYT(modId){
+ var emp = S.empresa || {};
+ var custom = (emp.recursos_modulos || {})[modId] || '';
+ return custom || YT_DEFAULT[modId] || '';
+}
+
+// ═══ EVENTOS / CONFERENCIAS ═══
+function rEventos(){
+ var emp = S.empresa || {};
+ var o = '<div class="w"><button class="back" onclick="go(\'home\')">&larr; Inicio</button>';
+ o += '<h2 style="font-size:18px;font-weight:500;margin-bottom:4px">Conferencias y eventos</h2>';
+ o += '<p class="muted" style="margin-bottom:14px">' + emp.nombre + '</p>';
+ var canCreate = S.rol === 'admin_empresa' || S.rol === 'super_admin';
+ if(canCreate) o += '<button class="btn btn-ok" style="background:#22c55e;color:#000;margin-bottom:12px" onclick="go(\'nuevo_evento\')">+ Programar evento</button>';
+ var ev = S.eventos || {};
+ var prox = ev.proximos || [], past = ev.pasados || [];
+ if(prox.length === 0 && past.length === 0){
+  o += '<div class="card" style="text-align:center;padding:24px"><p style="font-size:32px;margin-bottom:12px">📅</p><p style="font-weight:500;margin-bottom:6px">Sin eventos programados</p><p class="muted">Cuando el administrador programe un evento, lo verás acá.</p></div>';
+ }
+ if(prox.length > 0){
+  o += '<p style="font-size:12px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Próximos</p>';
+  for(var i=0;i<prox.length;i++){
+   var e=prox[i];
+   var tipo = e.tipo === 'capacitacion' ? '📚' : e.tipo === 'repaso' ? '📖' : '🎥';
+   o += '<div class="card" style="border-color:var(--ok-bd)">';
+   o += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">';
+   o += '<div><p style="font-weight:600;font-size:15px">' + tipo + ' ' + e.titulo + '</p>';
+   o += '<p class="muted" style="font-size:12px;margin-top:2px">' + e.fecha + (e.hora?' · '+e.hora.slice(0,5):'') + '</p></div>';
+   o += '<span style="font-size:11px;font-weight:600;color:var(--ok);padding:2px 8px;background:var(--ok-bg);border-radius:8px">PRÓXIMO</span></div>';
+   if(e.descripcion) o += '<p style="font-size:13px;color:var(--tx);line-height:1.6;margin-bottom:10px">' + e.descripcion + '</p>';
+   if(e.link_reunion) o += '<a href="' + e.link_reunion + '" target="_blank" style="display:block;background:#1a73e8;color:white;text-align:center;padding:10px;border-radius:8px;text-decoration:none;font-weight:600;font-size:13px;margin-bottom:6px">Unirse al evento</a>';
+   if(e.grabacion_url) o += '<a href="' + e.grabacion_url + '" target="_blank" style="display:block;background:#ff0000;color:white;text-align:center;padding:8px;border-radius:8px;text-decoration:none;font-size:12px;margin-bottom:4px">Ver grabación en YouTube</a>';
+   o += '</div>';
+  }
+ }
+ if(past.length > 0){
+  o += '<p style="font-size:12px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin:12px 0 8px">Eventos anteriores</p>';
+  for(var i=0;i<past.length;i++){
+   var e=past[i];
+   o += '<div class="card" style="opacity:.7">';
+   o += '<p style="font-weight:500;font-size:14px;margin-bottom:2px">' + e.titulo + '</p>';
+   o += '<p class="muted" style="font-size:12px;margin-bottom:6px">' + e.fecha + '</p>';
+   if(e.grabacion_url) o += '<a href="' + e.grabacion_url + '" target="_blank" style="display:block;background:#333;color:white;text-align:center;padding:8px;border-radius:8px;text-decoration:none;font-size:12px">Ver grabación</a>';
+   o += '</div>';
+  }
+ }
+ o += '</div>';
+ return o;
+}
+
+function rNuevoEvento(){
+ var ev = S.editEvento || {};
+ var o = '<div class="w"><button class="back" onclick="go(\'eventos\')">&larr; Eventos</button>';
+ o += '<h2 style="font-size:18px;font-weight:500;margin-bottom:12px">' + (ev.id?'Editar evento':'Nuevo evento') + '</h2>';
+ o += '<div class="card">';
+ o += '<label>Título</label><input id="ev_titulo" value="' + (ev.titulo||'') + '" placeholder="Ej: Capacitación DFM100 - Turno mañana">';
+ o += '<label>Tipo</label><select id="ev_tipo"><option value="conferencia"' + (ev.tipo==='conferencia'?' selected':'') + '>Conferencia / Charla</option><option value="capacitacion"' + (ev.tipo==='capacitacion'?' selected':'') + '>Capacitación presencial</option><option value="repaso"' + (ev.tipo==='repaso'?' selected':'') + '>Repaso y consultas</option></select>';
+ o += '<div class="g2"><div><label>Fecha</label><input type="date" id="ev_fecha" value="' + (ev.fecha||'') + '"></div><div><label>Hora</label><input type="time" id="ev_hora" value="' + (ev.hora||'') + '"></div></div>';
+ o += '<label>Módulo relacionado (opcional)</label><select id="ev_modulo"><option value="">-- Sin módulo específico --</option>';
+ var mods2=[{id:'se3',n:'EDAN SE-3'},{id:'dfm100',n:'Philips DFM100'},{id:'iram9808',n:'IRAM 9808'},{id:'hs_basico',n:'Higiene y Seguridad'}];
+ for(var i=0;i<mods2.length;i++) o += '<option value="'+mods2[i].id+'"'+(ev.modulo_id===mods2[i].id?' selected':'')+'>'+mods2[i].n+'</option>';
+ o += '</select>';
+ o += '<label>Link de la reunión (Meet / Zoom / Teams)</label><input id="ev_link" value="' + (ev.link_reunion||'') + '" placeholder="https://meet.google.com/...">';
+ o += '<label>Link grabación YouTube (post-evento)</label><input id="ev_yt" value="' + (ev.grabacion_url||'') + '" placeholder="https://youtu.be/...">';
+ o += '<label>Descripción</label><textarea id="ev_desc" style="width:100%;background:var(--card2);border:.5px solid var(--bds);border-radius:8px;padding:10px;color:var(--tx);font-size:13px;resize:none;min-height:70px" placeholder="Información adicional...">' + (ev.descripcion||'') + '</textarea>';
+ if(S.superError) o += '<p style="color:var(--err);font-size:13px;margin-top:4px">' + S.superError + '</p>';
+ o += '<button class="btn btn-p" style="background:#1a3a6b;margin-top:8px" onclick="saveEvento()">Guardar evento</button>';
+ o += '</div></div>';
+ return o;
+}
+
+async function loadEventos(){
+ if(!S.empresa||!S.empresa.id)return;
+ try{
+  var res=await apiGet('eventos',{empresa_id:S.empresa.id});
+  if(res.ok)S.eventos=res;
+  render();
+ }catch(e){}
+}
+
+async function saveEvento(){
+ var ev=Object.assign({},S.editEvento||{});
+ ev.titulo=(document.getElementById('ev_titulo')||{}).value||'';
+ ev.tipo=(document.getElementById('ev_tipo')||{}).value||'conferencia';
+ ev.fecha=(document.getElementById('ev_fecha')||{}).value||'';
+ ev.hora=(document.getElementById('ev_hora')||{}).value||'';
+ ev.modulo_id=(document.getElementById('ev_modulo')||{}).value||null;
+ ev.link_reunion=(document.getElementById('ev_link')||{}).value||'';
+ ev.grabacion_url=(document.getElementById('ev_yt')||{}).value||'';
+ ev.descripcion=(document.getElementById('ev_desc')||{}).value||'';
+ ev.empresa_id=S.empresa?S.empresa.id:null;
+ ev.activo=true;ev.created_by=S.user?S.user.nombre:'';
+ if(!ev.titulo||!ev.fecha){S.superError='Título y fecha son obligatorios';render();return;}
+ S.superError='';
+ var res=await apiPost('evento',Object.assign({pw:'SEM2026super'},ev));
+ if(res.ok){S.editEvento=null;S.eventos=null;go('eventos');loadEventos();}
+ else{S.superError=res.error||'Error al guardar';render();}
+}
+
+// ═══ FAQ SCREEN ═══
+function rFAQ(){
+ var modId=S.modId||'';
+ var faqs=FAQ[modId]||[];
+ var modLabel=modId;
+ for(var i=0;i<CATS.length;i++){for(var j=0;j<CATS[i].modulos.length;j++){if(CATS[i].modulos[j].id===modId)modLabel=CATS[i].modulos[j].label;}}
+ var o='<div class="w"><button class="back" onclick="go(\'module\')">&larr; Modulo</button>';
+ o+='<h2 style="font-size:18px;font-weight:500;margin-bottom:4px">Preguntas frecuentes</h2>';
+ o+='<p class="muted" style="margin-bottom:16px">'+modLabel+'</p>';
+ if(faqs.length===0){o+='<div class="card" style="text-align:center;padding:24px"><p class="muted">Sin preguntas frecuentes para este módulo.</p></div>';}
+ var openFAQ=S.openFAQ||{};
+ for(var i=0;i<faqs.length;i++){
+  var f=faqs[i],isOpen=!!openFAQ[i];
+  o+='<div style="background:var(--card);border:.5px solid var(--bd);border-radius:10px;margin-bottom:8px;overflow:hidden">';
+  o+='<div onclick="tFAQ('+i+')" style="padding:12px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:flex-start;gap:10px">';
+  o+='<p style="font-size:14px;font-weight:500;line-height:1.5;flex:1">'+f.q+'</p>';
+  o+='<span style="color:var(--mu);font-size:16px;min-width:16px">'+(isOpen?'▲':'▼')+'</span></div>';
+  if(isOpen)o+='<div style="padding:0 14px 12px;border-top:.5px solid var(--bd)"><p style="font-size:13px;color:var(--mu);line-height:1.7;margin-top:10px">'+f.a+'</p></div>';
+  o+='</div>';
+ }
+ var ytUrl=getYT(modId);
+ if(ytUrl) o+='<a href="'+ytUrl+'" target="_blank" style="display:block;background:#ff0000;color:white;text-align:center;padding:12px;border-radius:10px;text-decoration:none;font-weight:600;font-size:14px;margin-top:8px">Ver video de referencia en YouTube</a>';
+ o+='<button class="btn btn-g" style="margin-top:8px" onclick="reqLive()">Solicitar capacitación en vivo</button>';
+ o+='</div>';
+ return o;
+}
+
+function tFAQ(i){S.openFAQ=S.openFAQ||{};S.openFAQ[i]=!S.openFAQ[i];render();}
+
 // ═══ SCREENS ═══
 function rLogin(){
  return '<div class="w" style="padding-top:24px">'
@@ -599,6 +839,7 @@ function rHome(){
  }
  o+='<div style="margin-top:4px"><button class="btn btn-g" onclick="shareApp()">Compartir AppTus</button></div>';
  o+='<button class="btn btn-g" onclick="go(\'survey\')">Encuesta de satisfaccion</button>';
+ o+='<button class="btn btn-g" onclick="openEventos()">Conferencias y eventos</button>';
  o+='</div>';
  return o;
 }
@@ -626,7 +867,12 @@ function rModule(){
   o+='<button class="btn" style="background:'+mod.color+';color:white;flex:2" onclick="cM()">Completar y mini-evaluacion &rarr;</button>';
  }
  o+='</div>';
- o+='<button class="btn btn-g" style="margin-top:8px" onclick="reqLive()">Solicitar capacitacion en vivo</button>';
+ o+='<div style="display:flex;gap:8px">';
+ o+='<button class="btn btn-g" style="flex:1;margin-top:8px" onclick="reqLive()">Capacitacion en vivo</button>';
+ o+='<button class="btn btn-g" style="flex:1;margin-top:8px" onclick="go(\'faq\')">FAQ</button>';
+ var ytU=getYT(S.modId);
+ if(ytU)o+='<a href="'+ytU+'" target="_blank" style="flex:1;display:flex;align-items:center;justify-content:center;background:#ff0000;color:white;padding:10px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:600;margin-top:8px">YouTube</a>';
+ o+='</div>';
  o+='</div>';
  return o;
 }
@@ -748,40 +994,39 @@ function rEditEmpresa(){
  var allMods=['se3','dfm100','iram9808','hs_basico','empresa'];
  var modLabels={'se3':'EDAN SE-3','dfm100':'Philips DFM100','iram9808':'IRAM 9808 Ambulancias','hs_basico':'Higiene y Seguridad','empresa':'Modulo Empresa'};
  var enabled=e.modulos_habilitados||[];
+ var ytData=e.recursos_modulos||{};
  var o='<div class="w"><button class="back" onclick="go(\'super\')">&larr; Empresas</button>';
  o+='<h2 style="font-size:18px;font-weight:500;margin-bottom:12px">'+(e.id?'Editar empresa':'Nueva empresa')+'</h2>';
  o+='<div class="card">';
- o+='<p style="font-size:12px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Datos de la empresa</p>';
- o+='<label>Razon social / Nombre</label><input id="ename" value="'+(e.nombre||'')+'" placeholder="Nombre de la empresa">';
- o+='<label>Codigo de acceso para empleados</label><input id="ecode" value="'+(e.codigo||'')+'" placeholder="Ej: LINDE2026" style="text-transform:uppercase">';
- o+='<p class="muted" style="font-size:11px;margin-top:2px;margin-bottom:6px">Este codigo es el que van a escribir los empleados al ingresar</p>';
- o+='<div class="g2">';
- o+='<div><label>CUIT</label><input id="ecuit" value="'+(e.cuit||'')+'" placeholder="20-12345678-9"></div>';
- o+='<div><label>Rubro</label><input id="erubro" value="'+(e.rubro||'')+'" placeholder="Salud, Industria..."></div>';
- o+='</div>';
- o+='<label>Contacto (nombre)</label><input id="econtacto" value="'+(e.contacto||'')+'" placeholder="Nombre del responsable">';
+ o+='<label>Razon social</label><input id="ename" value="'+(e.nombre||'')+'" placeholder="Nombre de la empresa">';
+ o+='<label>Codigo de acceso</label><input id="ecode" value="'+(e.codigo||'')+'" placeholder="Ej: LINDE2026" style="text-transform:uppercase">';
+ o+='<p class="muted" style="font-size:11px;margin-top:2px;margin-bottom:6px">Este codigo lo escriben los empleados al ingresar</p>';
+ o+='<div class="g2"><div><label>CUIT</label><input id="ecuit" value="'+(e.cuit||'')+'" placeholder="20-12345678-9"></div><div><label>Rubro</label><input id="erubro" value="'+(e.rubro||'')+'" placeholder="Salud, Industria..."></div></div>';
+ o+='<label>Contacto</label><input id="econtacto" value="'+(e.contacto||'')+'" placeholder="Nombre del responsable">';
  o+='<label>Telefono empresa</label><input id="etelefono" value="'+(e.telefono||'')+'" placeholder="+54 264 ...">';
- o+='<label>Telefono para solicitudes de capacitacion presencial</label><input id="etelefono_admin" value="'+(e.telefono_admin||'')+'" placeholder="+54 264 ... (WhatsApp donde llegan las solicitudes)">';
- o+='<p class="muted" style="font-size:11px;margin-top:2px;margin-bottom:6px">Los empleados que pidan capacitacion en vivo van a escribir a este numero</p>';
+ o+='<label>Telefono capacitacion presencial (WhatsApp)</label><input id="etelefono_admin" value="'+(e.telefono_admin||'')+'" placeholder="+54 264 ...">';
  o+='<label>Email</label><input id="eemail" value="'+(e.email||'')+'" placeholder="capacitacion@empresa.com">';
  o+='<label>Direccion</label><input id="edireccion" value="'+(e.direccion||'')+'" placeholder="Calle, numero, ciudad">';
- o+='<label>Localidad / Provincia</label><input id="elocalidad" value="'+(e.localidad||'')+'" placeholder="San Juan, San Juan">';
- o+='<div class="g2">';
- o+='<div><label>Plan</label><select id="eplan"><option'+(e.plan==='basico'?' selected':'')+'>basico</option><option'+(e.plan==='profesional'?' selected':'')+'>profesional</option><option'+(e.plan==='completo'?' selected':'')+'>completo</option></select></div>';
- o+='<div><label>Estado</label><select id="eact"><option value="true"'+(e.activa!==false?' selected':'')+'>Activa</option><option value="false"'+(e.activa===false?' selected':'')+'>Inactiva</option></select></div>';
- o+='</div>';
+ o+='<label>Localidad</label><input id="elocalidad" value="'+(e.localidad||'')+'" placeholder="San Juan, San Juan">';
+ o+='<div class="g2"><div><label>Plan</label><select id="eplan"><option'+(e.plan==='basico'?' selected':'')+'>basico</option><option'+(e.plan==='profesional'?' selected':'')+'>profesional</option><option'+(e.plan==='completo'?' selected':'')+'>completo</option></select></div><div><label>Estado</label><select id="eact"><option value="true"'+(e.activa!==false?' selected':'')+'>Activa</option><option value="false"'+(e.activa===false?' selected':'')+'>Inactiva</option></select></div></div>';
  o+='<label>Notas internas</label><input id="enotas" value="'+(e.notas||'')+'" placeholder="Observaciones para el admin">';
  o+='</div>';
  o+='<div class="card">';
- o+='<p style="font-size:12px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Modulos habilitados</p>';
- for(var i=0;i<allMods.length;i++){var m=allMods[i],checked=enabled.indexOf(m)>=0;o+='<div onclick="toggleMod(\''+m+'\')" style="display:flex;gap:10px;align-items:center;padding:10px;background:var(--card2);border-radius:8px;margin-bottom:6px;cursor:pointer;border:.5px solid '+(checked?'var(--ok-bd)':'var(--bd)')+'">'+'<span style="font-size:18px">'+(checked?'✅':'⬜')+'</span><div><p style="font-size:14px;font-weight:500">'+modLabels[m]+'</p><p class="muted" style="font-size:11px">'+m+'</p></div></div>';}
+ o+='<p style="font-size:12px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Modulos habilitados</p>';
+ for(var i=0;i<allMods.length;i++){var m=allMods[i],checked=enabled.indexOf(m)>=0;o+='<div onclick="toggleMod(\''+m+'\')" style="display:flex;gap:10px;align-items:center;padding:10px;background:var(--card2);border-radius:8px;margin-bottom:6px;cursor:pointer;border:.5px solid '+(checked?'var(--ok-bd)':'var(--bd)')+'">'+'<span style="font-size:18px">'+(checked?'\u2705':'\u2b1c')+'</span><div><p style="font-size:14px;font-weight:500">'+modLabels[m]+'</p><p class="muted" style="font-size:11px">'+m+'</p></div></div>';}
+ o+='</div>';
+ o+='<div class="card">';
+ o+='<p style="font-size:12px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Links YouTube por modulo</p>';
+ var ytIds=['se3','dfm100','iram9808','hs_basico'];
+ var ytNames=['EDAN SE-3','Philips DFM100','IRAM 9808','H y S'];
+ for(var yi=0;yi<ytIds.length;yi++){o+='<label>'+ytNames[yi]+'</label><input id="eyt_'+ytIds[yi]+'" value="'+(ytData[ytIds[yi]]||'')+'" placeholder="https://youtu.be/...">';}
+ o+='</div>';
  if(S.superError)o+='<p style="color:var(--err);font-size:13px;margin-top:4px">'+S.superError+'</p>';
  o+='<button class="btn btn-p" style="background:#1a3a6b;margin-top:8px" onclick="saveEmpresa()">Guardar empresa</button>';
  if(e.id){o+='<button class="btn" style="background:'+(e.activa?'var(--err)':'var(--ok)')+';color:white" onclick="toggleActivaEmpresa()">'+(e.activa?'Desactivar':'Activar')+' empresa</button>';}
  o+='</div></div>';
  return o;
 }
-
 function rTC(){
  var perms=[
   {ic:'📱',t:'Almacenamiento local',d:'Guardamos tu progreso en este dispositivo para que puedas continuar donde lo dejaste'},
@@ -873,7 +1118,7 @@ async function sendSurvey(){
 
 function render(){
  var app=document.getElementById('app');
- var sc={login:rLogin,home:rHome,module:rModule,miniquiz:rMiniQuiz,mq_result:rMQResult,quiz:rQuiz,result:rResult,admin:rAdmin,super:rSuper,edit_empresa:rEditEmpresa,survey:rSurvey};
+ var sc={login:rLogin,home:rHome,module:rModule,miniquiz:rMiniQuiz,mq_result:rMQResult,quiz:rQuiz,result:rResult,admin:rAdmin,super:rSuper,edit_empresa:rEditEmpresa,survey:rSurvey,eventos:rEventos,nuevo_evento:rNuevoEvento,faq:rFAQ};
  if(!S.tcAccepted){app.innerHTML=rTC();return;}
  app.innerHTML=(sc[S.screen]||rLogin)();
  setWatermark();
@@ -884,7 +1129,23 @@ function render(){
 }
 
 // ═══ HANDLERS ═══
-function go(s){S.screen=s;S.zone=null;S.ak=null;S.al=null;render();}
+var _navStack=[];
+function go(s){
+ if(S.screen!=='login')_navStack.push(S.screen);
+ window.history.pushState({at:true},'');
+ S.screen=s;S.zone=null;S.ak=null;S.al=null;render();
+}
+function goBack(){
+ if(_navStack.length>0){S.screen=_navStack.pop();S.zone=null;S.ak=null;S.al=null;render();}
+ else if(S.screen!=='home'&&S.screen!=='login'){S.screen=S.user?'home':'login';render();}
+ // Always keep a history entry so back doesn't close the app
+ window.history.pushState({at:true},'');
+}
+window.addEventListener('popstate',function(){goBack();});
+// Push initial entry
+try{window.history.pushState({at:true},'');}catch(e){}
+render();
+showSplash();
 
 async function doLogin(){
  var cod=S.form.codigo_empresa.trim().toUpperCase();
@@ -960,6 +1221,9 @@ function tZ(id){S.zone=S.zone===id?null:id;render();}
 function tK(i){S.ak=S.ak===i?null:i;render();}
 function tL(id){S.al=S.al===id?null:id;render();}
 function tC(key,i){if(!S.chk[key])S.chk[key]={};if(S.chk[key][i])delete S.chk[key][i];else S.chk[key][i]=true;render();}
+
+function openEventos(){S.eventos=null;go('eventos');loadEventos();}
+
 function reqLive(){
  var u=S.user||{},emp=S.empresa||{};
  var modLabel=S.modId;
@@ -1034,6 +1298,10 @@ async function saveEmpresa(){
  e.direccion=(document.getElementById('edireccion')||{}).value||e.direccion||'';
  e.localidad=(document.getElementById('elocalidad')||{}).value||e.localidad||'';
  e.notas=(document.getElementById('enotas')||{}).value||e.notas||'';
+ var ytIds2=['se3','dfm100','iram9808','hs_basico'];
+ var yt2={};
+ for(var yi2=0;yi2<ytIds2.length;yi2++){var ytEl=document.getElementById('eyt_'+ytIds2[yi2]);if(ytEl&&ytEl.value)yt2[ytIds2[yi2]]=ytEl.value;}
+ e.recursos_modulos=Object.assign({},e.recursos_modulos||{},yt2);
  // Save locally immediately
  if(!e.id)e.id='local_'+Date.now();
  saveSuperLocal(e);
@@ -1055,8 +1323,6 @@ async function toggleActivaEmpresa(){
  go('super');
  try{await apiPost('super_empresa',Object.assign({pw:'SEM2026super'},e));}catch(err){}
 }
-
-render();
 
 
 </script>
