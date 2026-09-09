@@ -647,6 +647,58 @@ function getYT(modId){
 }
 
 // ═══ EVENTOS / CONFERENCIAS ═══
+
+function rSolicitud(){
+ var bs=S.botSol||{};
+ var o='<div class="w"><button class="back" onclick="go(\'module\')">&larr; Modulo</button>';
+ o+='<h2 style="font-size:18px;font-weight:500;margin-bottom:12px">Solicitar capacitacion presencial</h2>';
+ o+='<div class="card">';
+ // Show user info pre-filled
+ var u=S.user||{},emp=S.empresa||{};
+ o+='<div style="background:var(--card2);border-radius:8px;padding:12px;margin-bottom:12px">';
+ o+='<p style="font-size:13px;font-weight:600;margin-bottom:4px">Tus datos</p>';
+ o+='<p class="muted" style="font-size:12px">'+u.nombre+' &bull; Leg. '+(u.legajo||'-')+' &bull; '+(S.form&&S.form.rol?S.form.rol:'')+' &bull; '+emp.nombre+'</p>';
+ o+='</div>';
+ // Module
+ var modLabel=S.modId;
+ for(var i=0;i<CATS.length;i++){for(var j=0;j<CATS[i].modulos.length;j++){if(CATS[i].modulos[j].id===S.modId)modLabel=CATS[i].modulos[j].label;}}
+ o+='<p style="font-size:14px;font-weight:500;margin-bottom:6px">Modulo: '+modLabel+'</p>';
+ o+='<label>Cuantas personas necesitan la capacitacion?</label>';
+ o+='<select id="sol_pers"><option>Solo yo</option><option>2 a 5 personas</option><option>6 a 10 personas</option><option>Mas de 10 personas</option></select>';
+ o+='<label>Horario preferido</label>';
+ o+='<select id="sol_turno"><option>Manana (8-12)</option><option>Tarde (12-18)</option><option>Noche (18-22)</option><option>Fin de semana</option></select>';
+ o+='<label>Donde se realizaria</label>';
+ o+='<select id="sol_lugar"><option>En la empresa</option><option>En otro lugar</option><option>Virtual por Meet/Zoom</option></select>';
+ o+='<label>Observaciones (opcional)</label>';
+ o+='<textarea id="sol_obs" style="width:100%;background:var(--card2);border:.5px solid var(--bds);border-radius:8px;padding:10px;color:var(--tx);font-size:13px;resize:none;min-height:60px" placeholder="Datos adicionales, urgencia, etc..."></textarea>';
+ if(S.solError)o+='<p style="color:var(--err);font-size:13px;margin-top:4px">'+S.solError+'</p>';
+ if(S.solOk)o+='<div class="ts" style="margin-top:8px;padding:12px">Tu solicitud fue registrada. RRHH o el administrador te va a coordinar la capacitacion.</div>';
+ if(!S.solOk)o+='<button class="btn btn-p" style="background:#1a3a6b;margin-top:8px" onclick="enviarSolicitud()">Enviar solicitud</button>';
+ o+='<button class="btn btn-g" onclick="go(\'module\')">Volver al modulo</button>';
+ o+='</div></div>';
+ return o;
+}
+
+async function enviarSolicitud(){
+ var u=S.user||{},emp=S.empresa||{};
+ var modLabel=S.modId;
+ for(var i=0;i<CATS.length;i++){for(var j=0;j<CATS[i].modulos.length;j++){if(CATS[i].modulos[j].id===S.modId)modLabel=CATS[i].modulos[j].label;}}
+ var sol={
+  empresa_id:emp.id,usuario_id:u.id||null,
+  usuario_nombre:u.nombre||'',usuario_legajo:u.legajo||'',
+  usuario_rol:(S.form&&S.form.rol)||'',
+  modulo_id:S.modId,modulo_nombre:modLabel,
+  personas:(document.getElementById('sol_pers')||{}).value||'',
+  turno:(document.getElementById('sol_turno')||{}).value||'',
+  lugar:(document.getElementById('sol_lugar')||{}).value||'',
+  observaciones:(document.getElementById('sol_obs')||{}).value||''
+ };
+ S.solError='';
+ var res=await apiPost('solicitud',sol);
+ if(res.ok){S.solOk=true;render();}
+ else{S.solError=res.error||'Error al enviar';render();}
+}
+
 function rEventos(){
  var emp = S.empresa || {};
  var o = '<div class="w"><button class="back" onclick="go(\'home\')">&larr; Inicio</button>';
@@ -730,7 +782,7 @@ async function saveEvento(){
  ev.link_reunion=(document.getElementById('ev_link')||{}).value||'';
  ev.grabacion_url=(document.getElementById('ev_yt')||{}).value||'';
  ev.descripcion=(document.getElementById('ev_desc')||{}).value||'';
- ev.empresa_id=S.empresa?S.empresa.id:null;
+ ev.empresa_id=(S.empresa&&S.empresa.id&&S.empresa.id!=='super')?S.empresa.id:null;if(!ev.empresa_id){S.superError='Debes seleccionar una empresa real para el evento';render();return;}
  ev.activo=true;ev.created_by=S.user?S.user.nombre:'';
  if(!ev.titulo||!ev.fecha){S.superError='Título y fecha son obligatorios';render();return;}
  S.superError='';
@@ -840,6 +892,7 @@ function rHome(){
  o+='<div style="margin-top:4px"><button class="btn btn-g" onclick="shareApp()">Compartir AppTus</button></div>';
  o+='<button class="btn btn-g" onclick="go(\'survey\')">Encuesta de satisfaccion</button>';
  o+='<button class="btn btn-g" onclick="openEventos()">Conferencias y eventos</button>';
+ o+='<button class="btn btn-g" onclick="S.botState={step:0};go(\'bot_capacitacion\')">Consulta rapida por modulo</button>';
  o+='</div>';
  return o;
 }
@@ -868,7 +921,7 @@ function rModule(){
  }
  o+='</div>';
  o+='<div style="display:flex;gap:8px">';
- o+='<button class="btn btn-g" style="flex:1;margin-top:8px" onclick="reqLive()">Capacitacion en vivo</button>';
+ o+='<button class="btn btn-g" style="flex:1;margin-top:8px" onclick="S.solOk=false;S.solError=\'\';go(\'solicitud\')">Solicitar capacitacion</button>';
  o+='<button class="btn btn-g" style="flex:1;margin-top:8px" onclick="go(\'faq\')">FAQ</button>';
  var ytU=getYT(S.modId);
  if(ytU)o+='<a href="'+ytU+'" target="_blank" style="flex:1;display:flex;align-items:center;justify-content:center;background:#ff0000;color:white;padding:10px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:600;margin-top:8px">YouTube</a>';
@@ -1009,6 +1062,16 @@ function rEditEmpresa(){
  o+='<label>Direccion</label><input id="edireccion" value="'+(e.direccion||'')+'" placeholder="Calle, numero, ciudad">';
  o+='<label>Localidad</label><input id="elocalidad" value="'+(e.localidad||'')+'" placeholder="San Juan, San Juan">';
  o+='<div class="g2"><div><label>Plan</label><select id="eplan"><option'+(e.plan==='basico'?' selected':'')+'>basico</option><option'+(e.plan==='profesional'?' selected':'')+'>profesional</option><option'+(e.plan==='completo'?' selected':'')+'>completo</option></select></div><div><label>Estado</label><select id="eact"><option value="true"'+(e.activa!==false?' selected':'')+'>Activa</option><option value="false"'+(e.activa===false?' selected':'')+'>Inactiva</option></select></div></div>';
+ o+='<label>Telefonos para solicitudes de capacitacion (lista)</label>';
+ var tels=e.telefonos_capacitacion||[];
+ for(var ti=0;ti<tels.length;ti++){
+  o+='<div style="display:flex;gap:6px;margin-bottom:6px">';
+  o+='<input value="'+(tels[ti].nombre||'')+'" placeholder="Nombre (ej: Pablo)" style="flex:1" oninput="updateTel('+ti+',\'nombre\',this.value)">';
+  o+='<input value="'+(tels[ti].tel||'')+'" placeholder="+54264..." style="flex:2" oninput="updateTel('+ti+',\'tel\',this.value)">';
+  o+='<button onclick="removeTel('+ti+')" style="background:var(--err);color:white;border:none;border-radius:6px;padding:4px 8px;cursor:pointer">✕</button>';
+  o+='</div>';
+ }
+ o+='<button onclick="addTel()" style="background:var(--card2);border:.5px solid var(--bd);color:var(--mu);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:12px">+ Agregar telefono</button>';
  o+='<label>Notas internas</label><input id="enotas" value="'+(e.notas||'')+'" placeholder="Observaciones para el admin">';
  o+='</div>';
  o+='<div class="card">';
@@ -1118,7 +1181,7 @@ async function sendSurvey(){
 
 function render(){
  var app=document.getElementById('app');
- var sc={login:rLogin,home:rHome,module:rModule,miniquiz:rMiniQuiz,mq_result:rMQResult,quiz:rQuiz,result:rResult,admin:rAdmin,super:rSuper,edit_empresa:rEditEmpresa,survey:rSurvey,eventos:rEventos,nuevo_evento:rNuevoEvento,faq:rFAQ};
+ var sc={login:rLogin,home:rHome,module:rModule,miniquiz:rMiniQuiz,mq_result:rMQResult,quiz:rQuiz,result:rResult,admin:rAdmin,super:rSuper,edit_empresa:rEditEmpresa,survey:rSurvey,eventos:rEventos,nuevo_evento:rNuevoEvento,faq:rFAQ,bot_capacitacion:rBotCapacitacion,solicitud:rSolicitud};
  if(!S.tcAccepted){app.innerHTML=rTC();return;}
  app.innerHTML=(sc[S.screen]||rLogin)();
  setWatermark();
@@ -1129,6 +1192,30 @@ function render(){
 }
 
 // ═══ HANDLERS ═══
+// Restore saved session
+(function(){
+ try{
+  var saved=localStorage.getItem('at_session');
+  if(saved){
+   var s=JSON.parse(saved);
+   if(s.user&&s.empresa){
+    S.user=s.user;S.empresa=s.empresa;S.rol=s.rol||'usuario';
+    if(s.form)S.form=s.form;
+    var prog=localStorage.getItem('at_prog_'+s.user.id);
+    if(prog)S.progress=JSON.parse(prog);
+    S.screen='home';
+   }
+  }
+ }catch(e){}
+})();
+// Read URL params to pre-fill company code
+(function(){
+ try{
+  var params=new URLSearchParams(window.location.search);
+  var cod=params.get('codigo')||params.get('code')||'';
+  if(cod)S.form.codigo_empresa=cod.toUpperCase();
+ }catch(e){}
+})();
 var _navStack=[];
 function go(s){
  if(S.screen!=='login')_navStack.push(S.screen);
@@ -1167,6 +1254,7 @@ async function doLogin(){
  S.loading=false;
  if(!res.ok){S.loginErr=res.error||'Error al ingresar';render();return;}
  S.user=res.usuario;S.empresa=res.empresa;S.rol=res.rol;
+ try{localStorage.setItem('at_session',JSON.stringify({user:res.usuario,empresa:res.empresa,rol:res.rol,form:S.form}));}catch(e){}
  // Load cached progress from localStorage
  var cached=localStorage.getItem('at_prog_'+S.user.id);
  if(cached){try{S.progress=JSON.parse(cached);}catch(e){}}
@@ -1174,7 +1262,10 @@ async function doLogin(){
  S.screen='home';render();
 }
 
-function logout(){S.user=null;S.empresa=null;S.rol=null;S.progress={};S.screen='login';render();}
+function logout(){
+ try{localStorage.removeItem('at_session');}catch(e){}
+ S.user=null;S.empresa=null;S.rol=null;S.progress={};S.screen='login';render();
+}
 
 function openMod(modId){
  S.modId=modId;
@@ -1225,20 +1316,69 @@ function tC(key,i){if(!S.chk[key])S.chk[key]={};if(S.chk[key][i])delete S.chk[ke
 function openEventos(){S.eventos=null;go('eventos');loadEventos();}
 
 function reqLive(){
- var u=S.user||{},emp=S.empresa||{};
- var modLabel=S.modId;
- for(var i=0;i<CATS.length;i++){for(var j=0;j<CATS[i].modulos.length;j++){if(CATS[i].modulos[j].id===S.modId)modLabel=CATS[i].modulos[j].label;}}
- var msg='Solicitud de capacitacion presencial - AppTus\n'
-  +'Empresa: '+emp.nombre+'\n'
-  +'Contacto: '+(emp.contacto||'-')+'\n'
-  +'Empleado: '+(u.nombre||'')+'\n'
-  +'Legajo/DNI: '+(u.legajo||'-')+'\n'
-  +'Funcion: '+(S.form&&S.form.rol?S.form.rol:'-')+'\n'
-  +'Modulo: '+modLabel+'\n'
-  +'Fecha: '+new Date().toLocaleDateString('es-AR');
- var phone=(emp.telefono_admin||emp.telefono||'').replace(/\D/g,'');
- var waUrl=phone?'https://wa.me/'+phone+'?text='+encodeURIComponent(msg):'https://wa.me/?text='+encodeURIComponent(msg);
- window.open(waUrl,'_blank');
+ S.screen='bot_capacitacion';S.botState={step:0,answers:{}};render();
+}
+function rBotCapacitacion(){
+ var bs=S.botState||{step:0};
+ var o='<div class="w"><button class="back" onclick="go(\'home\')">&larr; Inicio</button>';
+ o+='<h2 style="font-size:18px;font-weight:500;margin-bottom:4px">Consulta rapida</h2>';
+ o+='<p class="muted" style="margin-bottom:14px">Encontra rapidamente el tema que buscas</p>';
+ if(bs.step===0){
+  // Step 0: Show enabled categories
+  var mods=getModulosHabilitados();
+  var cats={};
+  for(var i=0;i<mods.length;i++){var m=mods[i];if(!cats[m.cat])cats[m.cat]={label:m.catLabel,icon:m.catIcon,mods:[]};cats[m.cat].mods.push(m);}
+  o+='<div class="card"><p style="font-weight:600;margin-bottom:12px">Selecciona el area</p>';
+  var catKeys=Object.keys(cats);
+  for(var ci=0;ci<catKeys.length;ci++){
+   var cat=cats[catKeys[ci]];
+   o+='<div onclick="S.botState={step:1,cat:\''+catKeys[ci]+'\',catData:'+JSON.stringify(cat)+'};render()" class="eqli" style="cursor:pointer;margin-bottom:8px">';
+   o+='<span style="font-size:28px">'+cat.icon+'</span>';
+   o+='<div><p style="font-weight:500">'+cat.label+'</p><p class="muted" style="font-size:12px">'+cat.mods.length+' modulo'+(cat.mods.length>1?'s':'')+'</p></div>';
+   o+='<span style="color:var(--mu)">&rsaquo;</span></div>';
+  }
+  o+='</div>';
+ }else if(bs.step===1){
+  // Step 1: Show modules in category
+  var cat=bs.catData||{mods:[]};
+  o+='<button class="back" onclick="S.botState={step:0};render()">&larr; Areas</button>';
+  o+='<div class="card"><p style="font-weight:600;margin-bottom:12px">'+cat.label+'</p>';
+  for(var mi=0;mi<cat.mods.length;mi++){
+   var mod=cat.mods[mi];
+   o+='<div onclick="S.botState={step:2,cat:bs.cat,catData:cat,mod:\''+mod.id+'\'};render()" class="eqli" style="cursor:pointer;margin-bottom:8px">';
+   o+='<span style="font-size:24px">'+mod.icon+'</span>';
+   o+='<div><p style="font-weight:500">'+mod.label+'</p><p class="muted" style="font-size:12px">'+mod.sub+'</p></div>';
+   o+='<span style="color:var(--mu)">&rsaquo;</span></div>';
+  }
+  o+='</div>';
+ }else if(bs.step===2){
+  // Step 2: Show topics within module
+  var modId=bs.mod;
+  var d=getModData(modId);
+  var modInfo=null;
+  for(var i=0;i<CATS.length;i++){for(var j=0;j<CATS[i].modulos.length;j++){if(CATS[i].modulos[j].id===modId)modInfo=CATS[i].modulos[j];}}
+  o+='<button class="back" onclick="S.botState={step:1,cat:bs.cat,catData:bs.catData};render()">&larr; '+(modInfo?modInfo.label:modId)+'</button>';
+  o+='<div class="card"><p style="font-weight:600;margin-bottom:12px">Selecciona el tema</p>';
+  if(d&&d.mods.length>0){
+   for(var ti=0;ti<d.mods.length;ti++){
+    var topic=d.mods[ti];
+    o+='<div onclick="openModAt(\''+modId+'\','+ti+')" style="display:flex;gap:12px;align-items:center;padding:10px 12px;background:var(--card2);border-radius:8px;margin-bottom:6px;cursor:pointer;border:.5px solid var(--bd)">';
+    o+='<span style="font-size:20px">'+topic.icon+'</span>';
+    o+='<div style="flex:1"><p style="font-size:14px;font-weight:500">'+topic.title+'</p>';
+    o+='<p class="muted" style="font-size:12px">'+topic.desc+'</p></div>';
+    o+='<span style="color:var(--mu)">&rsaquo;</span></div>';
+   }
+  }
+  o+='</div>';
+ }
+ o+='</div>';
+ return o;
+}
+
+
+async function updSol(id, estado){
+ await apiPost('upd_solicitud',{id:id,estado:estado});
+ loadAdminData();
 }
 
 async function loadAdminData(){
@@ -1271,7 +1411,48 @@ function saveSuperLocal(empresa){
  localStorage.setItem('at_super_empresas',JSON.stringify(list));
 }
 
-function newEmpresa(){S.superEditEmpresa={modulos_habilitados:[]};S.superError='';go('edit_empresa');}
+
+
+
+function addTel(){var e=S.superEditEmpresa;if(!e.telefonos_capacitacion)e.telefonos_capacitacion=[];e.telefonos_capacitacion.push({nombre:'',tel:''});saveFormState();render();}
+function removeTel(i){var e=S.superEditEmpresa;if(!e.telefonos_capacitacion)return;e.telefonos_capacitacion.splice(i,1);saveFormState();render();}
+function updateTel(i,field,val){var e=S.superEditEmpresa;if(!e.telefonos_capacitacion||!e.telefonos_capacitacion[i])return;e.telefonos_capacitacion[i][field]=val;}
+function saveFormState(){
+ var en=document.getElementById('ename');if(en)S.superEditEmpresa.nombre=en.value;
+ var ec=document.getElementById('ecode');if(ec)S.superEditEmpresa.codigo=ec.value.toUpperCase();
+ var ep=document.getElementById('eplan');if(ep)S.superEditEmpresa.plan=ep.value;
+ var ea=document.getElementById('eact');if(ea)S.superEditEmpresa.activa=(ea.value==='true');
+}
+
+function autoCode(){
+ var nameEl=document.getElementById('ename');
+ var codeEl=document.getElementById('ecode');
+ if(!nameEl||!codeEl)return;
+ if(!codeEl.value||codeEl.dataset.auto){
+  var generated=genCode(nameEl.value);
+  codeEl.value=generated;
+  codeEl.dataset.auto='1';
+ }
+}
+
+function shareEmpresaLink(codigo,nombre){
+ var base=window.location.href.split('?')[0];
+ var link=base+'?codigo='+encodeURIComponent(codigo);
+ var msg='Te invito a unirte a '+nombre+' en AppTus.\n\nIngresa con este link:\n'+link+'\n\nO abrí AppTus y usá el código: '+codigo;
+ if(navigator.share){navigator.share({title:'AppTus - '+nombre,text:msg,url:link});}
+ else{navigator.clipboard.writeText(link).then(function(){alert('Link copiado!');}).catch(function(){prompt('Copia este link:',link);});}
+}
+
+function genCode(nombre){
+ if(!nombre)return'';
+ var words=(nombre||'').toUpperCase().replace(/[^A-Z0-9 ]/g,'').trim().split(/\s+/);
+ var code=words.map(function(w){return w.slice(0,4);}).join('').slice(0,8);
+ return code+(new Date().getFullYear()+'').slice(-2);
+}
+function newEmpresa(){
+ S.superEditEmpresa={modulos_habilitados:[],codigo:'',telefonos_capacitacion:[]};
+ S.superError='';go('edit_empresa');
+}
 function editEmpresa(id){var e=S.superEmpresas.find(function(x){return x.id===id;});S.superEditEmpresa=Object.assign({},e);S.superError='';go('edit_empresa');}
 function toggleMod(m){
  var en=document.getElementById('ename');if(en)S.superEditEmpresa.nombre=en.value;
