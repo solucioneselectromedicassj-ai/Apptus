@@ -1391,7 +1391,7 @@ function rBotCapacitacion(){
   var catKeys=Object.keys(cats);
   for(var ci=0;ci<catKeys.length;ci++){
    var cat=cats[catKeys[ci]];
-   o+='<div onclick="S.botState={step:1,catKey:\''+catKeys[ci]+'\',catMods:'+JSON.stringify(cat.mods)+'};render()" class="eqli" style="cursor:pointer;margin-bottom:8px">';
+   o+='<div onclick="S.botState={step:1,catIdx:"+ci+",catKey:'"+catKeys[ci]+"'};render()" class="eqli" style="cursor:pointer;margin-bottom:8px">';
    o+='<span style="font-size:28px">'+cat.icon+'</span><div><p style="font-weight:500">'+cat.label+'</p><p class="muted" style="font-size:12px">'+cat.mods.length+' modulo'+(cat.mods.length>1?'s':'')+'</p></div><span style="color:var(--mu)">&rsaquo;</span></div>';
   }
   o+='</div>';
