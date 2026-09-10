@@ -550,7 +550,7 @@ var QUIZ_SE3=[
  {q:'Los datos del paciente en el SE-3 son...',ops:['Obligatorios','Recomendados - se puede imprimir sin ellos','Solo para internados','Los carga el equipo solo'],ans:1},
  {q:'Donde se coloca el electrodo V1?',ops:['5 EIC medioclavicular','4 EIC borde esternal DERECHO del paciente','4 EIC borde esternal IZQUIERDO','Entre V2 y V4'],ans:1},
  {q:'Hay ruido en pantalla durante el registro. Que haces?',ops:['Seguir esperando','PRINT/STOP y revisar electrodos','Apagar el equipo','Cambiar a MANU'],ans:1},
- {q:'Si necesitas cambiar algo en la config, que haces?',ops:['Cambiarlo directamente','Avisar a Ingenieria Clinica primero','Preguntar a un companero','Apagar y encender'],ans:1},
+ {q:'Si necesitas cambiar algo en la config, que haces?',ops:['Cambiarlo directamente','Avisar al servicio tecnico primero','Preguntar a un companero','Apagar y encender'],ans:1},
  {q:'Al terminar el turno, que haces con la conexion del SE-3?',ops:['Desconectarlo siempre','Dejarlo conectado a la red','Da lo mismo','Solo si no se uso'],ans:1},
 ];
 var MODS_DFM100=[
@@ -562,7 +562,7 @@ var MODS_DFM100=[
    {ic:'🟢',t:'Puerto terapia verde - lado derecho',d:'Para el cable de terapia con pads multifunction o paletas externas. Insertar hasta escuchar el clic.'},
    {ic:'⬜',t:'Puerto ECG blanco - lado izquierdo',d:'Para cable ECG de monitoreo 3 o 5 derivaciones. Azul=SpO2, Gris=CO2, Rojo=NBP.'},
   ]},
-  {type:'img_steps',title:'Indicador RFU - verificar al inicio de cada turno',sub:'Ready For Use',imgKey:'dfm100_photo',color:'#b71c1c',items:[{t:'Reloj de arena parpadeante - LISTO para usar',d:'El equipo esta en condiciones de entregar terapia.'},{t:'X roja parpadeante + pitido - ATENCION',d:'Bateria baja. Cargar o conectar CA inmediatamente.'},{t:'X roja SOLIDA + pitido - FALLA CRITICA',d:'No puede entregar terapia. Retirar de servicio y llamar a Ingenieria Clinica.'}],tip:{tp:'td',tx:'Un DFM100 con X roja solida NO esta apto para uso clinico. Reportar inmediatamente.'}},
+  {type:'img_steps',title:'Indicador RFU - verificar al inicio de cada turno',sub:'Ready For Use',imgKey:'dfm100_photo',color:'#b71c1c',items:[{t:'Reloj de arena parpadeante - LISTO para usar',d:'El equipo esta en condiciones de entregar terapia.'},{t:'X roja parpadeante + pitido - ATENCION',d:'Bateria baja. Cargar o conectar CA inmediatamente.'},{t:'X roja SOLIDA + pitido - FALLA CRITICA',d:'No puede entregar terapia. Retirar de servicio y llamar al servicio tecnico.'}],tip:{tp:'td',tx:'Un DFM100 con X roja solida NO esta apto para uso clinico. Reportar inmediatamente.'}},
  ]},
  {id:1,icon:'💥',title:'Desfibrilacion 1-2-3',desc:'El protocolo principal - aprender primero',color:'#c62828',slides:[
   {type:'defib123',title:'Protocolo 1 - 2 - 3',sub:'Memorizar esta secuencia - es la mas critica'},
@@ -981,7 +981,7 @@ function rHome(){
     +(cert?'<p style="font-size:11px;color:var(--mu);margin-top:1px">Vence: '+p.certExpiry+' | Repasos: '+((p.accessLog||[]).filter(function(l){return l.type==='review';}).length||0)+'</p>':'')
     +'</div>'
     +'<div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px">'+badge+'<span style="font-size:16px;color:'+(cert?'var(--ok)':expd?'var(--err)':'var(--mu)')+'">'+  (cert?'📖':'&rsaquo;')+'</span></div></div>';
-   if(allMods&&!cert&&!expd){o+='<button class="btn" style="background:#1a3a6b;color:white;margin-top:-4px;border-radius:0 0 10px 10px;margin-bottom:8px;padding:10px" onclick="beginQuiz(\''+mod.id+'\')">Rendir evaluacion de certificacion &rarr;</button>';}
+   if(allMods&&!cert&&!expd){o+='<button class="btn" style="background:#1a3a6b;color:white;margin-top:-4px;border-radius:0 0 10px 10px;margin-bottom:8px;padding:10px" onclick="beginQuiz(\''+mod.id+'\')">Rendir autoevaluacion final &rarr;</button>';}
   }
  }
  // Admin button
@@ -995,7 +995,7 @@ function rHome(){
  if(S.rol==='super_admin'){
   o+='<button class="btn btn-g" onclick="go(\'super\')">Super-admin: gestionar empresas</button>';
  }
- o+='<div style="margin-top:4px"><button class="btn btn-g" onclick="shareApp()">Compartir AppTus</button></div>';
+ if(S.rol==='admin_empresa'||S.rol==='rrhh'||S.rol==='super_admin'){o+='<div style="margin-top:4px"><button class="btn btn-g" onclick="shareApp()">Compartir link de empresa</button></div>';}
  o+='<button class="btn btn-g" onclick="go(\'survey\')">Encuesta de satisfaccion</button>';
  o+='<button class="btn btn-g" onclick="openEventos()">Conferencias y eventos</button>';
  o+='<button class="btn btn-g" onclick="S.botState={step:0};go(\'bot_capacitacion\')">Consulta rapida por modulo</button>';
@@ -1070,7 +1070,7 @@ function rQuiz(){
  var d=getModData(S.modId);if(!d||!d.quiz.length)return rHome();
  var q=d.quiz[S.qIdx],pct=S.qIdx/d.quiz.length*100;
  var o='<div class="w"><button class="back" onclick="go(\'home\')">&larr; Inicio</button>';
- o+='<p class="muted" style="margin-bottom:6px">Evaluacion de certificacion - Pregunta '+(S.qIdx+1)+' de '+d.quiz.length+'</p>';
+ o+='<p class="muted" style="margin-bottom:6px">Autoevaluacion final - Pregunta '+(S.qIdx+1)+' de '+d.quiz.length+'</p>';
  o+='<div class="prog" style="margin-bottom:14px"><div class="pf" style="width:'+pct+'%;background:#1a3a6b"></div></div>';
  o+='<div class="card"><p style="font-size:16px;font-weight:500;line-height:1.55;margin-bottom:16px">'+q.q+'</p>';
  for(var i=0;i<q.ops.length;i++){var cls='opt',ltr=String.fromCharCode(65+i);if(S.chosen!==null){if(i===q.ans){cls+=' ok';ltr='V';}else if(i===S.chosen){cls+=' no';ltr='X';}}o+='<div class="'+cls+'" onclick="answer('+i+')">'+'<span class="ol">'+ltr+'</span><span>'+q.ops[i]+'</span></div>';}
@@ -1093,7 +1093,7 @@ function rResult(){
   +'<p class="muted" style="margin-bottom:16px">'+pct+'% - minimo: 80%</p>'
   +'<div style="background:var(--bd);border-radius:4px;height:8px;margin-bottom:16px"><div style="background:'+(pass?'var(--ok)':'var(--err)')+';height:8px;border-radius:4px;width:'+pct+'%"></div></div>';
  if(pass){o+='<div style="background:var(--ok-bg);border:1.5px solid var(--ok-bd);border-radius:12px;padding:14px;margin-bottom:12px"><p style="font-weight:700;color:var(--ok);margin-bottom:6px">Certificacion otorgada</p><p style="font-size:13px;color:var(--ok);line-height:1.6">Certificacion valida por <strong>'+exm+' meses</strong> (hasta '+p.certExpiry+').<br>Resultado registrado en el sistema de capacitacion de tu empresa.</p></div>';}
- o+='<button class="wa" onclick="window.open(\'https://wa.me/?text=\'+encodeURIComponent(\''+waMsg.replace(/\n/g,'\\n').replace(/'/g,"\\'")+'\'),\'_blank\')" style="background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border-radius:10px;border:none;font-size:14px;font-weight:600;cursor:pointer;margin-top:4px;margin-bottom:8px">Compartir resultado por WhatsApp</button>';
+ 
  if(!pass)o+='<button class="btn" style="background:var(--warn);color:white" onclick="rQ()">Volver a intentar</button>';
  o+='<button class="btn btn-p" style="background:#1a3a6b" onclick="go(\'home\')">&larr; Volver al inicio</button></div></div>';
  return o;
@@ -1311,6 +1311,14 @@ function rExpired(){return '<div class="w" style="text-align:center;padding-top:
 
 
 
+
+function ingClinica(){
+ // Returns the name of the technical service for private companies
+ var emp=S.empresa;
+ if(emp&&emp.nombre_ingenieria)return emp.nombre_ingenieria;
+ return 'el servicio tecnico de mantenimiento';
+}
+
 function diasRestantes(empresa){
  if(!empresa||!empresa.fecha_pago||!empresa.pago_periodo)return null;
  var periodos={'mensual':30,'bimestral':60,'semestral':180,'anual':365};
@@ -1388,7 +1396,12 @@ function rBotCapacitacion(){
   }
   o+='</div>';
  }else if(bs.step===1){
-  var catMods=bs.catMods||[];
+  // Get mods from CATS by catKey
+  var catMods=[];
+  for(var ci2=0;ci2<CATS.length;ci2++){if(CATS[ci2].id===bs.catKey){catMods=CATS[ci2].modulos;break;}}
+  // For super-admin without empresa, show all
+  if(S.rol==='super_admin'){var enabledMods=catMods;}
+  else{var enabled2=(S.empresa&&S.empresa.modulos_habilitados)||[];catMods=catMods.filter(function(m){return enabled2.indexOf(m.id)>=0;});}
   o+='<button class="back" onclick="S.botState={step:0};render()">&larr; Areas</button>';
   o+='<div class="card"><p style="font-weight:600;margin-bottom:12px">Selecciona el modulo</p>';
   for(var mi=0;mi<catMods.length;mi++){
@@ -1488,7 +1501,12 @@ function updateTel(i,field,val){var e=S.superEditEmpresa;if(!e.telefonos_capacit
 function newEmpresa(){S.superEditEmpresa={modulos_habilitados:[],codigo:'',telefonos_capacitacion:[]};S.superError='';S.superLoading=false;go('edit_empresa');}
 function editEmpresa(id){var e=(S.superEmpresas||[]).filter(function(x){return x.id===id;})[0];S.superEditEmpresa=Object.assign({},e);S.superError='';S.superLoading=false;go('edit_empresa');}
 async function toggleActivaEmpresa(){var e=S.superEditEmpresa;e.activa=!e.activa;saveSuperLocal(e);go('super');try{await apiPost('super_empresa',Object.assign({pw:'SEM2026super'},e));}catch(err){}}
-function doAdm(){if(S.apw!=='SEM2026'){S.aerr='Contrasena incorrecta';render();return;}S.aerr='';S.adminEmpresaData=null;S.screen='admin';render();}
+function doAdm(){
+ // RRHH: auto-access their empresa data; admin: needs password
+ if(S.rol==='rrhh'){S.adminEmpresaData=null;S.screen='admin';render();return;}
+ if(S.apw!=='SEM2026'){S.aerr='Contrasena incorrecta';render();return;}
+ S.aerr='';S.adminEmpresaData=null;S.screen='admin';render();
+}
 async function loadAdminData(){if(!S.empresa)return;S.loading=true;render();var res=await apiGet('admin_empresa',{empresa_id:S.empresa.id,mes:S.adminMonth||''});S.loading=false;S.adminEmpresaData=res;render();}
 function botAnswer(field,val){S.botState=S.botState||{step:0,answers:{}};S.botState.answers[field]=val;var steps=4;if(S.botState.step<steps-1)S.botState.step++;else S.botState.step=steps;render();}
 async function loadSuperData(){var local=localStorage.getItem('at_super_empresas');if(local){try{S.superEmpresas=JSON.parse(local);}catch(e){S.superEmpresas=[];}}else{S.superEmpresas=[];}render();try{var res=await apiGet('super_empresas',{pw:'SEM2026super'});if(res.ok&&res.empresas&&res.empresas.length>0){S.superEmpresas=res.empresas;localStorage.setItem('at_super_empresas',JSON.stringify(res.empresas));render();}}catch(e){}}
