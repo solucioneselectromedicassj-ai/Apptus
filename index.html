@@ -12,7 +12,7 @@
 <meta name="format-detection" content="telephone=no">
 <meta name="msapplication-tap-highlight" content="no">
 <link id="pwa-manifest" rel="manifest">
-<title>AppTus - Capacitacion Empresarial</title>
+<title>AppTus - Soporte Tecnico Operativo</title>
 <style>
 :root{--bg:#0f172a;--card:#1e293b;--card2:#263248;--bd:#334155;--bds:#475569;
 --ok:#22c55e;--ok-bg:#052e16;--ok-bd:#166534;
@@ -101,6 +101,44 @@ var IMG={
 
 // ═══ CONFIG ═══
 var API = 'https://drfyicdwwltzzahqixlz.supabase.co/functions/v1/apptus-api';
+
+var SE3_ZONES=[
+ {id:'recorder',label:'Registrador/Papel',col:'#6a1b9a',x:4,y:8,w:38,h:84,desc:'Registrador termico 80mm. Para cambiar: tirar pestanas hacia arriba, insertar con lado termico hacia abajo, cerrar al clic.'},
+ {id:'display',label:'Pantalla LCD',col:'#1565c0',x:44,y:4,w:52,h:52,desc:'Muestra ondas ECG (3 canales), FC, modo activo (AUTO/MANU/RHYT), nivel de bateria y mensajes Lead Off o Paper.'},
+ {id:'keyboard',label:'Panel de teclas',col:'#1b5e20',x:44,y:57,w:52,h:40,desc:'12 teclas. PRINT/STOP: inicia/detiene impresion. MODE/RST: cambia modo. SENS: ganancia. RECALL: archivos. MENU: configuracion.'},
+];
+var DFM100_ZONES=[
+ {id:'display',label:'Pantalla',col:'#1b5e20',x:2,y:12,w:60,h:65,desc:'Muestra ondas ECG, FC, SpO2, alarmas, modo actual y mensajes AED.'},
+ {id:'ports',label:'Puertos de monitoreo',col:'#1565c0',x:1,y:15,w:10,h:55,desc:'Puerto blanco=ECG, azul=SpO2, gris=CO2, rojo=NBP. Codificados por color.'},
+ {id:'knob',label:'1 - Therapy Knob',col:'#e65100',x:63,y:12,w:32,h:44,desc:'Girandolo se ENCIENDE: OFF=apagado, AED=automatico, MON=monitoreo, 50/100/150/200J=energia desfibrilacion.'},
+ {id:'charge',label:'2 - Charge',col:'#f57c00',x:63,y:57,w:32,h:15,desc:'Boton CHARGE (naranja): carga el desfibrilador. Tono creciente. Cuando esta listo, SHOCK parpadea.'},
+ {id:'shock',label:'3 - Shock',col:'#b71c1c',x:63,y:74,w:32,h:18,desc:'Boton SHOCK (rojo): entrega la descarga. Solo parpadea cuando cargado. TODOS AFUERA antes de presionar.'},
+];
+var SE3_KEYS=[
+ {l:'ON/OFF',c:'#c62828',d:'Enciende y apaga. Con red: primero switch lateral, luego este. Con bateria: presionar directamente.'},
+ {l:'SENS',c:'#1565c0',d:'Ganancia: x10 a x20 a AGC. Predeterminado: 10mm/mV.'},
+ {l:'RECALL',c:'#4a148c',d:'Archivos: ver, imprimir, exportar ECG guardados.'},
+ {l:'1mV/COPY',c:'#1b5e20',d:'En AUTO/RHYT: reimprime el ultimo ECG. En MANU: calibracion 1mV.'},
+ {l:'MODE/RST',c:'#e65100',d:'Cambia modo: AUTO, MANU, RHYT, USBPRT. Ingenieria configuro en AUTO.'},
+ {l:'LEAD',c:'#006064',d:'En MANU: cambia grupo de derivaciones. En menu: navega pantallas.'},
+ {l:'MENU',c:'#424242',d:'Configuracion del sistema. Patient Info para datos del paciente.'},
+ {l:'PRINT/STOP',c:'#b71c1c',d:'Inicia la impresion. Durante impresion: la detiene.'},
+ {l:'Flechas',c:'#546e7a',d:'Navegacion en menu, ajustan valores.'},
+];
+var LIMB=[
+ {id:'RA',col:'#c62828',eu:'Rojo',us:'Blanco',where:'Muneca o cara interna del antebrazo DERECHO'},
+ {id:'LA',col:'#b8860b',eu:'Amarillo',us:'Negro',where:'Muneca o cara interna del antebrazo IZQUIERDO'},
+ {id:'RL',col:'#37474f',eu:'Negro',us:'Verde',where:'Tobillo interno DERECHO (neutro/tierra)'},
+ {id:'LL',col:'#2e7d32',eu:'Verde',us:'Rojo',where:'Tobillo interno IZQUIERDO'},
+];
+var CHEST=[
+ {id:'V1',col:'#c62828',where:'4 EIC borde esternal DERECHO del paciente'},
+ {id:'V2',col:'#e65100',where:'4 EIC borde esternal IZQUIERDO del paciente'},
+ {id:'V3',col:'#c8a200',where:'Entre V2 y V4 (equidistante)'},
+ {id:'V4',col:'#2e7d32',where:'5 EIC linea medioclavicular IZQUIERDA del paciente'},
+ {id:'V5',col:'#1565c0',where:'Linea axilar anterior izquierda, misma altura que V4'},
+ {id:'V6',col:'#6a1b9a',where:'Linea axilar media izquierda, misma altura que V4 y V5'},
+];
 var PASS_QUIZ = 8;
 var EXPIRY = {'Residente':6,'Medico/a':12,'Enfermero/a':12,'Tecnico/a':12,'Operario/a':12,'Conductor/a':12,'Administrativo/a':12,'RRHH':12,'Gerente':12,'Otro':12};
 
@@ -141,7 +179,7 @@ try{
  var icons=[];
  if(icon192)icons.push({src:icon192,sizes:'192x192',type:'image/png',purpose:'any maskable'});
  if(icon512)icons.push({src:icon512,sizes:'512x512',type:'image/png',purpose:'any maskable'});
- var mf={name:'AppTus - Capacitacion Empresarial',short_name:'AppTus',
+ var mf={name:'AppTus - Soporte Tecnico Operativo',short_name:'AppTus',
   description:'Soporte tecnico operativo de equipos biomedicos',
   start_url:'./',display:'standalone',orientation:'portrait',
   theme_color:'#1a3a6b',background_color:'#0f172a',
@@ -312,8 +350,8 @@ function atHeader(){
  var color=S.empresa?S.empresa.color_principal:'#1a3a6b';
  return '<div class="hdr-at" style="background:linear-gradient(135deg,'+color+','+color+'cc)">'
   +'<svg width="36" height="36" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="rgba(255,255,255,0.15)"/><path d="M50 18 L75 30 L75 54 Q75 72 50 82 Q25 72 25 54 L25 30 Z" fill="none" stroke="white" stroke-width="4"/><path d="M35 52 L45 62 L67 40" fill="none" stroke="#22c55e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-  +'<div><p style="font-size:11px;color:rgba(255,255,255,.65);margin-bottom:1px">'+nombre+'</p>'
-  +'<p style="font-weight:700;font-size:13px;color:white">Capacitacion Empresarial</p></div></div>';
+  +'<div><p style="font-size:11px;color:rgba(255,255,255,.65);margin-bottom:1px">AppTus | '+nombre+'</p>'
+  +'<p style="font-weight:700;font-size:13px;color:white">Soporte Tecnico Operativo</p></div></div>';
 }
 function h3(t,s){return '<h3 style="font-size:17px;font-weight:500;margin-bottom:'+(s?'3px':'10px')+'">'+t+'</h3>'+(s?'<p class="muted" style="margin-bottom:10px">'+s+'</p>':'');}
 function crd(ic,t,d){return '<div style="display:flex;gap:12px;align-items:flex-start;padding:12px;background:var(--card2);border-radius:10px;margin-bottom:8px"><span style="font-size:22px">'+ic+'</span><div><p style="font-weight:500;margin-bottom:4px;font-size:14px">'+t+'</p><p class="muted" style="line-height:1.6;white-space:pre-line">'+d+'</p></div></div>';}
@@ -890,7 +928,7 @@ function rLogin(){
   +'<div style="text-align:center;margin-bottom:24px">'
   +'<svg width="72" height="72" viewBox="0 0 100 100" style="margin-bottom:12px"><rect width="100" height="100" rx="20" fill="#1a3a6b"/><path d="M50 18 L75 30 L75 54 Q75 72 50 82 Q25 72 25 54 L25 30 Z" fill="none" stroke="white" stroke-width="4"/><path d="M35 52 L45 62 L67 40" fill="none" stroke="#22c55e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
   +'<h1 style="font-size:26px;font-weight:700;color:#1a3a6b;margin-bottom:4px">AppTus</h1>'
-  +'<p class="muted">Capacitacion Empresarial Profesional</p></div>'
+  +'<p class="muted">Soporte Tecnico Operativo</p></div>'
   +'<div class="card">'
   +'<label>Codigo de empresa</label><input id="fce" placeholder="Ingresa el codigo de tu empresa" value="'+S.form.codigo_empresa+'" style="text-transform:uppercase">'
   +'<label>Tu nombre completo</label><input id="fnm" placeholder="Nombre y apellido" value="'+S.form.nombre+'">'
@@ -1041,7 +1079,7 @@ function rResult(){
  var p=getProg(S.modId);var pass=p.score>=PASS_QUIZ;var pct=Math.round(p.score/d.quiz.length*100);
  var modInfo=null;for(var i=0;i<CATS.length;i++){for(var j=0;j<CATS[i].modulos.length;j++){if(CATS[i].modulos[j].id===S.modId)modInfo=CATS[i].modulos[j];}}
  var exm=EXPIRY[S.form.rol]||12;
- var waMsg='AppTus - Capacitacion Empresarial\nEmpresa: '+(S.empresa?S.empresa.nombre:'')+'\nModulo: '+(modInfo?modInfo.label:S.modId)+'\n'+(S.user?S.user.nombre:'')+(S.user&&S.user.legajo?' (Leg. '+S.user.legajo+')':'')+'\n'+S.form.rol+'\nResultado: '+p.score+'/'+d.quiz.length+' ('+pct+'%)\n'+(pass?'APROBADO - Certificado por '+exm+' meses':'NO APROBADO - Requiere refuerzo')+'\nFecha: '+p.certDate+(pass?'\nVigente hasta: '+p.certExpiry:'');
+ var waMsg='AppTus - Soporte Tecnico Operativo\nEmpresa: '+(S.empresa?S.empresa.nombre:'')+'\nModulo: '+(modInfo?modInfo.label:S.modId)+'\n'+(S.user?S.user.nombre:'')+(S.user&&S.user.legajo?' (Leg. '+S.user.legajo+')':'')+'\n'+S.form.rol+'\nResultado: '+p.score+'/'+d.quiz.length+' ('+pct+'%)\n'+(pass?'APROBADO - Certificado por '+exm+' meses':'NO APROBADO - Requiere refuerzo')+'\nFecha: '+p.certDate+(pass?'\nVigente hasta: '+p.certExpiry:'');
  var o='<div class="w">'+atHeader();
  o+='<div style="text-align:center;margin:16px 0"><div style="font-size:52px;margin-bottom:12px">'+(pass?'🏆':'📚')+'</div></div>';
  o+='<div class="card">'
@@ -1063,7 +1101,14 @@ function rAdmin(){
   +'<div><h2 style="font-size:18px;font-weight:500">Resultados</h2>'
   +'<p class="muted" style="font-size:12px">'+(S.empresa?S.empresa.nombre:'')+'</p></div>'
   +'<button class="back" style="margin:0" onclick="go(\'home\')">Salir</button></div>';
- if(S.loading){return o+'<p class="muted" style="text-align:center;padding:20px">Cargando datos...</p></div>';}
+ if(S.loading){return o+'<p class="muted" style="text-align:center;padding:20px">Cargando...</p></div>';}
+ if(!S.adminEmpresaData&&!S.loading){
+  loadAdminData();
+  return o+'<p class="muted" style="text-align:center;padding:20px">Cargando datos...</p></div>';
+ }
+ if(S.adminEmpresaData&&!S.adminEmpresaData.ok){
+  return o+'<div class="card" style="text-align:center;padding:20px"><p style="font-size:32px">⚠️</p><p class="muted" style="margin-top:8px">No se pudieron cargar los datos.<br>Verifica que estes conectado a internet.</p><button class="btn btn-g" onclick="loadAdminData()">Reintentar</button></div></div>';
+ }
  var ad=S.adminEmpresaData;
  if(!ad){loadAdminData();return o+'<p class="muted" style="text-align:center;padding:20px">Cargando...</p></div>';}
  var users=ad.usuarios||[];var progress=ad.progreso||[];var accesos=ad.accesos||[];
@@ -1134,8 +1179,13 @@ function rEditEmpresa(){
  o+='<h2 style="font-size:18px;font-weight:500;margin-bottom:12px">'+(e.id?'Editar empresa':'Nueva empresa')+'</h2>';
  o+='<div class="card">';
  o+='<label>Razon social</label><input id="ename" oninput="autoCode()" value="'+(e.nombre||'')+'" placeholder="Nombre de la empresa">';
- o+='<label>Codigo de acceso empleados</label><input id="ecode" value="'+(e.codigo||'')+'" placeholder="Ej: LINDE2026" style="text-transform:uppercase">';
- o+='<p class="muted" style="font-size:11px;margin-top:2px;margin-bottom:6px">Codigo RRHH: '+(e.codigo_rrhh||(e.codigo?e.codigo+'-RH':'---'))+'</p>';
+ var autoC=(e.codigo||genCode(e.nombre||''));
+ o+='<div style="background:var(--card2);border-radius:8px;padding:10px 12px;margin-bottom:8px">';
+ o+='<p style="font-size:11px;color:var(--mu);margin-bottom:4px">Codigo empleados (auto-generado)</p>';
+ o+='<p style="font-size:22px;font-weight:700;color:var(--acc);letter-spacing:2px">'+autoC+'</p>';
+ o+='<p style="font-size:11px;color:var(--mu);margin-top:2px">Codigo RRHH: '+autoC+'-RH</p>';
+ o+='<input type="hidden" id="ecode" value="'+autoC+'">';
+ o+='</div>';
  o+='<div class="g2"><div><label>CUIT</label><input id="ecuit" value="'+(e.cuit||'')+'" placeholder="20-12345678-9"></div><div><label>Rubro</label><input id="erubro" value="'+(e.rubro||'')+'" placeholder="Salud, Industria..."></div></div>';
  o+='<label>Contacto</label><input id="econtacto" value="'+(e.contacto||'')+'" placeholder="Nombre del responsable">';
  o+='<label>Telefono empresa</label><input id="etelefono" value="'+(e.telefono||'')+'" placeholder="+54 264 ...">';
@@ -1247,7 +1297,7 @@ function updateTel(i,field,val){var e=S.superEditEmpresa;if(!e.telefonos_capacit
 function newEmpresa(){S.superEditEmpresa={modulos_habilitados:[],codigo:'',telefonos_capacitacion:[]};S.superError='';S.superLoading=false;go('edit_empresa');}
 function editEmpresa(id){var e=(S.superEmpresas||[]).filter(function(x){return x.id===id;})[0];S.superEditEmpresa=Object.assign({},e);S.superError='';S.superLoading=false;go('edit_empresa');}
 async function toggleActivaEmpresa(){var e=S.superEditEmpresa;e.activa=!e.activa;saveSuperLocal(e);go('super');try{await apiPost('super_empresa',Object.assign({pw:'SEM2026super'},e));}catch(err){}}
-function doAdm(){if(S.apw!=='SEM2026'&&S.apw!==S.empresa){S.aerr='Contrasena incorrecta';render();return;}S.aerr='';S.ausLoad=true;S.screen='admin';render();loadAdminData();}
+function doAdm(){if(S.apw!=='SEM2026'){S.aerr='Contrasena incorrecta';render();return;}S.aerr='';S.ausLoad=true;S.screen='admin';render();loadAdminData();}
 async function loadAdminData(){if(!S.empresa)return;S.loading=true;render();var res=await apiGet('admin_empresa',{empresa_id:S.empresa.id,mes:S.adminMonth||''});S.loading=false;S.adminEmpresaData=res.ok?res:null;render();}
 async function updSol(id,estado){await apiPost('upd_solicitud',{id:id,estado:estado});loadAdminData();}
 async function loadSuperData(){var local=localStorage.getItem('at_super_empresas');if(local){try{S.superEmpresas=JSON.parse(local);}catch(e){S.superEmpresas=[];}}else{S.superEmpresas=[];}render();try{var res=await apiGet('super_empresas',{pw:'SEM2026super'});if(res.ok&&res.empresas&&res.empresas.length>0){S.superEmpresas=res.empresas;localStorage.setItem('at_super_empresas',JSON.stringify(res.empresas));render();}}catch(e){}}
@@ -1370,7 +1420,10 @@ function rBotCapacitacion(){
  var o='<div class="w"><button class="back" onclick="go(\'home\')">&larr; Inicio</button>';
  o+='<h2 style="font-size:18px;font-weight:500;margin-bottom:4px">Consulta rapida</h2>';
  o+='<p class="muted" style="margin-bottom:14px">Encontra el tema que buscas</p>';
- var mods=getModulosHabilitados();
+ // Super-admin sees all modules; regular users see their empresa modules
+ var mods=S.rol==='super_admin'
+  ?CATS.reduce(function(acc,cat){return acc.concat(cat.modulos.map(function(m){return Object.assign({},m,{cat:cat.id,catLabel:cat.label,catIcon:cat.icon});}));},[])
+  :getModulosHabilitados();
  if(bs.step===0){
   var cats={};
   for(var i=0;i<mods.length;i++){var m=mods[i];if(!cats[m.cat])cats[m.cat]={label:m.catLabel,icon:m.catIcon,mods:[]};cats[m.cat].mods.push(m);}
@@ -1414,3 +1467,4 @@ function rBotCapacitacion(){
 </html>
 </body>
 </html>
+
