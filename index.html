@@ -181,6 +181,29 @@ var S={
  progress:{} // local cache: {modulo_id: {...}}
 };
 
+// ── Session restore ──
+(function(){
+ try{
+  var saved=localStorage.getItem('at_session');
+  if(saved){
+   var s=JSON.parse(saved);
+   if(s&&s.user&&s.empresa){
+    S.user=s.user;S.empresa=s.empresa;S.rol=s.rol||'usuario';
+    if(s.form)S.form=Object.assign(S.form,s.form);
+    try{var p=localStorage.getItem('at_prog_'+s.user.id);if(p)S.progress=JSON.parse(p);}catch(e2){}
+    if(S.tcAccepted)S.screen='home';
+   }
+  }
+ }catch(e){}
+})();
+// ── URL param: ?codigo=XXX pre-fills company code ──
+(function(){
+ try{
+  var cod=new URLSearchParams(window.location.search).get('codigo');
+  if(cod)S.form.codigo_empresa=cod.toUpperCase();
+ }catch(e){}
+})();
+
 // ═══ API CALLS ═══
 async function apiPost(action, data){
  try{
@@ -1141,19 +1164,22 @@ function rEditEmpresa(){
 }
 
 function render(){
- if(!S.tcAccepted){document.getElementById('app').innerHTML=rTC();return;}
- var app=document.getElementById('app');
+ var app=document.getElementById('app');if(!app)return;
+ try{
+ if(!S.tcAccepted){app.innerHTML=rTC();return;}
  var sc={login:rLogin,home:rHome,module:rModule,miniquiz:rMiniQuiz,mq_result:rMQResult,
   quiz:rQuiz,result:rResult,expired:rExpired,admin:rAdmin,super:rSuper,
   edit_empresa:rEditEmpresa,survey:rSurvey,eventos:rEventos,nuevo_evento:rNuevoEvento,
   faq:rFAQ,bot_capacitacion:rBotCapacitacion,solicitud:rSolicitud,empresa_creada:rEmpresaCreada};
- app.innerHTML=(sc[S.screen]||rLogin)();
+ var screenFn=sc[S.screen]||rLogin;
+ app.innerHTML=screenFn();
  setWatermark();
  var fn=document.getElementById('fnm');if(fn)fn.oninput=function(e){S.form.nombre=e.target.value;};
  var fleg=document.getElementById('fleg');if(fleg)fleg.oninput=function(e){S.form.legajo=e.target.value;};
  var fr=document.getElementById('frol');if(fr)fr.onchange=function(e){S.form.rol=e.target.value;};
  var fce=document.getElementById('fce');if(fce)fce.oninput=function(e){S.form.codigo_empresa=e.target.value.toUpperCase();};
  var apw=document.getElementById('apw');if(apw){apw.oninput=function(e){S.apw=e.target.value;};apw.onkeydown=function(e){if(e.key==='Enter')doAdm();};}
+ }catch(e){app.innerHTML='<div style="padding:20px;color:#ef4444;font-size:14px"><p><strong>Error:</strong> '+e.message+'</p><p style="margin-top:8px;font-size:12px">Pantalla: '+S.screen+'</p><button onclick="S.screen=\'login\';render()" style="margin-top:12px;background:#1a3a6b;color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer">Volver al inicio</button></div>';}
 }
 function go(s){if(S.screen!=='login')_navStack.push(S.screen);window.history.pushState({at:true},'');S.screen=s;S.zone=null;S.ak=null;S.al=null;render();}
 function goBack(){if(_navStack.length>0){S.screen=_navStack.pop();S.zone=null;S.ak=null;S.al=null;render();}else if(S.screen!=='home'&&S.screen!=='login'){S.screen=S.user?'home':'login';render();}window.history.pushState({at:true},'');}
@@ -1228,7 +1254,13 @@ async function loadSuperData(){var local=localStorage.getItem('at_super_empresas
 function saveSuperLocal(empresa){var list=S.superEmpresas||[];var idx=list.findIndex(function(e){return e.id===empresa.id;});if(idx>=0)list[idx]=empresa;else list.push(empresa);S.superEmpresas=list;localStorage.setItem('at_super_empresas',JSON.stringify(list));}
 function openEventos(){S.eventos=null;go('eventos');loadEventos();}
 async function loadEventos(){if(!S.empresa||!S.empresa.id)return;try{var res=await apiGet('eventos',{empresa_id:S.empresa.id});if(res.ok)S.eventos=res;render();}catch(e){}}
-function acceptTC(){localStorage.setItem('at_tc','1');S.tcAccepted=true;S.screen='login';render();}
+function acceptTC(){
+ localStorage.setItem('at_tc','1');
+ S.tcAccepted=true;
+ // If session already restored, go to home; otherwise login
+ S.screen=S.user?'home':'login';
+ render();
+}
 async function shareEmpresaLink(codigo,nombre){doShare(codigo,nombre,window.location.href.split('?')[0]+'?codigo='+encodeURIComponent(codigo));}
 function showSplash(){var sp=document.getElementById('splash');if(!sp)return;setTimeout(function(){sp.style.opacity='0';sp.style.transition='opacity .4s';setTimeout(function(){sp.parentNode&&sp.parentNode.removeChild(sp);},400);},1200);}
 render();
