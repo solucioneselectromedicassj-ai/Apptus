@@ -317,7 +317,7 @@ function getModulosHabilitados(){
 function getModData(modId){
  var MQB=typeof MQ!=='undefined'?MQ:{};
  var maps={
-  'se3':{mods:typeof MODS_SE3!=='undefined'?MODS_SE3:[],quiz:typeof QUIZ_SE3!=='undefined'?QUIZ_SE3:[],mq:MQB.se3||{}},
+  'se3':{mods:typeof MODS_SE3!=='undefined'?MODS_SE3:[],quiz:typeof QUIZ_SE3!=='undefined'?QUIZ_SE3:[],mq:MQB.se3||{}},'s5':{mods:typeof MODS_S5!=='undefined'?MODS_S5:[],quiz:typeof QUIZ_S5!=='undefined'?QUIZ_S5:[],mq:typeof MQ_S5!=='undefined'?MQ_S5:{}},
   'dfm100':{mods:typeof MODS_DFM100!=='undefined'?MODS_DFM100:[],quiz:typeof QUIZ_DFM100!=='undefined'?QUIZ_DFM100:[],mq:MQB.dfm100||{}},
   'iram9808':{mods:typeof MODS_IRAM9808!=='undefined'?MODS_IRAM9808:[],quiz:typeof QUIZ_IRAM9808!=='undefined'?QUIZ_IRAM9808:[],mq:MQB.iram9808||{}},
   'hs_basico':{mods:typeof MODS_HS!=='undefined'?MODS_HS:[],quiz:typeof QUIZ_HS!=='undefined'?QUIZ_HS:[],mq:MQB.hs_basico||{}},
