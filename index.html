@@ -1331,6 +1331,84 @@ function rTC(){var perms=[{ic:'📱',t:'Almacenamiento local',d:'Guardamos tu pr
 function rAdmPw(){return '<div class="w" style="padding-top:32px"><button class="back" onclick="go(\'home\')">&larr; Volver</button><div class="card" style="text-align:center"><div style="font-size:32px;margin-bottom:12px">🔐</div><p style="font-weight:500;font-size:16px;margin-bottom:16px">Panel Administrador</p><input id="apw" type="password" placeholder="Contrasena" style="text-align:center;margin-bottom:8px">'+(S.aerr?'<p style="color:var(--err);font-size:13px;margin-bottom:8px">'+S.aerr+'</p>':'')+'<button class="btn btn-p" style="background:#1a3a6b" onclick="doAdm()">Ingresar</button></div></div>';}
 function rExpired(){return '<div class="w" style="text-align:center;padding-top:32px"><div style="font-size:48px;margin-bottom:16px">⏰</div><div class="card"><p style="font-weight:600;font-size:18px;color:var(--warn);margin-bottom:8px">Actualizacion requerida</p><p style="font-size:14px;line-height:1.6;margin-bottom:20px">El periodo de actualizacion vencio. Revisa el modulo nuevamente.</p><button class="btn btn-p" style="background:#1a3a6b" onclick="startRecert()">Comenzar revision</button><button class="btn btn-g" onclick="go(\'home\')">Volver</button></div></div>';}
 
+
+function rSurvey(){
+ var qs=[{id:'q1',txt:'El contenido fue claro y util',type:'stars'},{id:'q2',txt:'La plataforma es facil de usar',type:'stars'},{id:'q3',txt:'La informacion es util para tu trabajo',type:'stars'},{id:'q4',txt:'Que mejorarias?',type:'text'}];
+ var sv=S.survey||{};
+ var o='<div class="w"><button class="back" onclick="go(\'home\')">&larr; Volver</button>';
+ o+='<h2 style="font-size:18px;font-weight:500;margin-bottom:4px">Encuesta de satisfaccion</h2>';
+ o+='<p class="muted" style="margin-bottom:14px">Tus respuestas van al administrador</p>';
+ o+='<div class="card">';
+ for(var i=0;i<qs.length;i++){
+  var q=qs[i];
+  o+='<p style="font-size:14px;font-weight:500;margin-bottom:8px;'+(i>0?'margin-top:16px;border-top:.5px solid var(--bd);padding-top:16px;':'')+'">'+q.txt+'</p>';
+  if(q.type==='stars'){
+   o+='<div style="display:flex;gap:8px;margin-bottom:4px">';
+   for(var s2=1;s2<=5;s2++){var sel=(sv[q.id]||0)>=s2;o+='<span onclick="setStar(\''+q.id+'\','+s2+')" style="font-size:28px;cursor:pointer">'+(sel?'⭐':'☆')+'</span>';}
+   var labels=['','Muy malo','Malo','Regular','Bueno','Excelente'];
+   o+='<span class="muted" style="align-self:center;font-size:12px">'+(sv[q.id]?labels[sv[q.id]]:'')+'</span></div>';
+  }else{
+   o+='<textarea id="'+q.id+'" style="width:100%;background:var(--card2);border:.5px solid var(--bds);border-radius:8px;padding:10px;color:var(--tx);font-size:13px;resize:none;min-height:80px" placeholder="Escribe tu comentario...">'+(sv[q.id]||'')+'</textarea>';
+  }
+ }
+ o+='<button class="btn btn-p" style="background:#1a3a6b;margin-top:16px" onclick="sendSurvey()">Enviar encuesta</button>';
+ o+='</div></div>';
+ return o;
+}
+function setStar(qid,val){S.survey=S.survey||{};S.survey[qid]=val;render();}
+async function sendSurvey(){
+ var q4=document.getElementById('q4');
+ if(q4)S.survey=Object.assign({},S.survey||{},{q4:q4.value});
+ var sv=S.survey||{};
+ var msg='Encuesta AppTus\nEmpresa: '+(S.empresa?S.empresa.nombre:'')+'\nContenido claro: '+sv.q1+'/5\nFacilidad de uso: '+sv.q2+'/5\nUtilidad practica: '+sv.q3+'/5\nComentarios: '+(sv.q4||'-');
+ try{await logAcceso('encuesta',null,{survey:sv});}catch(e){}
+ S.survey={};go('home');
+ alert('Gracias por tu encuesta!');
+}
+function rBotCapacitacion(){
+ var bs=S.botState||{step:0};
+ var o='<div class="w"><button class="back" onclick="go(\'home\')">&larr; Inicio</button>';
+ o+='<h2 style="font-size:18px;font-weight:500;margin-bottom:4px">Consulta rapida</h2>';
+ o+='<p class="muted" style="margin-bottom:14px">Encontra el tema que buscas</p>';
+ var mods=getModulosHabilitados();
+ if(bs.step===0){
+  var cats={};
+  for(var i=0;i<mods.length;i++){var m=mods[i];if(!cats[m.cat])cats[m.cat]={label:m.catLabel,icon:m.catIcon,mods:[]};cats[m.cat].mods.push(m);}
+  o+='<div class="card"><p style="font-weight:600;margin-bottom:12px">Selecciona el area</p>';
+  var catKeys=Object.keys(cats);
+  for(var ci=0;ci<catKeys.length;ci++){
+   var cat=cats[catKeys[ci]];
+   o+='<div onclick="S.botState={step:1,catKey:\''+catKeys[ci]+'\',catMods:'+JSON.stringify(cat.mods)+'};render()" class="eqli" style="cursor:pointer;margin-bottom:8px">';
+   o+='<span style="font-size:28px">'+cat.icon+'</span><div><p style="font-weight:500">'+cat.label+'</p><p class="muted" style="font-size:12px">'+cat.mods.length+' modulo'+(cat.mods.length>1?'s':'')+'</p></div><span style="color:var(--mu)">&rsaquo;</span></div>';
+  }
+  o+='</div>';
+ }else if(bs.step===1){
+  var catMods=bs.catMods||[];
+  o+='<button class="back" onclick="S.botState={step:0};render()">&larr; Areas</button>';
+  o+='<div class="card"><p style="font-weight:600;margin-bottom:12px">Selecciona el modulo</p>';
+  for(var mi=0;mi<catMods.length;mi++){
+   var mod=catMods[mi];
+   o+='<div onclick="S.botState={step:2,catKey:bs.catKey,catMods:catMods,modId:\''+mod.id+'\'};render()" class="eqli" style="cursor:pointer;margin-bottom:8px">';
+   o+='<span style="font-size:24px">'+mod.icon+'</span><div><p style="font-weight:500">'+mod.label+'</p><p class="muted" style="font-size:12px">'+mod.sub+'</p></div><span style="color:var(--mu)">&rsaquo;</span></div>';
+  }
+  o+='</div>';
+ }else if(bs.step===2){
+  var modId=bs.modId;var d=getModData(modId);
+  o+='<button class="back" onclick="S.botState={step:1,catKey:bs.catKey,catMods:bs.catMods};render()">&larr; Modulos</button>';
+  o+='<div class="card"><p style="font-weight:600;margin-bottom:12px">Selecciona el tema</p>';
+  if(d&&d.mods.length>0){
+   for(var ti=0;ti<d.mods.length;ti++){
+    var topic=d.mods[ti];
+    o+='<div onclick="openModAt(\''+modId+'\','+ti+')" style="display:flex;gap:12px;align-items:center;padding:10px 12px;background:var(--card2);border-radius:8px;margin-bottom:6px;cursor:pointer;border:.5px solid var(--bd)">';
+    o+='<span style="font-size:20px">'+topic.icon+'</span><div style="flex:1"><p style="font-size:14px;font-weight:500">'+topic.title+'</p><p class="muted" style="font-size:12px">'+topic.desc+'</p></div><span style="color:var(--mu)">&rsaquo;</span></div>';
+   }
+  }else{o+='<p class="muted">Sin temas disponibles</p>';}
+  o+='</div>';
+ }
+ o+='</div>';
+ return o;
+}
+
 </script>
 </body>
 </html>
