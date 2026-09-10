@@ -1391,7 +1391,7 @@ function rBotCapacitacion(){
   var catKeys=Object.keys(cats);
   for(var ci=0;ci<catKeys.length;ci++){
    var cat=cats[catKeys[ci]];
-   o+='<div onclick="S.botState={step:1,catIdx:"+ci+",catKey:'"+catKeys[ci]+"'};render()" class="eqli" style="cursor:pointer;margin-bottom:8px">';
+   o+='<div onclick="S.botState={step:1,catIdx:"+ci+"};render()" class="eqli" style="cursor:pointer;margin-bottom:8px">';
    o+='<span style="font-size:28px">'+cat.icon+'</span><div><p style="font-weight:500">'+cat.label+'</p><p class="muted" style="font-size:12px">'+cat.mods.length+' modulo'+(cat.mods.length>1?'s':'')+'</p></div><span style="color:var(--mu)">&rsaquo;</span></div>';
   }
   o+='</div>';
@@ -1402,7 +1402,8 @@ function rBotCapacitacion(){
   // For super-admin without empresa, show all
   if(S.rol==='super_admin'){var enabledMods=catMods;}
   else{var enabled2=(S.empresa&&S.empresa.modulos_habilitados)||[];catMods=catMods.filter(function(m){return enabled2.indexOf(m.id)>=0;});}
-  o+='<button class="back" onclick="S.botState={step:0};render()">&larr; Areas</button>';
+  var catObj1=CATS[bs.catIdx]||{label:'',modulos:[]};
+  o+='<button class="back" onclick="S.botState={step:0};render()">&larr; '+catObj1.label+'</button>';
   o+='<div class="card"><p style="font-weight:600;margin-bottom:12px">Selecciona el modulo</p>';
   for(var mi=0;mi<catMods.length;mi++){
    var mod=catMods[mi];
