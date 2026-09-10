@@ -652,7 +652,7 @@ function rSlide(mod,slide,mi,si){
  if(slide.type==='cards'){var o=h3(slide.title,slide.sub);for(var i=0;i<slide.items.length;i++){o+=crd(slide.items[i].ic,slide.items[i].t,slide.items[i].d);}return o;}
  if(slide.type==='steps'){var o=h3(slide.title,slide.sub);for(var i=0;i<slide.items.length;i++){o+=stp(i+1,slide.items[i].t,slide.items[i].d,col);}if(slide.tip)o+=tip(slide.tip.tp,slide.tip.tx);return o;}
  if(slide.type==='notice'){return h3(slide.title,slide.sub)+nbox(slide.msg,slide.params,slide.warn);}
- if(slide.type==='aviso_mon'){return h3(slide.title,slide.sub)+'<div style="background:var(--warn-bg);border:2px solid var(--warn-bd);border-radius:12px;padding:16px;margin-bottom:14px"><p style="font-weight:700;color:var(--warn);font-size:16px;margin-bottom:10px">Advertencia importante</p><p style="font-size:14px;color:var(--warn);line-height:1.7;margin-bottom:10px">En Clinica Medica el DFM100 se usa para desfibrilacion. Usarlo para monitoreo lo deja ocupado y no disponible para una urgencia de otro paciente.</p><p style="font-size:14px;color:var(--warn);line-height:1.7">Para monitoreo continuo usar los <strong>monitores dedicados del servicio</strong>.</p></div><div style="background:var(--ok-bg);border:1px solid var(--ok-bd);border-radius:10px;padding:12px"><p style="font-weight:600;color:var(--ok);margin-bottom:6px">Cuando SI usar para monitoreo</p><p style="font-size:13px;color:var(--ok);line-height:1.65">Solo cuando todos los monitores del servicio esten ocupados. Informar al equipo medico que el DFM100 esta comprometido.</p></div>';}
+ if(slide.type==='aviso_mon'){return h3(slide.title,slide.sub)+'<div style="background:var(--ok-bg);border:2px solid var(--ok-bd);border-radius:12px;padding:16px;margin-bottom:14px"><p style="font-weight:700;color:var(--ok);font-size:16px;margin-bottom:10px">Modo monitor - DFM100</p><p style="font-size:14px;line-height:1.7;margin-bottom:10px">El DFM100 puede utilizarse en modo monitor para visualizar ECG, SpO2 y PANI. Activar girando el Therapy Knob a MON.</p><p style="font-size:14px;line-height:1.7">Al terminar, reconectar a la red y dejarlo en su lugar habitual para el proximo turno.</p></div><div style="background:var(--card2);border-radius:10px;padding:12px"><p style="font-weight:600;color:var(--mu);margin-bottom:6px">Recomendacion</p><p style="font-size:13px;color:var(--mu);line-height:1.65">Si el servicio cuenta con monitores dedicados, dar prioridad a estos para monitoreo continuo, reservando el DFM100 para urgencias.</p></div>';}
  if(slide.type==='checklist'){var key=mi+'_'+si;var done=S.chk[key]||{};var count=0;var o=h3(slide.title,slide.sub);for(var i=0;i<slide.items.length;i++){var isDone=!!done[i];if(isDone)count++;o+='<div class="chk'+(isDone?' done':'')+'" onclick="tC(\''+key+'\','+i+')">'+(isDone?'<span style="font-size:18px;margin-top:1px">✅</span>':'<span style="font-size:18px;margin-top:1px">⬜</span>')+'<span style="font-size:14px;line-height:1.5;color:'+(isDone?'var(--ok)':'var(--tx)')+'">'+slide.items[i]+'</span></div>';}if(count===slide.items.length)o+=tip('ts','Lista completa');return o;}
  if(slide.type==='defib123'){return h3(slide.title,slide.sub)+d123();}
  if(slide.type==='img_steps'){var o=h3(slide.title,slide.sub);o+='<div style="margin-bottom:12px"><img src="'+IMG[slide.imgKey]+'" style="width:100%;border-radius:8px;display:block"></div>';for(var i=0;i<slide.items.length;i++){o+=stp(i+1,slide.items[i].t,slide.items[i].d,col);}if(slide.tip)o+=tip(slide.tip.tp,slide.tip.tx);return o;}
@@ -1110,6 +1110,7 @@ function rAdmin(){
  o+='<p class="muted" style="font-size:12px">'+emp.nombre+'</p></div>';
  o+='<button class="back" style="margin:0" onclick="go(\'home\')">Salir</button></div>';
  if(S.loading)return o+'<p class="muted" style="text-align:center;padding:20px">Cargando...</p></div>';
+ if(!S.adminEmpresaData){loadAdminData();return o+'<p class="muted" style="text-align:center;padding:20px">Cargando datos...</p><br><button class="btn btn-g" style="width:auto;margin:8px auto" onclick="loadAdminData()">Reintentar</button></div>';}
  if(!S.adminEmpresaData&&!S.loading){loadAdminData();return o+'<p class="muted" style="text-align:center;padding:20px">Cargando datos...</p></div>';}
  if(S.adminEmpresaData&&!S.adminEmpresaData.ok){return o+'<div class="card" style="text-align:center;padding:20px"><p style="font-size:32px">⚠️</p><p class="muted" style="margin-top:8px">No se pudieron cargar los datos.</p><button class="btn btn-g" onclick="loadAdminData()">Reintentar</button></div></div>';}
  var ad=S.adminEmpresaData;
@@ -1407,14 +1408,13 @@ function rBotCapacitacion(){
   var catKeys=Object.keys(cats);
   for(var ci=0;ci<catKeys.length;ci++){
    var cat=cats[catKeys[ci]];
-   o+='<div onclick="S.botState={step:1,catIdx:"+ci+"};render()" class="eqli" style="cursor:pointer;margin-bottom:8px">';
+   o+='<div onclick="S.botState={step:1,catIdx:"+ci+",catKey:'"+catKeys[ci]+"'};render()" class="eqli" style="cursor:pointer;margin-bottom:8px">';
    o+='<span style="font-size:28px">'+cat.icon+'</span><div><p style="font-weight:500">'+cat.label+'</p><p class="muted" style="font-size:12px">'+cat.mods.length+' modulo'+(cat.mods.length>1?'s':'')+'</p></div><span style="color:var(--mu)">&rsaquo;</span></div>';
   }
   o+='</div>';
  }else if(bs.step===1){
   // Get mods from CATS by catKey
-  var catMods=[];
-  for(var ci2=0;ci2<CATS.length;ci2++){if(CATS[ci2].id===bs.catKey){catMods=CATS[ci2].modulos;break;}}
+  var co2=null;if(bs.catKey){for(var ci2=0;ci2<CATS.length;ci2++){if(CATS[ci2].id===bs.catKey){co2=CATS[ci2];break;}}}if(!co2&&bs.catIdx!=null)co2=CATS[bs.catIdx];var catMods=co2?co2.modulos.slice():[];var en2=(S.empresa&&S.empresa.modulos_habilitados)||[];if(S.rol!=='super_admin'&&en2.length>0)catMods=catMods.filter(function(m){return en2.indexOf(m.id)>=0;});
   // For super-admin without empresa, show all
   if(S.rol==='super_admin'){var enabledMods=catMods;}
   else{var enabled2=(S.empresa&&S.empresa.modulos_habilitados)||[];catMods=catMods.filter(function(m){return enabled2.indexOf(m.id)>=0;});}
