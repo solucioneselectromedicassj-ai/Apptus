@@ -222,7 +222,96 @@ var S={
 
 var S5_ZONES=[{id:'display',label:'Pantalla TFT 7"',col:'#1565c0',x:3,y:12,w:55,h:60,desc:'Pantalla TFT 7" color (800x480). Muestra hasta 4 ondas: ECG, SpO2, RESP. FC, modo, bateria y alarmas.'},{id:'botones',label:'Botones de funcion',col:'#2e7d32',x:5,y:73,w:40,h:15,desc:'Menu, 12-Lead, NIBP, Event, Alarm Pause, Load Select. Jog dial central para navegar menus.'},{id:'impresora',label:'Impresora termica',col:'#6a1b9a',x:3,y:2,w:55,h:10,desc:'Impresora termica integrada. 6.25 a 50mm/s. Cambiar papel: abrir tapa, lado termico hacia abajo.'},{id:'controles',label:'Selector + Botones 1-2-3',col:'#e65100',x:60,y:12,w:37,h:75,desc:'Selector verde: Off/AED/Monitor/Manual 1-360J. Boton 1 (verde): Energy Select. Boton 2 (amarillo): Charge. Boton 3 (naranja): Shock. Solo parpadea cuando esta listo.'}];
 var S5_KEYS=[{l:'Menu',c:'#424242',d:'Configuracion: idioma, fecha, alarmas, pacing, red.'},{l:'12-Lead',c:'#1565c0',d:'ECG 12 derivaciones. Requiere cable de 10 electrodos. Imprime automaticamente.'},{l:'NIBP',c:'#2e7d32',d:'Presion arterial no invasiva. Modo continuo o a demanda.'},{l:'Event',c:'#4a148c',d:'Marca un evento en la grabacion con fecha y hora.'},{l:'Alarm Pause',c:'#e65100',d:'Silencia alarmas 2 minutos. Alarma visual sigue activa.'},{l:'Load Select',c:'#006064',d:'En pacing: modo, frecuencia y corriente.'},{l:'Jog Dial',c:'#546e7a',d:'Girar para navegar menus, presionar para confirmar.'}];
-var MODS_S5=[{id:'s5_intro',title:'Conociendo el COMEN S5',icon:'💡',desc:'Descripcion y paneles del equipo',slides:[{type:'device_intro',title:'COMEN S5 - Desfibrilador Monitor 4 en 1',img:'https://novagen.co.za/2015/wp-content/uploads/2021/06/COMEN-S5.jpg',sub:'Desfibrilacion, AED, Marcapasos y Monitor en un equipo',specs:[{l:'Funciones',v:'Desfibrilacion manual, AED, Marcapasos externo, Monitor ECG/SpO2/NIBP'},{l:'Energia',v:'1 a 360J ajustable, tecnologia bifasica BTE'},{l:'Pantalla',v:'TFT color 7 pulgadas, hasta 4 formas de onda'},{l:'Peso',v:'5.2 kg con bateria'},{l:'Bateria',v:'Li-ion 7500mAh, hasta 210 descargas, recarga en 3 horas'},{l:'Proteccion',v:'IPX4 - resistente a salpicaduras y golpes'}]},{type:'device_s5',title:'Paneles del COMEN S5',sub:'Toca cada zona para ver detalles'},{type:'keys_s5',title:'Botones de funcion',sub:'Panel de controles'}]},{id:'s5_encendido',title:'Encendido y verificacion de turno',icon:'⚡',desc:'Arranque diario y autotest',slides:[{type:'steps',title:'Encendido del S5',sub:'Protocolo de arranque',steps:[{n:'1',t:'Conectar a la red',d:'Enchufar cable CA. Lampara de carga debe encenderse. Siempre preferir red electrica sobre bateria.'},{n:'2',t:'Girar selector',d:'Selector a posicion MON o AED. El equipo realiza autotest automatico al encender.'},{n:'3',t:'Verificar autotest',d:'Pantalla muestra resultado: bateria, electrodos, impresora. Si hay error, anotarlo y avisar al servicio tecnico.'},{n:'4',t:'Verificar bateria',d:'Icono de bateria debe mostrar carga suficiente (>80%). Si esta baja, dejar enchufado antes de salir a servicio.'},{n:'5',t:'Conectar accesorios',d:'Conectar cable ECG o pads segun el uso previsto. Verificar conexiones firmes.'}]},{type:'checklist',key:'s5_turno',title:'Verificacion de turno S5',sub:'Al inicio de cada guardia',items:['Equipo enciende sin mensajes de error','Bateria cargada (>50%) o enchufado','Cable ECG conectado y en buen estado','Pads de desfibrilacion disponibles y sin vencer','Papel de impresora cargado','Alarmas configuradas y audibles','Equipo en modo Monitor al finalizar']}]},{id:'s5_defib',title:'Desfibrilacion manual',icon:'⚡',desc:'Protocolo Energy-Charge-Shock',slides:[{type:'protocol123',title:'Protocolo de desfibrilacion',sub:'Tres pasos: Energy - Charge - Shock',steps:[{n:'1',col:'#2e7d32',t:'Energy Select (boton verde)',d:'Girar selector a la energia deseada. Para FV en adulto: iniciar con 200J. Paletas: aplicar gel conductor.'},{n:'2',col:'#f57c00',t:'Charge (boton amarillo)',d:'Presionar boton 2. Tono creciente. Pantalla muestra "Charging". TODOS alejarse del paciente.'},{n:'3',col:'#b71c1c',t:'Shock (boton naranja)',d:'El boton parpadea cuando el equipo esta listo. Verificar que nadie toque al paciente. Anunciar y descargar.'}],after:'Reanudar RCP inmediatamente post-descarga. El equipo se recarga automatico si el selector sigue en la misma energia.'},{type:'info_cards',title:'Tipos de desfibrilacion',sub:'',cards:[{icon:'⚡',title:'Asincrónica',desc:'Para FV y TV sin pulso. Sin sincronismo con ECG. Energia → Charge → Shock.'},{icon:'🔄',title:'Cardioversion SYNC',desc:'Para FA, flutter, TV con pulso. Activar SYNC en Menu. El equipo sincroniza con onda R. SYNC se desactiva tras cada descarga.'},{icon:'👶',title:'Pediatrico',desc:'Pads pediatricos. 2J/kg primera descarga, 4J/kg siguientes.'}]}]},{id:'s5_aed',title:'Modo AED',icon:'🔴',desc:'Desfibrilacion automatica con guia de voz',slides:[{type:'steps',title:'Modo AED del S5',sub:'Operacion semiautomatica',steps:[{n:'1',t:'Selector a AED',d:'El equipo entra en modo automatico. Instrucciones de voz guian al operador.'},{n:'2',t:'Conectar pads',d:'Pads bajo clavícula derecha y region axilar izquierda. Conectar al equipo.'},{n:'3',t:'Analisis automatico',d:'El S5 analiza el ritmo. NO tocar al paciente durante el analisis.'},{n:'4',t:'Accion segun resultado',d:'Si "Shock Advised": todos alejarse, presionar boton que parpadea. Si "No Shock": iniciar RCP 2 minutos.'}]}]},{id:'s5_pacing',title:'Modo Marcapasos',icon:'💓',desc:'Estimulacion cardiaca externa no invasiva',slides:[{type:'steps',title:'Marcapasos externo',sub:'Para bradiarritmias severas',steps:[{n:'1',t:'Selector a Pacer',d:'Usar pads multifuncion o cable de pacing. Conectar al conector correspondiente.'},{n:'2',t:'Ajustar frecuencia',d:'Con Load Select: frecuencia 40-170 lpm. Comenzar con 70 lpm.'},{n:'3',t:'Aumentar corriente',d:'Subir corriente 20-200mA hasta ver captura: espiga + QRS ancho en pantalla.'},{n:'4',t:'Confirmar captura',d:'Palpar pulso con cada espiga. La captura mecanica confirma eficacia.'}]},{type:'info_cards',title:'Modos de marcapasos',sub:'',cards:[{icon:'🎯',title:'Demanda (recomendado)',desc:'Estimula solo cuando no detecta latido propio. Mas seguro.'},{icon:'📡',title:'Fijo',desc:'Estimula a frecuencia fija sin considerar ritmo propio. Solo cuando no hay actividad cardiaca.'}]}]},{id:'s5_monitor',title:'Modo monitor',icon:'📊',desc:'ECG, SpO2, NIBP y RESP',slides:[{type:'steps',title:'Monitoreo con el S5',sub:'',steps:[{n:'1',t:'Selector a MON',d:'La pantalla muestra las formas de onda disponibles.'},{n:'2',t:'ECG',d:'Cable de 3 o 5 derivaciones. Verificar ritmo visible sin artefactos.'},{n:'3',t:'SpO2',d:'Sensor de dedo. Valores normales: 95-100%. Verificar curva pletismografica.'},{n:'4',t:'NIBP',d:'Manguito en brazo. Presionar NIBP para medir.'},{n:'5',t:'Alarmas',d:'Verificar limites para FC, SpO2 y NIBP segun el paciente.'}]},{type:'aviso_mon',title:'Modo monitor en el S5',sub:''}]},{id:'s5_mant',title:'Mantenimiento y cuidado',icon:'🔧',desc:'Limpieza, bateria y accesorios',slides:[{type:'info_cards',title:'Cuidado del COMEN S5',sub:'',cards:[{icon:'🔋',title:'Bateria',desc:'Mantener enchufado cuando no este en uso. Reemplazar cuando la autonomia disminuya notablemente.'},{icon:'🧹',title:'Limpieza',desc:'Pano humedo con desinfectante de nivel intermedio. No sumergir. No usar solventes.'},{icon:'📦',title:'Accesorios',desc:'Verificar fecha de vencimiento de pads. Siempre tener repuesto. Revisar cables.'},{icon:'📋',title:'Registro',desc:'Documentar cada uso: fecha, energia, descargas. Facilita el mantenimiento preventivo.'}]},{type:'checklist',key:'s5_mant_m',title:'Mantenimiento mensual S5',sub:'A cargo del servicio tecnico',items:['Autotest sin errores','Prueba de descarga con carga calibrada','Verificar energia de salida con medidor','Revisar estado de pads y cables','Limpiar conectores','Verificar modo SYNC','Registrar en libro de mantenimiento']}]}];
+var MODS_S5=[
+ {id:'s5_intro',title:'Conociendo el COMEN S5',icon:'💡',desc:'Descripcion y paneles del equipo',color:'#1565c0',slides:[
+  {type:'cards',title:'COMEN S5 - Desfibrilador Monitor 4 en 1',sub:'Especificaciones principales',items:[
+   {ic:'⚡',t:'Desfibrilacion hasta 360J',d:'Tecnologia BTE bifasica. Modalidades: Manual, AED, Cardioversion sincronizada (SYNC).'},
+   {ic:'💓',t:'Marcapasos externo no invasivo',d:'Frecuencia 40-170 lpm, corriente 20-200mA. Modos demanda y fijo.'},
+   {ic:'📊',t:'Monitor multiparametrico',d:'ECG (3/5/12 derivaciones), SpO2, NIBP, RESP. Pantalla TFT color 7 pulgadas.'},
+   {ic:'🔋',t:'Autonomia y peso',d:'Bateria Li-ion 7500mAh. Hasta 210 descargas maximas. 5.2 kg con bateria. IPX4.'},
+  ]},
+  {type:'device_s5',title:'Paneles del COMEN S5',sub:'Toca cada zona para ver detalles'},
+  {type:'keys_s5',title:'Botones de funcion',sub:'Panel de controles - toca cada boton'},
+ ]},
+ {id:'s5_encendido',title:'Encendido y verificacion de turno',icon:'🔌',desc:'Arranque diario y autotest',color:'#2e7d32',slides:[
+  {type:'steps',title:'Encendido del S5',sub:'Protocolo de arranque',items:[
+   {t:'Conectar a la red',d:'Enchufar cable CA. Lampara de carga debe encenderse. Siempre preferir red electrica sobre bateria.'},
+   {t:'Girar selector a MON',d:'Selector a posicion Monitor. El equipo realiza autotest automatico al encender.'},
+   {t:'Verificar autotest',d:'Pantalla muestra resultado: bateria, electrodos, impresora. Si hay error, anotarlo y avisar al servicio tecnico.'},
+   {t:'Verificar bateria',d:'Icono de bateria debe mostrar carga suficiente (>80%). Si esta baja, dejar enchufado antes de salir a servicio.'},
+   {t:'Conectar accesorios',d:'Conectar cable ECG o pads segun el uso previsto. Verificar conexiones firmes.'},
+  ]},
+  {type:'checklist',title:'Verificacion de turno S5',sub:'Al inicio de cada guardia',key:'s5_turno',items:[
+   'Equipo enciende sin mensajes de error',
+   'Bateria cargada (>50%) o enchufado a la red',
+   'Cable ECG conectado y en buen estado',
+   'Pads de desfibrilacion disponibles y sin vencer',
+   'Papel de impresora cargado',
+   'Alarmas configuradas y audibles',
+   'Equipo en modo Monitor al finalizar',
+  ]},
+ ]},
+ {id:'s5_defib',title:'Desfibrilacion manual',icon:'⚡',desc:'Protocolo Energy-Charge-Shock',color:'#b71c1c',slides:[
+  {type:'steps',title:'Protocolo de desfibrilacion',sub:'Tres pasos: Energy - Charge - Shock',items:[
+   {t:'1 - Energy Select (boton verde)',d:'Girar selector a la energia deseada (1-360J). Para FV en adulto: iniciar con 200J. Para desfibrilacion con paletas: aplicar gel conductor.'},
+   {t:'2 - Charge (boton amarillo)',d:'Presionar boton 2. Tono creciente durante la carga. Pantalla muestra "Charging". TODOS alejarse del paciente antes de la descarga.'},
+   {t:'3 - Shock (boton naranja)',d:'El boton naranja parpadea cuando el equipo esta completamente cargado. Anunciar "Todos afuera". Verificar y presionar.'},
+   {t:'Post-descarga',d:'Reanudar RCP inmediatamente. El equipo se recarga automaticamente si el selector permanece en la misma energia.'},
+  ],tip:{tp:'warn',tx:'SYNC se desactiva despues de cada descarga y debe reactivarse manualmente para cardioversion'}},
+  {type:'cards',title:'Tipos de desfibrilacion',sub:'Asincronico y sincronizado',items:[
+   {ic:'⚡',t:'Asincronico (FV / TV sin pulso)',d:'Sin sincronismo con ECG. Girar selector a energia → Charge → Shock.'},
+   {ic:'🔄',t:'Cardioversion SYNC (con pulso)',d:'Para FA, flutter, TV con pulso. Activar SYNC en Menu → el equipo sincroniza con onda R → Charge → Shock. SYNC se desactiva tras cada descarga.'},
+   {ic:'👶',t:'Pediatrico',d:'Usar pads pediatricos. Energia: 2J/kg primera descarga, 4J/kg siguientes. Calcular peso del paciente.'},
+  ]},
+ ]},
+ {id:'s5_aed',title:'Modo AED',icon:'🔴',desc:'Desfibrilacion automatica con guia de voz',color:'#c62828',slides:[
+  {type:'steps',title:'Modo AED del S5',sub:'Operacion semiautomatica',items:[
+   {t:'Selector a AED',d:'El equipo entra en modo automatico. Instrucciones de voz en espanol guian al operador paso a paso.'},
+   {t:'Conectar pads adhesivos',d:'Un pad bajo clavícula derecha, otro en region axilar izquierda del paciente. Conectar al equipo.'},
+   {t:'Analisis automatico de ritmo',d:'El S5 analiza el ritmo automaticamente. NO tocar al paciente durante el analisis.'},
+   {t:'Accion segun resultado',d:'Si "Shock Advised": todos alejarse, presionar boton naranja (parpadea). Si "No Shock": iniciar RCP 2 minutos.'},
+  ]},
+ ]},
+ {id:'s5_pacing',title:'Modo Marcapasos',icon:'💓',desc:'Estimulacion cardiaca externa no invasiva',color:'#4a148c',slides:[
+  {type:'steps',title:'Marcapasos externo con el S5',sub:'Para bradiarritmias severas',items:[
+   {t:'Selector a Pacer',d:'Usar pads multifuncion (compatibles con pacing) o cable de marcapasos. Conectar al conector correspondiente.'},
+   {t:'Ajustar frecuencia',d:'Con Load Select o Menu: frecuencia 40-170 lpm. Comenzar con 70 lpm para adulto.'},
+   {t:'Aumentar corriente gradualmente',d:'Subir corriente de 20 a 200mA hasta observar captura: espiga de marcapasos seguida de QRS ancho en pantalla.'},
+   {t:'Confirmar captura mecanica',d:'Palpar pulso periferico con cada espiga del marcapasos. La captura mecanica confirma la eficacia del tratamiento.'},
+  ]},
+  {type:'cards',title:'Modos de marcapasos',sub:'Demanda vs Fijo',items:[
+   {ic:'🎯',t:'Modo Demanda (recomendado)',d:'Estimula solo cuando no detecta latido propio del paciente. Mas seguro. Usar como primera opcion en bradiarritmias.'},
+   {ic:'📡',t:'Modo Fijo',d:'Estimula a frecuencia fija sin considerar ritmo intrinseco. Solo cuando no hay actividad cardiaca detectable.'},
+  ]},
+ ]},
+ {id:'s5_monitor',title:'Modo monitor',icon:'📊',desc:'ECG, SpO2, NIBP y RESP',color:'#1565c0',slides:[
+  {type:'steps',title:'Monitoreo con el S5',sub:'Configuracion paso a paso',items:[
+   {t:'Selector a MON',d:'Girar selector a Monitor. La pantalla activa y muestra las formas de onda disponibles.'},
+   {t:'Conectar ECG',d:'Cable de 3 o 5 derivaciones. Verificar ritmo visible sin artefactos. Ajustar ganancia con el jog dial si es necesario.'},
+   {t:'Conectar SpO2 (opcional)',d:'Sensor de dedo o clip en el dedo indice. Curva pletismografica debe ser visible. Valores normales: 95-100%.'},
+   {t:'Medir NIBP (opcional)',d:'Manguito en brazo. Presionar boton NIBP. El equipo infla y mide automaticamente.'},
+   {t:'Configurar alarmas',d:'Verificar limites de alarma para FC, SpO2 y NIBP. Ajustar segun la condicion del paciente.'},
+  ]},
+  {type:'aviso_mon',title:'Modo monitor en el S5',sub:'Uso correcto del equipo'},
+ ]},
+ {id:'s5_mant',title:'Mantenimiento y cuidado',icon:'🔧',desc:'Limpieza, bateria y accesorios',color:'#37474f',slides:[
+  {type:'cards',title:'Cuidado del COMEN S5',sub:'Responsabilidades del operador',items:[
+   {ic:'🔋',t:'Bateria',d:'Mantener enchufado cuando no este en uso. Bateria Li-ion: evitar descargas completas. Reemplazar cuando la autonomia disminuya significativamente.'},
+   {ic:'🧹',t:'Limpieza',d:'Pano humedo con desinfectante de nivel intermedio. No sumergir ni usar solventes. Pantalla: pano suave sin presion excesiva.'},
+   {ic:'📦',t:'Pads y accesorios',d:'Verificar fecha de vencimiento de pads. Almacenar entre 0-45 grados. Siempre tener juego de repuesto disponible. Revisar cables.'},
+   {ic:'📋',t:'Registro de uso',d:'Documentar cada uso: fecha, energia utilizada, numero de descargas. Facilita el mantenimiento preventivo y la trazabilidad.'},
+  ]},
+  {type:'checklist',title:'Mantenimiento mensual S5',sub:'A cargo del servicio tecnico',key:'s5_mant_m',items:[
+   'Autotest sin errores al encender',
+   'Prueba de descarga con carga calibrada',
+   'Verificar energia de salida con medidor',
+   'Revisar estado de pads, cables y conectores',
+   'Verificar modo SYNC operativo',
+   'Limpiar conectores con spray dielectrico',
+   'Registrar en libro de mantenimiento del equipo',
+  ]},
+ ]},
+];
 var QUIZ_S5=[{q:'El primer paso para desfibrilar con el S5 es:',opts:['Presionar Charge (amarillo)','Girar el selector a la energia deseada','Presionar Shock (naranja)','Conectar los pads'],ans:1},{q:'El boton Shock (naranja) del S5 solo permite descargar cuando:',opts:['Siempre esta habilitado','El equipo esta completamente cargado (parpadea naranja)','Se mantiene presionado 3 segundos','El selector esta en AED'],ans:1},{q:'En modo AED, si el equipo indica "No Shock Advised" la accion es:',opts:['Aumentar energia y reintentar','Iniciar o continuar RCP por 2 minutos','Desconectar los pads','Esperar sin hacer nada'],ans:1},{q:'En cardioversion SYNC, despues de cada descarga el modo SYNC:',opts:['Permanece activo','Se desactiva y debe reactivarse','Se convierte en AED','Apaga el equipo'],ans:1},{q:'La captura en marcapasos se confirma cuando:',opts:['El equipo emite bip','Aparece espiga + QRS ancho en ECG Y pulso palpable','FC sube en pantalla','Alarma suena'],ans:1},{q:'La bateria del S5 soporta hasta:',opts:['50 descargas','100 descargas','210 descargas','500 descargas'],ans:2},{q:'Si la bateria esta por debajo del 50% al inicio del turno:',opts:['Usar igual, alcanza','Conectar a la red antes de salir a servicio','Apagar el equipo','Ignorar'],ans:1},{q:'El modo Marcapasos Demanda es recomendado porque:',opts:['Es mas rapido','Solo estimula cuando no detecta latido propio','Usa menos bateria','Es el unico modo'],ans:1},{q:'Los valores normales de SpO2 son:',opts:['85-90%','90-94%','95-100%','Cualquiera'],ans:2},{q:'El papel de la impresora del S5 se coloca con:',opts:['Cualquier lado','Lado termico (suave) hacia la cabeza de impresion','Siempre brillante hacia arriba','No importa'],ans:1}];
 var MQ_S5={0:[{q:'El S5 integra cuantas funciones principales?',opts:['2','3','4','6'],ans:2},{q:'La tecnologia BTE es:',opts:['Bateria Tipo Estandar','Bifasico exponencial truncado','Boton Tres Electrodos','Ninguna'],ans:1}],1:[{q:'Al encender, lo primero es verificar:',opts:['Conexion WiFi','Autotest sin errores y bateria adecuada','Impresion automatica','Nada'],ans:1}],2:[{q:'El orden correcto para desfibrilar es:',opts:['Shock-Charge-Energy','Energy-Charge-Shock','Charge-Energy-Shock','Energy-Shock-Charge'],ans:1},{q:'Antes de presionar Shock:',opts:['Anunciar y verificar que nadie toque al paciente','Mirar la pantalla','Esperar 10 segundos','Nada'],ans:0}],3:[{q:'En AED durante el analisis:',opts:['Continuar RCP','Nadie toca al paciente','Ajustar energia','Conectar oxigeno'],ans:1}],4:[{q:'La captura en pacing se confirma con:',opts:['Bip del equipo','Espiga + QRS ancho Y pulso palpable','FC en pantalla','Alarma'],ans:1}],5:[{q:'SpO2 normal en paciente estable:',opts:['85-90%','90-94%','95-100%','Cualquiera'],ans:2}],6:[{q:'Limpieza del S5 con:',opts:['Agua a presion','Solventes','Pano humedo con desinfectante','Vapor'],ans:2}]};
 
