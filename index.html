@@ -208,6 +208,7 @@ function getDeviceHash(){
 // ═══ STATE ═══
 var S={
  screen:'login',
+ modulCache:{},modulLoading:{},
  tcAccepted:(function(){try{return localStorage.getItem('at_tc')==='1';}catch(e){return false;}})(),
  user:null,empresa:null,rol:null,
  svcId:null,modId:null,modIdx:0,slideIdx:0,
@@ -455,6 +456,96 @@ function atHeader(){
   +'<div><p style="font-size:11px;color:rgba(255,255,255,.65);margin-bottom:1px">AppTus | '+nombre+'</p>'
   +'<p style="font-weight:700;font-size:13px;color:white">Soporte Tecnico Operativo</p></div></div>';
 }
+
+// ═══ MODULE CONTENT LIBRARY ═══
+// getModData: checks cache → embedded fallback
+function getModData(modId){
+ // Check runtime cache first (loaded from Supabase)
+ if(S.modulCache[modId]){
+  var c=S.modulCache[modId];
+  return {mods:c.mods||[],quiz:c.quiz||[],mq:c.mq||{}};
+ }
+ // Check localStorage cache
+ try{
+  var cached=localStorage.getItem('at_mod_'+modId);
+  if(cached){
+   var c=JSON.parse(cached);
+   S.modulCache[modId]=c;
+   return {mods:c.mods||[],quiz:c.quiz||[],mq:c.mq||{}};
+  }
+ }catch(e){}
+ // Embedded fallback
+ var MQB=typeof MQ!=='undefined'?MQ:{};
+ var maps={
+  'se3':{mods:typeof MODS_SE3!=='undefined'?MODS_SE3:[],quiz:typeof QUIZ_SE3!=='undefined'?QUIZ_SE3:[],mq:MQB.se3||{}},
+  's5':{mods:typeof MODS_S5!=='undefined'?MODS_S5:[],quiz:typeof QUIZ_S5!=='undefined'?QUIZ_S5:[],mq:typeof MQ_S5!=='undefined'?MQ_S5:{}},
+  'dfm100':{mods:typeof MODS_DFM100!=='undefined'?MODS_DFM100:[],quiz:typeof QUIZ_DFM100!=='undefined'?QUIZ_DFM100:[],mq:MQB.dfm100||{}},
+  'iram9808':{mods:typeof MODS_IRAM9808!=='undefined'?MODS_IRAM9808:[],quiz:typeof QUIZ_IRAM9808!=='undefined'?QUIZ_IRAM9808:[],mq:MQB.iram9808||{}},
+  'hs_basico':{mods:typeof MODS_HS!=='undefined'?MODS_HS:[],quiz:typeof QUIZ_HS!=='undefined'?QUIZ_HS:[],mq:MQB.hs||{}},
+ };
+ return maps[modId]||null;
+}
+
+// Load modules from Supabase in background after login
+async function syncModulos(modIds){
+ if(!modIds||!modIds.length)return;
+ var toLoad=modIds.filter(function(id){return!S.modulCache[id];});
+ if(!toLoad.length)return;
+ try{
+  var res=await apiGet('modulos',{ids:toLoad.join(',')});
+  if(res.ok&&res.modulos){
+   var mods=res.modulos;
+   for(var id in mods){
+    var m=mods[id];
+    S.modulCache[id]=m;
+    // Cache in localStorage for offline
+    try{localStorage.setItem('at_mod_'+id,JSON.stringify(m));}catch(e){}
+   }
+   // Silently refresh home if it's the current screen
+   if(S.screen==='home')render();
+  }
+ }catch(e){}
+}
+
+// Upload local module to Supabase (super-admin migration tool)
+async function uploadModuloToSupabase(modId){
+ var d=getModData(modId);
+ if(!d)return;
+ var catInfo=null;
+ for(var i=0;i<CATS.length;i++){
+  for(var j=0;j<CATS[i].modulos.length;j++){
+   if(CATS[i].modulos[j].id===modId)catInfo=CATS[i].modulos[j];
+  }
+ }
+ if(!catInfo)return;
+ var payload={
+  pw:'SEM2026super',
+  id:modId,
+  nombre:catInfo.label,
+  icono:catInfo.icon,
+  categoria:CATS.filter(function(c){return c.modulos.some(function(m){return m.id===modId;})})[0]&&CATS.filter(function(c){return c.modulos.some(function(m){return m.id===modId;})})[0].id||'equipos',
+  sub:catInfo.sub,
+  color:catInfo.color||'#1a3a6b',
+  mods:d.mods,
+  quiz:d.quiz,
+  mq:d.mq,
+ };
+ var res=await apiPost('upsert_modulo',payload);
+ return res;
+}
+
+// Migrate ALL embedded modules to Supabase (run once from super-admin)
+async function migrateAllModulos(){
+ var ids=['se3','dfm100','s5','iram9808','hs_basico'];
+ var results=[];
+ for(var i=0;i<ids.length;i++){
+  var r=await uploadModuloToSupabase(ids[i]);
+  results.push({id:ids[i],ok:r&&r.ok});
+ }
+ alert('Migracion completada:\n'+results.map(function(r){return r.id+': '+(r.ok?'OK':'ERROR');}).join('\n'));
+ return results;
+}
+
 function h3(t,s){return '<h3 style="font-size:17px;font-weight:500;margin-bottom:'+(s?'3px':'10px')+'">'+t+'</h3>'+(s?'<p class="muted" style="margin-bottom:10px">'+s+'</p>':'');}
 function crd(ic,t,d){return '<div style="display:flex;gap:12px;align-items:flex-start;padding:12px;background:var(--card2);border-radius:10px;margin-bottom:8px"><span style="font-size:22px">'+ic+'</span><div><p style="font-weight:500;margin-bottom:4px;font-size:14px">'+t+'</p><p class="muted" style="line-height:1.6;white-space:pre-line">'+d+'</p></div></div>';}
 function stp(n,t,d,c){return '<div class="srow"><div class="sn" style="background:'+c+'">'+n+'</div><div><p class="st">'+t+'</p>'+(d?'<p class="sd">'+d+'</p>':'')+'</div></div>';}
@@ -1623,6 +1714,9 @@ async function doLogin(){
  if(estado==='suspendida_rrhh'&&res.rol==='usuario'){S.loginErr='Tu acceso esta suspendido. Contacta a Recursos Humanos.';render();return;}
  try{var p=localStorage.getItem('at_prog_'+S.user.id);if(p)S.progress=JSON.parse(p);localStorage.setItem('at_session',JSON.stringify({user:res.usuario,empresa:res.empresa,rol:res.rol,form:S.form}));}catch(e){}
  S.screen='home';render();
+ // Background sync modules from Supabase
+ var modIds=(res.empresa&&res.empresa.modulos_habilitados)||[];
+ if(modIds.length)syncModulos(modIds);
 }
 function logout(){try{localStorage.removeItem('at_session');}catch(e){}S.user=null;S.empresa=null;S.rol=null;S.progress={};S.screen='login';render();}
 function openMod(modId){S.modId=modId;var d=getModData(modId);var p=getProg(modId);if(p.certified&&isExpired(p.certExpiry)){setCacheP(modId,{mods:[],certified:false,certDate:null,certExpiry:null});saveProgress(modId,getProg(modId));}if(p.certified&&!isExpired(p.certExpiry)){logAcceso('repaso',modId);S.modIdx=0;S.slideIdx=0;S.zone=null;S.ak=null;S.al=null;S.reviewMode=true;S.screen='module';render();return;}logAcceso('capacitacion',modId);S.reviewMode=false;S.modIdx=0;if(d.mods.length>0&&p.mods.length>0&&p.mods.length<d.mods.length){for(var i=0;i<d.mods.length;i++){var found=false;for(var j=0;j<p.mods.length;j++){if(p.mods[j]===i){found=true;break;}}if(!found){S.modIdx=i;break;}}}S.slideIdx=0;S.zone=null;S.ak=null;S.al=null;S.screen='module';render();}
@@ -1673,6 +1767,7 @@ function rSuper(){
  var o='<div class="w"><button class="back" onclick="go(\'home\')">&larr; Volver</button>';
  o+='<h2 style="font-size:18px;font-weight:500;margin-bottom:12px">Gestionar empresas</h2>';
  o+='<button class="btn" style="background:#22c55e;color:#000;margin-bottom:12px" onclick="newEmpresa()">+ Nueva empresa</button>';
+ o+='<button class="btn" style="background:var(--card2);color:var(--mu);margin-bottom:12px;font-size:12px" onclick="migrateAllModulos()">↑ Sincronizar modulos a la nube</button>';
  if(S.superLoading)return o+'<p class="muted" style="text-align:center;padding:20px">Guardando...</p></div>';
  if(S.superEmpresas===null){loadSuperData();return o+'<p class="muted" style="text-align:center;padding:20px">Cargando...</p></div>';}
  var emps=S.superEmpresas||[];
