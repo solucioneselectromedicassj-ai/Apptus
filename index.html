@@ -253,16 +253,18 @@ var MODS_S5=[
   ]},
  ]},
  {id:'s5_defib',title:'Desfibrilacion manual',icon:'⚡',desc:'Protocolo Energy-Charge-Shock',color:'#b71c1c',slides:[
-  {type:'steps',title:'Protocolo de desfibrilacion',sub:'Tres pasos: Energy - Charge - Shock',items:[
-   {t:'1 - Energy Select (boton verde)',d:'Girar selector a la energia deseada (1-360J). Para FV en adulto: iniciar con 200J. Para desfibrilacion con paletas: aplicar gel conductor.'},
-   {t:'2 - Charge (boton amarillo)',d:'Presionar boton 2. Tono creciente durante la carga. Pantalla muestra "Charging". TODOS alejarse del paciente antes de la descarga.'},
-   {t:'3 - Shock (boton naranja)',d:'El boton naranja parpadea cuando el equipo esta completamente cargado. Anunciar "Todos afuera". Verificar y presionar.'},
-   {t:'Post-descarga',d:'Reanudar RCP inmediatamente. El equipo se recarga automaticamente si el selector permanece en la misma energia.'},
-  ],tip:{tp:'warn',tx:'SYNC se desactiva despues de cada descarga y debe reactivarse manualmente para cardioversion'}},
-  {type:'cards',title:'Tipos de desfibrilacion',sub:'Asincronico y sincronizado',items:[
-   {ic:'⚡',t:'Asincronico (FV / TV sin pulso)',d:'Sin sincronismo con ECG. Girar selector a energia → Charge → Shock.'},
-   {ic:'🔄',t:'Cardioversion SYNC (con pulso)',d:'Para FA, flutter, TV con pulso. Activar SYNC en Menu → el equipo sincroniza con onda R → Charge → Shock. SYNC se desactiva tras cada descarga.'},
-   {ic:'👶',t:'Pediatrico',d:'Usar pads pediatricos. Energia: 2J/kg primera descarga, 4J/kg siguientes. Calcular peso del paciente.'},
+  {type:'steps',title:'Protocolo de desfibrilacion S5',sub:'Tres pasos: Energy - Charge - Shock',items:[
+   {t:'1 - Energy Select (boton verde)',d:'Girar selector a la energia deseada (1-360J). Para FV en adulto: iniciar con 200J. Para desfibrilacion con paletas: aplicar gel conductor en cada paleta.'},
+   {t:'2 - Charge (boton amarillo)',d:'Presionar boton 2. Tono creciente durante la carga. Pantalla muestra estado. TODOS alejarse del paciente antes de la descarga.'},
+   {t:'3 - Shock (boton naranja)',d:'El boton naranja parpadea cuando esta cargado. Anunciar "Todos afuera". Verificar y presionar para descargar.'},
+   {t:'Post-descarga',d:'Reanudar RCP inmediatamente. El S5 se recarga automaticamente si el selector permanece en la misma energia.'},
+  ],tip:{tp:'warn',tx:'SYNC se desactiva despues de cada descarga - debe reactivarse manualmente para cardioversion'}},
+  {type:'paletas',title:'Posicion de paletas / pads',sub:'Posicion correcta para maxima efectividad'},
+  {type:'sinc',title:'Cardioversion sincronizada (SYNC)',sub:'Para arritmias con pulso'},
+  {type:'cards',title:'Tipos de descarga',sub:'',items:[
+   {ic:'⚡',t:'Asincronico - FV / TV sin pulso',d:'Sin sincronismo. Energia → Charge → Shock. Para paro cardiaco.'},
+   {ic:'🔄',t:'Cardioversion SYNC - Con pulso',d:'Para FA, flutter, TV con pulso. SYNC en Menu → sincroniza onda R → Shock. SYNC se desactiva tras cada descarga.'},
+   {ic:'👶',t:'Pediatrico',d:'Pads pediatricos. 2J/kg primera descarga, 4J/kg siguientes.'},
   ]},
  ]},
  {id:'s5_aed',title:'Modo AED',icon:'🔴',desc:'Desfibrilacion automatica con guia de voz',color:'#c62828',slides:[
@@ -286,14 +288,16 @@ var MODS_S5=[
   ]},
  ]},
  {id:'s5_monitor',title:'Modo monitor',icon:'📊',desc:'ECG, SpO2, NIBP y RESP',color:'#1565c0',slides:[
-  {type:'steps',title:'Monitoreo con el S5',sub:'Configuracion paso a paso',items:[
-   {t:'Selector a MON',d:'Girar selector a Monitor. La pantalla activa y muestra las formas de onda disponibles.'},
-   {t:'Conectar ECG',d:'Cable de 3 o 5 derivaciones. Verificar ritmo visible sin artefactos. Ajustar ganancia con el jog dial si es necesario.'},
-   {t:'Conectar SpO2 (opcional)',d:'Sensor de dedo o clip en el dedo indice. Curva pletismografica debe ser visible. Valores normales: 95-100%.'},
-   {t:'Medir NIBP (opcional)',d:'Manguito en brazo. Presionar boton NIBP. El equipo infla y mide automaticamente.'},
-   {t:'Configurar alarmas',d:'Verificar limites de alarma para FC, SpO2 y NIBP. Ajustar segun la condicion del paciente.'},
+  {type:'leads_limb',title:'Electrodos de extremidades',sub:'4 electrodos para ritmo cardiaco'},
+  {type:'leads_chest',title:'Electrodos precordiales',sub:'6 electrodos para ECG 12 derivaciones'},
+  {type:'steps',title:'Monitoreo con el S5',sub:'',items:[
+   {t:'Selector a MON',d:'La pantalla muestra las formas de onda disponibles.'},
+   {t:'Conectar ECG',d:'Cable de 3 o 5 derivaciones. Verificar ritmo visible sin artefactos.'},
+   {t:'SpO2 (opcional)',d:'Sensor de dedo. Valores normales: 95-100%.'},
+   {t:'NIBP (opcional)',d:'Manguito en brazo. Presionar boton NIBP para medir.'},
+   {t:'Configurar alarmas',d:'Ajustar limites de FC, SpO2 y NIBP segun el paciente.'},
   ]},
-  {type:'aviso_mon',title:'Modo monitor en el S5',sub:'Uso correcto del equipo'},
+  {type:'aviso_mon',title:'Modo monitor en el S5',sub:''},
  ]},
  {id:'s5_mant',title:'Mantenimiento y cuidado',icon:'🔧',desc:'Limpieza, bateria y accesorios',color:'#37474f',slides:[
   {type:'cards',title:'Cuidado del COMEN S5',sub:'Responsabilidades del operador',items:[
@@ -737,31 +741,7 @@ function hotImg(imgKey,hots,infoArr,title,sub){var a=S.al,ah=null,info=null;for(
 
 // Device SVGs with photo overlay
 
-function s5SVG(){var z=S.zone;var ov='';for(var i=0;i<S5_ZONES.length;i++){var n=S5_ZONES[i],ac=(z===n.id);var fa=ac?'0.25':'0',sw=ac?'3':'1.5';ov+='<rect x="'+n.x+'%" y="'+n.y+'%" width="'+n.w+'%" height="'+n.h+'%" rx="4" fill="'+(ac?n.col:'transparent')+'" fill-opacity="'+fa+'" stroke="'+n.col+'" stroke-width="'+sw+'" onclick="tZ(\"'+n.id+'\")" style="cursor:pointer"/>';ov+='<text x="'+(n.x+n.w/2)+'%" y="'+(n.y+5)+'%" text-anchor="middle" fill="'+n.col+'" font-size="3%" font-weight="bold" pointer-events="none">'+n.label+'</text>';}return '<svg viewBox="0 0 100 90" xmlns="http://www.w3.org/2000/svg" style="width:100%;border-radius:10px;background:#f0f0ec">'+ov+'<text x="50%" y="50%" text-anchor="middle" fill="#aaa" font-size="4">COMEN S5</text></svg>';}
-
-function se3SVG(){var z=S.zone;var ov='';for(var i=0;i<SE3_ZONES.length;i++){var n=SE3_ZONES[i],ac=(z===n.id);ov+='<rect x="'+n.x+'%" y="'+n.y+'%" width="'+n.w+'%" height="'+n.h+'%" rx="4" fill="'+(ac?n.col+'28':'transparent')+'" stroke="'+(ac?n.col:'rgba(255,255,255,.2)')+'" stroke-width="'+(ac?'2.5':'.8')+'" onclick="tZ(\''+n.id+'\')" style="cursor:pointer"/>'+(ac?'<text x="'+(n.x+n.w/2)+'%" y="'+(n.y+7)+'%" fill="'+n.col+'" font-size="8" text-anchor="middle" font-weight="700">'+n.label+'</text>':'');}return '<div style="position:relative;margin-bottom:10px"><img src="'+IMG.se3_photo+'" style="width:100%;border-radius:8px;display:block"><svg style="position:absolute;top:0;left:0;width:100%;height:100%" viewBox="0 0 100 100" preserveAspectRatio="none">'+ov+'</svg></div>';}
-function dfm100SVG(){var z=S.zone;var ov='';for(var i=0;i<DFM100_ZONES.length;i++){var n=DFM100_ZONES[i],ac=(z===n.id);ov+='<rect x="'+n.x+'%" y="'+n.y+'%" width="'+n.w+'%" height="'+n.h+'%" rx="4" fill="'+(ac?n.col+'28':'transparent')+'" stroke="'+(ac?n.col:'rgba(255,255,255,.2)')+'" stroke-width="'+(ac?'2.5':'.8')+'" onclick="tZ(\''+n.id+'\')" style="cursor:pointer"/>'+(ac?'<text x="'+(n.x+n.w/2)+'%" y="'+(n.y+6)+'%" fill="'+n.col+'" font-size="7.5" text-anchor="middle" font-weight="700">'+n.label+'</text>':'');}return '<div style="position:relative;margin-bottom:10px"><img src="'+IMG.dfm100_photo+'" style="width:100%;border-radius:8px;display:block"><svg style="position:absolute;top:0;left:0;width:100%;height:100%" viewBox="0 0 100 100" preserveAspectRatio="none">'+ov+'</svg></div>';}
-function d123(){var s='<svg viewBox="0 0 340 100" style="width:100%;border-radius:8px;display:block;max-width:340px;margin:0 auto 12px"><rect width="340" height="100" rx="10" fill="#0d1215"/>';var b=[{x:10,n:'1',l:'SELECCIONAR',s:'Therapy Knob',c:'#e65100'},{x:120,n:'2',l:'CARGAR',s:'Boton CHARGE',c:'#f57c00'},{x:230,n:'3',l:'SHOCK',s:'Boton SHOCK',c:'#b71c1c'}];for(var i=0;i<b.length;i++){s+='<rect x="'+b[i].x+'" y="8" width="100" height="84" rx="8" fill="'+b[i].c+'22" stroke="'+b[i].c+'" stroke-width="1.5"/><text x="'+(b[i].x+50)+'" y="35" fill="'+b[i].c+'" font-size="26" text-anchor="middle" font-weight="900">'+b[i].n+'</text><text x="'+(b[i].x+50)+'" y="55" fill="white" font-size="9" text-anchor="middle" font-weight="700">'+b[i].l+'</text><text x="'+(b[i].x+50)+'" y="70" fill="#94a3b8" font-size="7.5" text-anchor="middle">'+b[i].s+'</text>';}s+='<text x="114" y="54" fill="#546e7a" font-size="18" text-anchor="middle">&gt;</text><text x="224" y="54" fill="#546e7a" font-size="18" text-anchor="middle">&gt;</text></svg><div style="background:var(--err-bg);border:1.5px solid var(--err-bd);border-radius:10px;padding:14px"><p style="font-weight:700;color:var(--err);font-size:16px;margin-bottom:10px">Antes de la descarga - SIEMPRE</p><p style="font-size:14px;color:var(--err);line-height:1.7">Anunciar: <strong>CARGANDO! TODOS AFUERA!</strong><br>Verificar VISUALMENTE que nadie toca al paciente, camilla ni equipamiento.</p></div>';return s;}
-
-function rSlide(mod,slide,mi,si){
- var col=slide.color||mod.color||'#8b0000';
- if(slide.type==='device_se3'){var zo=null;for(var i=0;i<SE3_ZONES.length;i++){if(SE3_ZONES[i].id===S.zone)zo=SE3_ZONES[i];}return h3(slide.title,slide.sub)+se3SVG()+(zo?'<div style="border-radius:10px;padding:12px;background:var(--card2);border:1.5px solid '+zo.col+'"><p style="font-weight:500;color:'+zo.col+';margin-bottom:6px">'+zo.label+'</p><p class="muted" style="line-height:1.65">'+zo.desc+'</p></div>':'<p class="muted" style="text-align:center;padding:8px">Toca cada zona del equipo</p>');}
- if(slide.type==='device_s5'){var zo5=null;for(var i=0;i<S5_ZONES.length;i++){if(S5_ZONES[i].id===S.zone)zo5=S5_ZONES[i];}return h3(slide.title,slide.sub)+s5SVG()+(zo5?'<div style="border-radius:10px;padding:12px;background:var(--card2);border:1.5px solid '+zo5.col+'"><p style="font-weight:600;color:'+zo5.col+';margin-bottom:6px">'+zo5.label+'</p><p style="font-size:13px;line-height:1.6;color:var(--tx)">'+zo5.desc+'</p></div>':'<p class="muted" style="text-align:center;margin-top:10px;font-size:12px">Toca cada zona para ver los detalles</p>');}
- if(slide.type==='keys_s5'){var ko=S.ak;var khtml='<div>';for(var ki=0;ki<S5_KEYS.length;ki++){var k=S5_KEYS[ki],ak=(ko===ki);khtml+='<div onclick="tK('+ki+')" style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:'+(ak?'var(--card)':'var(--card2)')+';border-radius:8px;margin-bottom:6px;cursor:pointer;border:.5px solid '+(ak?k.c:'var(--bd)')+'">'+'<div style="background:'+k.c+';color:white;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:700;min-width:72px;text-align:center">'+k.l+'</div>'+'<p style="font-size:13px;line-height:1.5;color:var(--tx)">'+( ak?k.d:'Toca para ver descripcion')+'</p></div>';}khtml+='</div>';return h3(slide.title,slide.sub)+khtml;}
- if(slide.type==='device_dfm'){var zo=null;for(var i=0;i<DFM100_ZONES.length;i++){if(DFM100_ZONES[i].id===S.zone)zo=DFM100_ZONES[i];}return h3(slide.title,slide.sub)+dfm100SVG()+(zo?'<div style="border-radius:10px;padding:12px;background:var(--card2);border:1.5px solid '+zo.col+';white-space:pre-line"><p style="font-weight:500;color:'+zo.col+';margin-bottom:6px">'+zo.label+'</p><p class="muted" style="line-height:1.65">'+zo.desc+'</p></div>':'<p class="muted" style="text-align:center;padding:8px">Toca cada zona del equipo</p>');}
- if(slide.type==='leads_limb'){var lh=[{id:'RA',label:'RA',col:'#c62828',x:5,y:36,w:16,h:10},{id:'LA',label:'LA',col:'#b8860b',x:76,y:36,w:16,h:10},{id:'RL',label:'RL',col:'#37474f',x:19,y:78,w:16,h:9},{id:'LL',label:'LL',col:'#2e7d32',x:61,y:78,w:16,h:9}];var b='<div style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0">';for(var i=0;i<LIMB.length;i++){var l=LIMB[i];b+='<button onclick="tL(\''+l.id+'\')" style="background:'+(S.al===l.id?l.col:'transparent')+';color:'+(S.al===l.id?'white':l.col)+';border:1.5px solid '+l.col+';border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:700">'+l.id+'</button>';}b+='</div>';return hotImg('body_full',lh,LIMB,slide.title,slide.sub)+b;}
- if(slide.type==='leads_chest'){var ch=[{id:'V1',label:'V1',col:'#c62828',x:37,y:45,w:11,h:15},{id:'V2',label:'V2',col:'#e65100',x:51,y:45,w:11,h:15},{id:'V3',label:'V3',col:'#c8a200',x:57,y:57,w:11,h:13},{id:'V4',label:'V4',col:'#2e7d32',x:59,y:65,w:11,h:13},{id:'V5',label:'V5',col:'#1565c0',x:68,y:65,w:11,h:13},{id:'V6',label:'V6',col:'#6a1b9a',x:77,y:64,w:11,h:13}];var b='<div style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0">';for(var i=0;i<CHEST.length;i++){var l=CHEST[i];b+='<button onclick="tL(\''+l.id+'\')" style="background:'+(S.al===l.id?l.col:'transparent')+';color:'+(S.al===l.id?'white':l.col)+';border:1.5px solid '+l.col+';border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:700">'+l.id+'</button>';}b+='</div>';return hotImg('torso_chest',ch,CHEST,slide.title,slide.sub)+b+'<p class="muted" style="text-align:center;font-size:12px;margin-top:8px">4 extremidades + 6 precordiales = <strong style="color:var(--tx)">10 electrodos &rarr; 12 derivaciones</strong></p>';}
- if(slide.type==='paletas'){var ph=[{id:'sternal',label:'ESTERNON',col:'#c62828',x:18,y:22,w:28,h:42},{id:'apex',label:'APEX',col:'#1565c0',x:55,y:38,w:28,h:42}];var pi=[{id:'sternal',desc:'Paleta ESTERNAL - Area subclavicular DERECHA del paciente. Bajo la clavicula derecha, hacia el esternon. Presionar firmemente. El indicador PCI debe estar verde.'},{id:'apex',desc:'Paleta APICAL (APEX) - Linea axilar anterior IZQUIERDA del paciente. 5 a 6 espacio intercostal. Presionar firmemente contra la piel seca.'}];return hotImg('paddles_photo',ph,pi,slide.title,slide.sub);}
- if(slide.type==='cards'){var o=h3(slide.title,slide.sub);for(var i=0;i<slide.items.length;i++){o+=crd(slide.items[i].ic,slide.items[i].t,slide.items[i].d);}return o;}
- if(slide.type==='steps'){var o=h3(slide.title,slide.sub);for(var i=0;i<slide.items.length;i++){o+=stp(i+1,slide.items[i].t,slide.items[i].d,col);}if(slide.tip)o+=tip(slide.tip.tp,slide.tip.tx);return o;}
- if(slide.type==='notice'){return h3(slide.title,slide.sub)+nbox(slide.msg,slide.params,slide.warn);}
- if(slide.type==='aviso_mon'){return h3(slide.title,slide.sub)+'<div style="background:var(--ok-bg);border:2px solid var(--ok-bd);border-radius:12px;padding:16px;margin-bottom:14px"><p style="font-weight:700;color:var(--ok);font-size:16px;margin-bottom:10px">Modo monitor - DFM100</p><p style="font-size:14px;line-height:1.7;margin-bottom:10px">El DFM100 puede utilizarse en modo monitor para visualizar ECG, SpO2 y PANI. Activar girando el Therapy Knob a MON.</p><p style="font-size:14px;line-height:1.7">Al terminar, reconectar a la red y dejarlo en su lugar habitual para el proximo turno.</p></div><div style="background:var(--card2);border-radius:10px;padding:12px"><p style="font-weight:600;color:var(--mu);margin-bottom:6px">Recomendacion</p><p style="font-size:13px;color:var(--mu);line-height:1.65">Si el servicio cuenta con monitores dedicados, dar prioridad a estos para monitoreo continuo, reservando el DFM100 para urgencias.</p></div>';}
- if(slide.type==='checklist'){var key=mi+'_'+si;var done=S.chk[key]||{};var count=0;var o=h3(slide.title,slide.sub);for(var i=0;i<slide.items.length;i++){var isDone=!!done[i];if(isDone)count++;o+='<div class="chk'+(isDone?' done':'')+'" onclick="tC(\''+key+'\','+i+')">'+(isDone?'<span style="font-size:18px;margin-top:1px">✅</span>':'<span style="font-size:18px;margin-top:1px">⬜</span>')+'<span style="font-size:14px;line-height:1.5;color:'+(isDone?'var(--ok)':'var(--tx)')+'">'+slide.items[i]+'</span></div>';}if(count===slide.items.length)o+=tip('ts','Lista completa');return o;}
- if(slide.type==='defib123'){return h3(slide.title,slide.sub)+d123();}
- if(slide.type==='img_steps'){var o=h3(slide.title,slide.sub);o+='<div style="margin-bottom:12px"><img src="'+IMG[slide.imgKey]+'" style="width:100%;border-radius:8px;display:block"></div>';for(var i=0;i<slide.items.length;i++){o+=stp(i+1,slide.items[i].t,slide.items[i].d,col);}if(slide.tip)o+=tip(slide.tip.tp,slide.tip.tx);return o;}
- if(slide.type==='sinc'){return h3(slide.title,slide.sub)+'<div style="background:var(--card2);border-radius:10px;padding:14px;margin-bottom:12px"><p style="font-weight:700;font-size:15px;margin-bottom:10px;color:var(--warn)">SYNC = Cardioversion Sincronizada</p><p style="font-size:14px;line-height:1.7;margin-bottom:10px">El modo SYNC sincroniza la descarga con la onda R del ECG. Se usa para tratar taquiarritmias en pacientes CON PULSO (no en fibrilacion ventricular).</p><div style="background:var(--ok-bg);border:.5px solid var(--ok-bd);border-radius:8px;padding:10px;margin-bottom:10px"><p style="color:var(--ok);font-size:13px;font-weight:600;margin-bottom:4px">Cuando usar SYNC</p><p style="color:var(--ok);font-size:13px;line-height:1.6">FA con respuesta ventricular rapida, Flutter auricular, TSV, TV con pulso</p></div><div style="background:var(--err-bg);border:.5px solid var(--err-bd);border-radius:8px;padding:10px"><p style="color:var(--err);font-size:13px;font-weight:600;margin-bottom:4px">NO usar SYNC (desfibrilacion normal)</p><p style="color:var(--err);font-size:13px;line-height:1.6">Fibrilacion ventricular, TV sin pulso, Paciente sin pulso</p></div></div>'+tip('tw','La cardioversion sincronizada es un procedimiento medico. El operador del DFM100 ejecuta bajo indicacion del medico. Verificar que el indicador SYNC este activo antes de cargar.');}
- return h3(slide.title,slide.sub||'');
-}
+function s5SVG(){var z=S.zone;var o='<div style="margin:8px 0">';for(var i=0;i<S5_ZONES.length;i++){var n=S5_ZONES[i],ac=(z===n.id);o+='<div onclick="tZ(''+n.id+'')" style="display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:8px;margin-bottom:6px;cursor:pointer;border:2px solid '+(ac?n.col:'rgba('+parseInt(n.col.slice(1,3),16)+','+parseInt(n.col.slice(3,5),16)+','+parseInt(n.col.slice(5,7),16)+',.3)')+';background:'+(ac?n.col+'22':'var(--card2)')+'">';o+='<div style="width:12px;height:12px;border-radius:50%;background:'+n.col+';flex-shrink:0"></div>';o+='<span style="font-size:13px;font-weight:'+(ac?'700':'500')+';color:'+(ac?n.col:'var(--tx)')+'">'+n.label+'</span>';o+='<span style="color:var(--mu);font-size:14px;margin-left:auto">'+(ac?'▲':'▼')+'</span>';o+='</div>';if(ac)o+='<div style="margin:0 0 8px;padding:10px 12px;background:'+n.col+'22;border-radius:8px;border-left:3px solid '+n.col+'"><p style="font-size:13px;line-height:1.6;color:var(--tx)">'+n.desc+'</p></div>';}o+='</div>';return o;}
 
 
 
@@ -1084,7 +1064,7 @@ function rHome(){
     +(cert?'<p style="font-size:11px;color:var(--mu);margin-top:1px">Vence: '+p.certExpiry+' | Repasos: '+((p.accessLog||[]).filter(function(l){return l.type==='review';}).length||0)+'</p>':'')
     +'</div>'
     +'<div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px">'+badge+'<span style="font-size:16px;color:'+(cert?'var(--ok)':expd?'var(--err)':'var(--mu)')+'">'+  (cert?'📖':'&rsaquo;')+'</span></div></div>';
-   if(allMods&&!cert&&!expd){o+='<button class="btn" style="background:#1a3a6b;color:white;margin-top:-4px;border-radius:0 0 10px 10px;margin-bottom:8px;padding:10px" onclick="beginQuiz(\''+mod.id+'\')">Rendir autoevaluacion final &rarr;</button>';}
+   if(allMods&&!cert&&!expd){o+='<button class="btn" style="background:#1a3a6b;color:white;margin-top:-4px;border-radius:0 0 10px 10px;margin-bottom:8px;padding:10px" onclick="beginQuiz(\''+mod.id+'\')">Rendir autoverificacion de conocimiento &rarr;</button>';}
   }
  }
  // Admin button
@@ -1164,7 +1144,7 @@ function rMQResult(){
  o+='<div class="card"><p class="muted" style="margin-bottom:4px">'+(mod?mod.title:'')+'</p>';
  o+='<p style="font-size:18px;font-weight:500;color:'+(pass?'var(--ok)':'var(--err)')+';margin-bottom:8px">'+(pass?'Modulo aprobado':'No aprobado')+'</p>';
  o+='<p style="font-size:32px;font-weight:500;color:'+(pass?'var(--ok)':'var(--err)')+';margin-bottom:12px">'+mq.score+'/'+mq.questions.length+'</p>';
- if(pass){var pp=getProg(S.modId),dm=d&&d.mods?d.mods.length:1,done=pp.mods.length;o+='<p class="muted" style="margin-bottom:16px">Modulos completados: '+done+'/'+dm+'</p>';if(done>=dm){o+='<div style="background:var(--ok-bg);border:1.5px solid var(--ok-bd);border-radius:10px;padding:12px;margin-bottom:12px"><p style="color:var(--ok);font-weight:600">Capacitacion completa!</p><p style="color:var(--ok);font-size:13px;line-height:1.6;margin-top:4px">Todos los modulos superados. Podes rendir la evaluacion final de certificacion.</p></div>';}o+='<button class="btn btn-p" style="background:#1a3a6b" onclick="go(\'home\')">Volver al inicio</button>';}
+ if(pass){var pp=getProg(S.modId),dm=d&&d.mods?d.mods.length:1,done=pp.mods.length;o+='<p class="muted" style="margin-bottom:16px">Modulos completados: '+done+'/'+dm+'</p>';if(done>=dm){o+='<div style="background:var(--ok-bg);border:1.5px solid var(--ok-bd);border-radius:10px;padding:12px;margin-bottom:12px"><p style="color:var(--ok);font-weight:600">Capacitacion completa!</p><p style="color:var(--ok);font-size:13px;line-height:1.6;margin-top:4px">Todos los modulos superados. Podes rendir la verificacion de conocimiento de certificacion.</p></div>';}o+='<button class="btn btn-p" style="background:#1a3a6b" onclick="go(\'home\')">Volver al inicio</button>';}
  else{o+='<p class="muted" style="margin-bottom:16px">Necesitas '+Math.ceil(mq.questions.length*0.75)+'/'+mq.questions.length+' para pasar. Repasa el modulo.</p><button class="btn" style="background:var(--warn);color:white" onclick="retryMQ()">Reintentar</button><button class="btn btn-g" onclick="reviewMod()">Repasar el modulo</button>';}
  o+='</div></div>';
  return o;
@@ -1174,7 +1154,7 @@ function rQuiz(){
  var d=getModData(S.modId);if(!d||!d.quiz.length)return rHome();
  var q=d.quiz[S.qIdx],pct=S.qIdx/d.quiz.length*100;
  var o='<div class="w"><button class="back" onclick="go(\'home\')">&larr; Inicio</button>';
- o+='<p class="muted" style="margin-bottom:6px">Autoevaluacion final - Pregunta '+(S.qIdx+1)+' de '+d.quiz.length+'</p>';
+ o+='<p class="muted" style="margin-bottom:6px">Verificacion de conocimiento - Pregunta '+(S.qIdx+1)+' de '+d.quiz.length+'</p>';
  o+='<div class="prog" style="margin-bottom:14px"><div class="pf" style="width:'+pct+'%;background:#1a3a6b"></div></div>';
  o+='<div class="card"><p style="font-size:16px;font-weight:500;line-height:1.55;margin-bottom:16px">'+q.q+'</p>';
  for(var i=0;i<q.ops.length;i++){var cls='opt',ltr=String.fromCharCode(65+i);if(S.chosen!==null){if(i===q.ans){cls+=' ok';ltr='V';}else if(i===S.chosen){cls+=' no';ltr='X';}}o+='<div class="'+cls+'" onclick="answer('+i+')">'+'<span class="ol">'+ltr+'</span><span>'+q.ops[i]+'</span></div>';}
@@ -1196,7 +1176,7 @@ function rResult(){
   +'<p style="font-size:40px;font-weight:500;color:'+(pass?'var(--ok)':'var(--err)')+';margin-bottom:4px">'+p.score+'/'+d.quiz.length+'</p>'
   +'<p class="muted" style="margin-bottom:16px">'+pct+'% - minimo: 80%</p>'
   +'<div style="background:var(--bd);border-radius:4px;height:8px;margin-bottom:16px"><div style="background:'+(pass?'var(--ok)':'var(--err)')+';height:8px;border-radius:4px;width:'+pct+'%"></div></div>';
- if(pass){o+='<div style="background:var(--ok-bg);border:1.5px solid var(--ok-bd);border-radius:12px;padding:14px;margin-bottom:12px"><p style="font-weight:700;color:var(--ok);margin-bottom:6px">Certificacion otorgada</p><p style="font-size:13px;color:var(--ok);line-height:1.6">Certificacion valida por <strong>'+exm+' meses</strong> (hasta '+p.certExpiry+').<br>Resultado registrado en el sistema de capacitacion de tu empresa.</p></div>';}
+ if(pass){o+='<div style="background:var(--ok-bg);border:1.5px solid var(--ok-bd);border-radius:12px;padding:14px;margin-bottom:12px"><p style="font-weight:700;color:var(--ok);margin-bottom:6px">Consulta registrada</p><p style="font-size:13px;color:var(--ok);line-height:1.6">Acceso habilitado por <strong>'+exm+' meses</strong> (hasta '+p.certExpiry+').<br>Acceso habilitado en el sistema de tu empresa.</p></div>';}
  
  if(!pass)o+='<button class="btn" style="background:var(--warn);color:white" onclick="rQ()">Volver a intentar</button>';
  o+='<button class="btn btn-p" style="background:#1a3a6b" onclick="go(\'home\')">&larr; Volver al inicio</button></div></div>';
@@ -1477,14 +1457,14 @@ function rPreQuiz(){
  o+='<p style="font-weight:700;font-size:18px;margin-bottom:8px;text-align:center">'+modLabel+'</p>';
  o+='<p style="font-size:14px;text-align:center;color:var(--mu);margin-bottom:20px">Completaste todos los temas</p>';
  o+='<div style="background:var(--card2);border-radius:10px;padding:14px;margin-bottom:16px">';
- o+='<p style="font-weight:600;font-size:14px;margin-bottom:10px">📝 Evaluacion de certificacion</p>';
+ o+='<p style="font-weight:600;font-size:14px;margin-bottom:10px">📝 Registro de consulta tecnica</p>';
  o+='<p class="muted" style="font-size:13px;margin-bottom:6px">'+nQ+' preguntas de opcion multiple</p>';
- o+='<p class="muted" style="font-size:13px;margin-bottom:6px">Minimo para aprobar: 80%</p>';
- o+='<p class="muted" style="font-size:13px">Vigencia si aprueba: <strong style="color:var(--tx)">'+vig+'</strong></p>';
+ o+='<p class="muted" style="font-size:13px;margin-bottom:6px">Resultado requerido: 80%</p>';
+ o+='<p class="muted" style="font-size:13px">Acceso habilitado por: <strong style="color:var(--tx)">'+vig+'</strong></p>';
  o+='</div>';
- o+='<button class="btn btn-p" style="background:#1a3a6b;margin-bottom:8px" onclick="beginQuiz(\''+modId+'\')">Tomar evaluacion ahora</button>';
- o+='<button class="btn btn-g" onclick="go(\'home\')">Volver al inicio (sin evaluar)</button>';
- o+='<p class="muted" style="font-size:11px;text-align:center;margin-top:8px">Podes evaluar en cualquier momento desde el modulo en el inicio</p>';
+ o+='<button class="btn btn-p" style="background:#1a3a6b;margin-bottom:8px" onclick="beginQuiz(\''+modId+'\')">Registrar consulta</button>';
+ o+='<button class="btn btn-g" onclick="go(\'home\')">Volver al inicio</button>';
+ o+='<p class="muted" style="font-size:11px;text-align:center;margin-top:8px">Podes registrar la consulta en cualquier momento desde el inicio</p>';
  o+='</div></div>';
  return o;
 }
