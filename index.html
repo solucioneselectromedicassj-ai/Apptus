@@ -1282,7 +1282,25 @@ function rSlide(mod,slide,mi,si){
  // device_dfm100
  if(slide.type==='device_dfm'){var zd=null;for(var i=0;i<DFM100_ZONES.length;i++){if(DFM100_ZONES[i].id===S.zone)zd=DFM100_ZONES[i];}return h3(slide.title,slide.sub)+dfm100SVG()+(zd?'<div style="border-radius:10px;padding:12px;background:var(--card2);border:1.5px solid '+zd.col+'"><p style="font-weight:500;color:'+zd.col+';margin-bottom:6px">'+zd.label+'</p><p style="font-size:13px;line-height:1.6">'+zd.desc+'</p></div>':'<p class="muted" style="text-align:center;font-size:12px;margin-top:8px">Toca cada zona del equipo para ver los detalles</p>');}
  // paletas
- if(slide.type==='paletas'){return h3(slide.title,slide.sub)+hotImg('paletas');}
+ if(slide.type==='paletas'){
+  return h3(slide.title,slide.sub)+
+  '<div style="background:var(--card2);border-radius:10px;padding:14px;margin-bottom:10px">' +
+  '<p style="font-weight:700;font-size:15px;margin-bottom:10px">Posicion de paletas / pads adhesivos</p>' +
+  '<div style="display:flex;gap:10px;margin-bottom:10px">' +
+  '<div style="flex:1;background:var(--card);border-radius:8px;padding:10px;border-left:3px solid #c62828">' +
+  '<p style="font-size:12px;font-weight:700;color:#c62828;margin-bottom:4px">ESTERNON DERECHO</p>' +
+  '<p style="font-size:12px;color:var(--mu)">Bajo la clavícula derecha del paciente</p>' +
+  '</div>' +
+  '<div style="flex:1;background:var(--card);border-radius:8px;padding:10px;border-left:3px solid #1565c0">' +
+  '<p style="font-size:12px;font-weight:700;color:#1565c0;margin-bottom:4px">APEX (PUNTA)</p>' +
+  '<p style="font-size:12px;color:var(--mu)">Linea axilar media izquierda, debajo del pecho</p>' +
+  '</div>' +
+  '</div>' +
+  '<div style="background:var(--warn-bg);border:1px solid var(--warn-bd);border-radius:8px;padding:10px">' +
+  '<p style="font-size:12px;color:var(--warn);line-height:1.6">Con paletas externas: aplicar gel conductor antes. Con pads adhesivos: verificar buena adherencia. No colocar sobre marcapasos implantados ni electrodos de ECG.</p>' +
+  '</div>' +
+  '</div>';
+ }
  // sinc
  if(slide.type==='sinc'){return h3(slide.title,slide.sub)+'<div style="background:var(--warn-bg);border:1px solid var(--warn-bd);border-radius:10px;padding:14px;margin-bottom:10px"><p style="font-weight:700;color:var(--warn);margin-bottom:8px">Cardioversion sincronizada (SYNC)</p><p style="font-size:13px;line-height:1.7;margin-bottom:8px">El SYNC sincroniza la descarga con la onda R del ECG para evitar el fenomeno R sobre T.</p><p style="font-size:13px;line-height:1.7"><strong>Paso 1:</strong> Conectar ECG y verificar ritmo visible.<br><strong>Paso 2:</strong> Activar SYNC en el menu del equipo.<br><strong>Paso 3:</strong> Seleccionar energia → Charge → Shock.<br><strong>Paso 4:</strong> SYNC se desactiva tras cada descarga.</p></div><div style="background:var(--err-bg);border:1px solid var(--err-bd);border-radius:10px;padding:12px"><p style="font-size:13px;color:var(--err)"><strong>Atencion:</strong> SYNC debe reactivarse manualmente en cada descarga subsecuente. Verificar siempre que el marcador SYNC aparece en pantalla antes de cargar.</p></div>';}
  // leads_limb
