@@ -1074,6 +1074,43 @@ function rHome(){
  return o;
 }
 
+
+function h3(t,s){return '<div style="background:var(--card2);border-radius:10px;padding:14px 16px;margin-bottom:12px"><p style="font-weight:700;font-size:17px;line-height:1.4;margin-bottom:'+(s?'6px':'0')+'">'+t+'</p>'+(s?'<p style="font-size:13px;color:var(--mu);line-height:1.5">'+s+'</p>':'')+'</div>';}
+function crd(ic,t,d){return '<div style="background:var(--card2);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start"><span style="font-size:24px;min-width:32px">'+ic+'</span><div><p style="font-weight:600;font-size:14px;margin-bottom:4px">'+t+'</p><p style="font-size:13px;color:var(--mu);line-height:1.55">'+d+'</p></div></div>';}
+function rSlide(mod,slide,mi,si){
+ var col=slide.color||mod.color||'#8b0000';
+ // device_se3
+ if(slide.type==='device_se3'){var zo=null;for(var i=0;i<SE3_ZONES.length;i++){if(SE3_ZONES[i].id===S.zone)zo=SE3_ZONES[i];}return h3(slide.title,slide.sub)+se3SVG()+(zo?'<div style="border-radius:10px;padding:12px;background:var(--card2);border:1.5px solid '+zo.col+'"><p style="font-weight:500;color:'+zo.col+';margin-bottom:6px">'+zo.label+'</p><p style="font-size:13px;line-height:1.6">'+zo.desc+'</p></div>':'<p class="muted" style="text-align:center;font-size:12px;margin-top:8px">Toca cada zona del equipo para ver los detalles</p>');}
+ // device_s5
+ if(slide.type==='device_s5'){return h3(slide.title,slide.sub)+s5SVG();}
+ // keys_s5
+ if(slide.type==='keys_s5'){var ko=S.ak;var kh='<div>';for(var ki=0;ki<S5_KEYS.length;ki++){var k=S5_KEYS[ki],ak2=(ko===ki);kh+='<div onclick="tK('+ki+')" style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:'+(ak2?'var(--card)':'var(--card2)')+';border-radius:8px;margin-bottom:6px;cursor:pointer;border:.5px solid '+(ak2?k.c:'var(--bd)')+'">'+'<div style="background:'+k.c+';color:white;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:700;min-width:72px;text-align:center">'+k.l+'</div>'+'<p style="font-size:13px;line-height:1.5">'+( ak2?k.d:'Toca para ver descripcion')+'</p></div>';}kh+='</div>';return h3(slide.title,slide.sub)+kh;}
+ // device_dfm100
+ if(slide.type==='device_dfm'){var zd=null;for(var i=0;i<DFM100_ZONES.length;i++){if(DFM100_ZONES[i].id===S.zone)zd=DFM100_ZONES[i];}return h3(slide.title,slide.sub)+dfm100SVG()+(zd?'<div style="border-radius:10px;padding:12px;background:var(--card2);border:1.5px solid '+zd.col+'"><p style="font-weight:500;color:'+zd.col+';margin-bottom:6px">'+zd.label+'</p><p style="font-size:13px;line-height:1.6">'+zd.desc+'</p></div>':'<p class="muted" style="text-align:center;font-size:12px;margin-top:8px">Toca cada zona del equipo para ver los detalles</p>');}
+ // paletas
+ if(slide.type==='paletas'){return h3(slide.title,slide.sub)+hotImg('paletas');}
+ // sinc
+ if(slide.type==='sinc'){return h3(slide.title,slide.sub)+'<div style="background:var(--warn-bg);border:1px solid var(--warn-bd);border-radius:10px;padding:14px;margin-bottom:10px"><p style="font-weight:700;color:var(--warn);margin-bottom:8px">Cardioversion sincronizada (SYNC)</p><p style="font-size:13px;line-height:1.7;margin-bottom:8px">El SYNC sincroniza la descarga con la onda R del ECG para evitar el fenomeno R sobre T.</p><p style="font-size:13px;line-height:1.7"><strong>Paso 1:</strong> Conectar ECG y verificar ritmo visible.<br><strong>Paso 2:</strong> Activar SYNC en el menu del equipo.<br><strong>Paso 3:</strong> Seleccionar energia → Charge → Shock.<br><strong>Paso 4:</strong> SYNC se desactiva tras cada descarga.</p></div><div style="background:var(--err-bg);border:1px solid var(--err-bd);border-radius:10px;padding:12px"><p style="font-size:13px;color:var(--err)"><strong>Atencion:</strong> SYNC debe reactivarse manualmente en cada descarga subsecuente. Verificar siempre que el marcador SYNC aparece en pantalla antes de cargar.</p></div>';}
+ // leads_limb
+ if(slide.type==='leads_limb'){var o=h3(slide.title,slide.sub)+'<div>';for(var li=0;li<LIMB.length;li++){var lb=LIMB[li],alb=(S.al===lb.id);o+='<div onclick="tL(\''+lb.id+'\')" style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:'+(alb?'var(--card)':'var(--card2)')+';border-radius:8px;margin-bottom:6px;cursor:pointer;border-left:4px solid '+lb.col+'">'+'<div style="background:'+lb.col+';color:white;border-radius:4px;padding:2px 8px;font-weight:700;font-size:13px;min-width:32px;text-align:center">'+lb.id+'</div>'+'<div><p style="font-size:13px;font-weight:500">EU: '+lb.eu+' / US: '+lb.us+'</p>'+(alb?'<p style="font-size:12px;color:var(--mu);margin-top:2px">'+lb.where+'</p>':'')+'</div></div>';}o+='</div>';return o;}
+ // leads_chest
+ if(slide.type==='leads_chest'){var o=h3(slide.title,slide.sub)+'<div>';for(var ci=0;ci<CHEST.length;ci++){var cb=CHEST[ci],acb=(S.al===cb.id);o+='<div onclick="tL(\''+cb.id+'\')" style="display:flex;gap:10px;align-items:center;padding:10px;background:'+(acb?'var(--card)':'var(--card2)')+';border-radius:8px;margin-bottom:6px;cursor:pointer;border-left:4px solid '+cb.col+'">'+'<div style="background:'+cb.col+';color:white;border-radius:4px;padding:2px 8px;font-weight:700;font-size:13px;min-width:32px;text-align:center">'+cb.id+'</div>'+'<p style="font-size:13px">'+(acb?cb.where:'Toca para ver posicion')+'</p></div>';}o+='</div>';return o;}
+ // aviso_mon
+ if(slide.type==='aviso_mon'){return h3(slide.title,slide.sub)+'<div style="background:var(--ok-bg);border:2px solid var(--ok-bd);border-radius:12px;padding:16px;margin-bottom:14px"><p style="font-weight:700;color:var(--ok);font-size:16px;margin-bottom:10px">Modo monitor - uso correcto</p><p style="font-size:14px;line-height:1.7;margin-bottom:10px">El equipo puede usarse en modo monitor para visualizar ECG, SpO2 y PANI. Si el servicio cuenta con monitores dedicados, dar prioridad a estos, reservando el desfibrilador para urgencias.</p><p style="font-size:14px;line-height:1.7">Al terminar el monitoreo, reconectar a la red y dejarlo en su lugar habitual.</p></div>';}
+ // cards
+ if(slide.type==='cards'){var o=h3(slide.title,slide.sub);if(slide.items)for(var ci=0;ci<slide.items.length;ci++){var it=slide.items[ci];o+=crd(it.ic||'•',it.t,it.d);}return o;}
+ // steps
+ if(slide.type==='steps'){var o=h3(slide.title,slide.sub);if(slide.items)for(var si=0;si<slide.items.length;si++){var st=slide.items[si];o+='<div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:.5px solid var(--bd)">'+'<div style="background:'+col+';color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">'+(si+1)+'</div>'+'<div><p style="font-weight:600;font-size:14px;margin-bottom:3px">'+st.t+'</p><p style="font-size:13px;color:var(--mu);line-height:1.55">'+st.d+'</p></div></div>';}if(slide.tip)o+='<div style="background:var(--warn-bg);border:1px solid var(--warn-bd);border-radius:8px;padding:10px;margin-top:8px"><p style="font-size:12px;color:var(--warn)">'+slide.tip.tx+'</p></div>';return o;}
+ // checklist
+ if(slide.type==='checklist'){var key=slide.key||'ck';var o=h3(slide.title,slide.sub);if(slide.items)for(var ci=0;ci<slide.items.length;ci++){var checked=!!(S.chk[key]&&S.chk[key][ci]);o+='<div onclick="tC(\''+key+'\','+ci+')" style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:'+(checked?'var(--ok-bg)':'var(--card2)')+';border-radius:8px;margin-bottom:6px;cursor:pointer;border:.5px solid '+(checked?'var(--ok-bd)':'var(--bd)')+'">'+'<span style="font-size:18px;min-width:24px">'+(checked?'✅':'⬜')+'</span>'+'<p style="font-size:13px;line-height:1.5">'+slide.items[ci]+'</p></div>';}return o;}
+ // notice / info
+ if(slide.type==='notice'||slide.type==='info'){return h3(slide.title,slide.sub)+(slide.body?'<p style="font-size:14px;line-height:1.7">'+slide.body+'</p>':'')+(slide.warn?'<div style="background:var(--warn-bg);border:1px solid var(--warn-bd);border-radius:8px;padding:10px;margin-top:8px"><p style="font-size:13px;color:var(--warn)">'+slide.warn+'</p></div>':'');}
+ // protocol123 (defib)
+ if(slide.type==='protocol123'||slide.type==='defib123'){return h3(slide.title,slide.sub)+d123();}
+ // default
+ return h3(slide.title||'',slide.sub||'');
+}
+
 function rModule(){
  var d=getModData(S.modId);if(!d||!d.mods.length)return rHome();
  var mod=d.mods[S.modIdx],slide=mod.slides[S.slideIdx],total=mod.slides.length,pct=((S.slideIdx+1)/total)*100;
