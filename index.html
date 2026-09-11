@@ -741,41 +741,28 @@ function hotImg(imgKey,hots,infoArr,title,sub){var a=S.al,ah=null,info=null;for(
 
 // Device SVGs with photo overlay
 
-function s5SVG(){var z=S.zone;var o='<div style="margin:8px 0">';for(var i=0;i<S5_ZONES.length;i++){var n=S5_ZONES[i],ac=(z===n.id);o+='<div onclick="tZ(''+n.id+'')" style="display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:8px;margin-bottom:6px;cursor:pointer;border:2px solid '+(ac?n.col:'rgba('+parseInt(n.col.slice(1,3),16)+','+parseInt(n.col.slice(3,5),16)+','+parseInt(n.col.slice(5,7),16)+',.3)')+';background:'+(ac?n.col+'22':'var(--card2)')+'">';o+='<div style="width:12px;height:12px;border-radius:50%;background:'+n.col+';flex-shrink:0"></div>';o+='<span style="font-size:13px;font-weight:'+(ac?'700':'500')+';color:'+(ac?n.col:'var(--tx)')+'">'+n.label+'</span>';o+='<span style="color:var(--mu);font-size:14px;margin-left:auto">'+(ac?'▲':'▼')+'</span>';o+='</div>';if(ac)o+='<div style="margin:0 0 8px;padding:10px 12px;background:'+n.col+'22;border-radius:8px;border-left:3px solid '+n.col+'"><p style="font-size:13px;line-height:1.6;color:var(--tx)">'+n.desc+'</p></div>';}o+='</div>';return o;}
-
-
-
-// ═══ FAQ POR MODULO ═══
-var FAQ = {
- se3:[
-  {q:'El equipo muestra Lead Off pero los electrodos parecen conectados',a:'Revisá que los cables de extremidades y precordiales estén firmemente sujetos a los electrodos. Limpiá la piel con alcohol si hay humedad o crema. Verificá que los tornillos del conector de cable estén apretados.'},
-  {q:'El ECG sale con mucho ruido o con artefactos',a:'Causas más frecuentes: paciente en movimiento, piel no preparada (rasurar y limpiar con alcohol), electrodos en mal estado o secos, interferencia eléctrica de otros equipos. Asegurate de que el paciente esté quieto y callado durante la toma.'},
-  {q:'No imprime nada al presionar PRINT/STOP',a:'Verificá que el papel esté correctamente cargado con el lado térmico hacia abajo. Comprobá que la carcasa del registrador cierre con el clic. Si el papel está agotado, reemplazarlo. Si sigue sin imprimir, llamar a Ingeniería Clínica.'},
-  {q:'Cómo reimprimir el último ECG?',a:'Presionar la tecla 1mV/COPY inmediatamente después de que termine la impresión automática (modo AUTO). Solo funciona si el equipo no fue apagado desde el último registro.'},
-  {q:'El equipo indica batería baja pero está conectado a la red',a:'La lámpara amarilla en modo carga puede tardar varias horas en volver a verde. Si el equipo está enchufado correctamente y la lámpara no prende, verificar el cable de red y el contacto del enchufe. Avisar a Ingeniería Clínica si persiste.'},
-  {q:'Cómo se cambia el rollo de papel?',a:'1) Tomar las dos pestañas laterales de la carcasa y tirar hacia ARRIBA. 2) Insertar el nuevo rollo con el lado térmico (suave/brillante) hacia ABAJO. 3) Cerrar hasta escuchar el clic. Si no imprime, el papel está al revés.'},
- ],
- dfm100:[
-  {q:'El RFU muestra X roja sólida',a:'Falla crítica: el equipo NO puede entregar terapia. Retirarlo del servicio de inmediato y llamar a Ingeniería Clínica. Nunca usar en ese estado.'},
-  {q:'El desfibrilador no carga al presionar CHARGE',a:'Verificá que el Therapy Knob esté en una posición de energía (50J/100J/150J/200J), no en MON o AED. Comprobá que el cable de terapia esté bien conectado al puerto verde. Si la batería está por debajo del 20%, conectar a la red primero.'},
-  {q:'Después de la descarga, qué hago primero?',a:'Reiniciar RCP inmediatamente. No esperar para ver el ritmo. Continuar 2 minutos de RCP, después analizar el ritmo. El desfibrilador se recarga automáticamente si el Therapy Knob sigue en la misma posición de energía.'},
-  {q:'Cómo se activa el modo SYNC para cardioversión?',a:'1) Conectar ECG y verificar señal limpia. 2) Presionar el botón SYNC. 3) El indicador SYNC aparece en pantalla. 4) Cargar y dar el shock. ATENCIÓN: el SYNC se desactiva después de cada descarga, hay que reactivarlo.'},
-  {q:'El equipo muestra batería al 70% aunque estuvo enchufado toda la guardia',a:'Verificar que el cable CA esté bien conectado al equipo y al tomacorriente. La lámpara AC debe estar verde. Si la batería no carga con el equipo enchufado, avisar a Ingeniería Clínica para revisión.'},
-  {q:'Los pads se despegaron durante la RCP, qué hago?',a:'Si se despegaron los pads, usar paletas externas si están disponibles. Si no, colocar nuevos pads (si hay stock). Nunca interrumpir la RCP más de lo necesario para reposicionar los electrodos.'},
- ],
- iram9808:[
-  {q:'Cuándo usar Tipo A vs Tipo B?',a:'Tipo A: paciente estable que no necesita monitoreo ni medicación durante el traslado. Tipo B: paciente con riesgo potencial que necesita monitoreo y posible intervención. Ante la duda, siempre consultar al médico de guardia antes de decidir el tipo de ambulancia.'},
-  {q:'Qué pasa si el nivel de oxígeno está por debajo del 75% al inicio del turno?',a:'No salir en servicio hasta recargar o cambiar el tubo. Registrar el incidente en el libro de guardia. Si no hay tubo de reemplazo disponible, avisar al jefe de servicio para no dejar la unidad sin oxígeno operativo.'},
-  {q:'El checklist de turno lo completa solo el médico?',a:'No. La responsabilidad es de toda la tripulación. El médico o enfermero responsable del turno firma el checklist, pero cualquier integrante puede y debe reportar si algo no está en condiciones.'},
-  {q:'Cuánto hay que archivar el checklist de turno?',a:'Mínimo 1 año según normativa. Muchas instituciones mantienen 2-3 años. Consultar el protocolo de la institución. El checklist firmado es un documento legal en caso de siniestro.'},
- ],
- hs_basico:[
-  {q:'Qué hacer si el EPP está dañado al momento de usarlo?',a:'Retirarlo de servicio inmediatamente. Nunca usar EPP en mal estado. Notificar al supervisor y solicitar el reemplazo. Registrar el incidente. Usar EPP dañado puede generar el mismo riesgo que no usar ninguno.'},
-  {q:'Cuál es la diferencia entre guantes de nitrilo y de látex?',a:'Los guantes de nitrilo son preferibles porque no causan reacciones alérgicas y tienen mayor resistencia a pinchazos. El látex puede causar alergias y es sensible a ciertos químicos. Para trabajo biomédico o sanitario, siempre preferir nitrilo.'},
-  {q:'Puedo usar agua para apagar un incendio eléctrico?',a:'NO bajo ningún concepto. El agua conduce electricidad y puede electrocutar al operador. Para fuegos Clase C (equipos energizados), usar CO2 o polvo BC. Desconectar la alimentación eléctrica primero si es posible hacerlo de forma segura.'},
-  {q:'Qué significa LOTO?',a:'Lock Out / Tag Out (Bloqueo y Etiquetado). Es el procedimiento para aislar energías peligrosas antes de trabajar en equipos. Cada persona que trabaja pone su propio candado. Solo quien puso el candado puede sacarlo. Es obligatorio antes de cualquier mantenimiento.'},
- ],
-};
+function s5SVG(){
+ var z=S.zone;
+ var o='<div style="margin:8px 0">';
+ for(var i=0;i<S5_ZONES.length;i++){
+  var n=S5_ZONES[i],ac=(z===n.id);
+  var bc=ac?n.col:'var(--bd)';
+  var bg=ac?'var(--card)':'var(--card2)';
+  o+='<div onclick="tZ(\''+n.id+'\')" style="display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:8px;margin-bottom:6px;cursor:pointer;border:2px solid '+bc+';background:'+bg+'">';
+  o+='<div style="width:12px;height:12px;border-radius:50%;background:'+n.col+';flex-shrink:0"></div>';
+  o+='<span style="font-size:13px;font-weight:'+(ac?'700':'500')+';color:'+(ac?n.col:'var(--tx)')+'">'+n.label+'</span>';
+  o+='<span style="color:var(--mu);margin-left:auto">'+(ac?'▲':'▼')+'</span>';
+  o+='</div>';
+  if(ac){
+   o+='<div style="margin:-2px 0 8px;padding:10px 12px;background:var(--card);border-radius:8px;border-left:3px solid '+n.col+'">';
+   o+='<p style="font-size:13px;line-height:1.6;color:var(--tx)">'+n.desc+'</p>';
+   o+='</div>';
+  }
+ }
+ o+='</div>';
+ return o;
+}
+;
 
 // ═══ YOUTUBE POR MODULO ═══
 var YT_DEFAULT = {
