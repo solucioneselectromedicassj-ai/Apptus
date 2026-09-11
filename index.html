@@ -208,6 +208,7 @@ function getDeviceHash(){
 // ═══ STATE ═══
 var S={
  screen:'login',
+ tcAccepted:(function(){try{return localStorage.getItem('at_tc')==='1';}catch(e){return false;}})(),
  user:null,empresa:null,rol:null,
  svcId:null,modId:null,modIdx:0,slideIdx:0,
  zone:null,ak:null,al:null,chk:{},
@@ -1461,6 +1462,33 @@ function showTC(){
  var overlay=document.createElement('div');overlay.innerHTML=o;document.body.appendChild(overlay.firstChild);
 }
 
+
+function rPreQuiz(){
+ var modId=S.modId;
+ var modLabel=modId;
+ for(var i=0;i<CATS.length;i++){for(var j=0;j<CATS[i].modulos.length;j++){if(CATS[i].modulos[j].id===modId)modLabel=CATS[i].modulos[j].label;}}
+ var p=getProg(modId);var d=getModData(modId);
+ var nQ=d&&d.quiz?d.quiz.length:10;
+ var roles={'Residente':'6 meses','Medico/a':'12 meses','Enfermero/a':'12 meses','Tecnico/a':'12 meses'};
+ var vig=roles[S.form&&S.form.rol]||'12 meses';
+ var o='<div class="w" style="text-align:center;padding-top:24px">';
+ o+='<div style="font-size:56px;margin-bottom:16px">📋</div>';
+ o+='<div class="card" style="text-align:left">';
+ o+='<p style="font-weight:700;font-size:18px;margin-bottom:8px;text-align:center">'+modLabel+'</p>';
+ o+='<p style="font-size:14px;text-align:center;color:var(--mu);margin-bottom:20px">Completaste todos los temas</p>';
+ o+='<div style="background:var(--card2);border-radius:10px;padding:14px;margin-bottom:16px">';
+ o+='<p style="font-weight:600;font-size:14px;margin-bottom:10px">📝 Evaluacion de certificacion</p>';
+ o+='<p class="muted" style="font-size:13px;margin-bottom:6px">'+nQ+' preguntas de opcion multiple</p>';
+ o+='<p class="muted" style="font-size:13px;margin-bottom:6px">Minimo para aprobar: 80%</p>';
+ o+='<p class="muted" style="font-size:13px">Vigencia si aprueba: <strong style="color:var(--tx)">'+vig+'</strong></p>';
+ o+='</div>';
+ o+='<button class="btn btn-p" style="background:#1a3a6b;margin-bottom:8px" onclick="beginQuiz(\''+modId+'\')">Tomar evaluacion ahora</button>';
+ o+='<button class="btn btn-g" onclick="go(\'home\')">Volver al inicio (sin evaluar)</button>';
+ o+='<p class="muted" style="font-size:11px;text-align:center;margin-top:8px">Podes evaluar en cualquier momento desde el modulo en el inicio</p>';
+ o+='</div></div>';
+ return o;
+}
+
 function rSurvey(){
  var qs=[{id:'q1',txt:'El contenido fue claro y util',type:'stars'},{id:'q2',txt:'La plataforma es facil de usar',type:'stars'},{id:'q3',txt:'La informacion es util para tu trabajo',type:'stars'},{id:'q4',txt:'Que mejorarias?',type:'text'}];
  var sv=S.survey||{};
@@ -1555,7 +1583,7 @@ function render(){
   var sc={login:rLogin,home:rHome,module:rModule,miniquiz:rMiniQuiz,mq_result:rMQResult,
    quiz:rQuiz,result:rResult,expired:rExpired,admin:rAdmin,super:rSuper,
    edit_empresa:rEditEmpresa,survey:rSurvey,eventos:rEventos,nuevo_evento:rNuevoEvento,
-   faq:rFAQ,bot_capacitacion:rBotCapacitacion,solicitud:rSolicitud,empresa_creada:rEmpresaCreada};
+   faq:rFAQ,bot_capacitacion:rBotCapacitacion,solicitud:rSolicitud,empresa_creada:rEmpresaCreada,pre_quiz:rPreQuiz};
   var fn=sc[S.screen]||rLogin;
   app.innerHTML=fn();
   setWatermark();
@@ -1599,32 +1627,24 @@ function beginQuiz(modId){S.modId=modId;S.ans=[];S.qIdx=0;S.chosen=null;S.screen
 function pS(){S.slideIdx--;S.zone=null;S.ak=null;S.al=null;render();}
 function nS(){S.slideIdx++;S.zone=null;S.ak=null;S.al=null;render();}
 function nMod(){var d=getModData(S.modId);if(d&&S.modIdx<d.mods.length-1){S.modIdx++;S.slideIdx=0;S.zone=null;S.ak=null;S.al=null;render();}}
-function cM(){var d=getModData(S.modId);if(!d)return;var qs=getMQ(S.modId,S.modIdx);if(!qs||qs.length===0){var p=getProg(S.modId);var mods=p.mods.slice();if(mods.indexOf(S.modIdx)<0)mods.push(S.modIdx);setCacheP(S.modId,{mods:mods});saveProgress(S.modId,getProg(S.modId));try{localStorage.setItem('at_prog_'+S.user.id,JSON.stringify(S.progress));}catch(e){}if(!d||!d.mods||mods.length>=(d.mods||[]).length){S.screen='home';}else{S.modIdx++;S.slideIdx=0;S.zone=null;S.ak=null;S.al=null;S.screen='module';}render();return;}S.mq={moduleId:S.modIdx,questions:qs,qIdx:0,answers:[],chosen:null};S.screen='miniquiz';render();}
-function mqAns(i){var mq=S.mq;if(!mq||mq.chosen!==null)return;mq.chosen=i;render();setTimeout(function(){mq.answers.push(i);mq.chosen=null;if(mq.qIdx<mq.questions.length-1){mq.qIdx++;render();}else{var score=0;for(var j=0;j<mq.answers.length;j++){if(mq.answers[j]===mq.questions[j].ans)score++;}mq.score=score;mq.passed=(score>=Math.ceil(mq.questions.length*0.75));if(mq.passed){var p=getProg(S.modId);var mods=p.mods.slice();if(mods.indexOf(mq.moduleId)<0)mods.push(mq.moduleId);setCacheP(S.modId,{mods:mods});saveProgress(S.modId,getProg(S.modId));try{localStorage.setItem('at_prog_'+S.user.id,JSON.stringify(S.progress));}catch(e){}}S.screen='mq_result';render();}},850);}
-function retryMQ(){if(!S.mq)return;S.mq={moduleId:S.mq.moduleId,questions:getMQ(S.modId,S.mq.moduleId),qIdx:0,answers:[],chosen:null};S.screen='miniquiz';render();}
-function reviewMod(){if(!S.mq)return;S.modIdx=S.mq.moduleId;S.slideIdx=0;S.zone=null;S.ak=null;S.al=null;S.screen='module';render();}
-function startRecert(){setCacheP(S.modId,{mods:[],done:false,score:null,date:null,certified:false,certDate:null,certExpiry:null});S.modIdx=0;S.slideIdx=0;S.zone=null;S.ak=null;S.al=null;S.screen='module';render();}
-function answer(i){if(S.chosen!==null)return;S.chosen=i;render();setTimeout(function(){var d=getModData(S.modId);if(!d)return;var a=S.ans.slice();a.push(i);S.ans=a;S.chosen=null;if(a.length===d.quiz.length){var sc=0;for(var j=0;j<a.length;j++){if(a[j]===d.quiz[j].ans)sc++;}var cd=new Date().toISOString().slice(0,10);var ce=calcExpiry(S.form.rol,cd);setCacheP(S.modId,{done:true,score:sc,date:cd,certDate:cd,certExpiry:ce,certified:sc>=PASS_QUIZ,totalQ:d.quiz.length});saveProgress(S.modId,getProg(S.modId));try{localStorage.setItem('at_prog_'+S.user.id,JSON.stringify(S.progress));}catch(e){}S.screen='result';}else{S.qIdx++;}render();},850);}
-function rQ(){setCacheP(S.modId,{done:false,score:0,certified:false});S.ans=[];S.qIdx=0;S.chosen=null;S.screen='quiz';render();}
-function tZ(id){S.zone=S.zone===id?null:id;render();}
-function tK(i){S.ak=S.ak===i?null:i;render();}
-function tL(id){S.al=S.al===id?null:id;render();}
-function tC(key,i){if(!S.chk[key])S.chk[key]={};if(S.chk[key][i])delete S.chk[key][i];else S.chk[key][i]=true;render();}
-function toggleAccordion(modId){S.openMods=S.openMods||{};S.openMods[modId]=!S.openMods[modId];render();}
-function toggleMod(m){var en=document.getElementById('ename');if(en)S.superEditEmpresa.nombre=en.value;var ec=document.getElementById('ecode');if(ec)S.superEditEmpresa.codigo=ec.value.toUpperCase();var ep=document.getElementById('eplan');if(ep)S.superEditEmpresa.plan=ep.value;var e=S.superEditEmpresa;var mods=e.modulos_habilitados||[];var idx=mods.indexOf(m);if(idx>=0)mods.splice(idx,1);else mods.push(m);e.modulos_habilitados=mods;render();}
-function genCode(nombre){var words=(nombre||'').toUpperCase().replace(/[^A-Z0-9 ]/g,'').trim().split(/\s+/);var code=words.map(function(w){return w.slice(0,4);}).join('').slice(0,8);return code+(new Date().getFullYear()+'').slice(-2);}
-function autoCode(){var nameEl=document.getElementById('ename');var codeEl=document.getElementById('ecode');if(!nameEl||!codeEl)return;if(!codeEl.value||codeEl.dataset.auto){codeEl.value=genCode(nameEl.value);codeEl.dataset.auto='1';}}
-function addTel(){var e=S.superEditEmpresa;if(!e.telefonos_capacitacion)e.telefonos_capacitacion=[];e.telefonos_capacitacion.push({nombre:'',tel:''});render();}
-function removeTel(i){var e=S.superEditEmpresa;if(!e.telefonos_capacitacion)return;e.telefonos_capacitacion.splice(i,1);render();}
-function updateTel(i,field,val){var e=S.superEditEmpresa;if(!e.telefonos_capacitacion||!e.telefonos_capacitacion[i])return;e.telefonos_capacitacion[i][field]=val;}
-function newEmpresa(){S.superEditEmpresa={modulos_habilitados:[],codigo:'',telefonos_capacitacion:[]};S.superError='';S.superLoading=false;go('edit_empresa');}
-function editEmpresa(id){var e=(S.superEmpresas||[]).filter(function(x){return x.id===id;})[0];S.superEditEmpresa=Object.assign({},e);S.superError='';S.superLoading=false;go('edit_empresa');}
-async function toggleActivaEmpresa(){var e=S.superEditEmpresa;e.activa=!e.activa;saveSuperLocal(e);go('super');try{await apiPost('super_empresa',Object.assign({pw:'SEM2026super'},e));}catch(err){}}
-function doAdm(){
- // RRHH: auto-access their empresa data; admin: needs password
- if(S.rol==='rrhh'){S.adminEmpresaData=null;S.screen='admin';render();return;}
- if(S.apw!=='SEM2026'){S.aerr='Contrasena incorrecta';render();return;}
- S.aerr='';S.adminEmpresaData=null;S.screen='admin';render();
+function cM(){
+ var d=getModData(S.modId);
+ if(!d||!d.mods)return;
+ // Mark this micro-module as done
+ var p=getProg(S.modId);
+ var mods=p.mods.slice();
+ if(mods.indexOf(S.modIdx)<0)mods.push(S.modIdx);
+ setCacheP(S.modId,{mods:mods});
+ saveProgress(S.modId,getProg(S.modId));
+ try{localStorage.setItem('at_prog_'+S.user.id,JSON.stringify(S.progress));}catch(e){}
+ if(mods.length>=(d.mods||[]).length){
+  // All micro-modules done → offer evaluation or go home
+  S.screen='pre_quiz';render();
+ }else{
+  // Move to next micro-module
+  S.modIdx++;S.slideIdx=0;S.zone=null;S.ak=null;S.al=null;
+  S.screen='module';render();
+ }
 }
 async function loadAdminData(){if(!S.empresa)return;S.loading=true;render();var res=await apiGet('admin_empresa',{empresa_id:S.empresa.id,mes:S.adminMonth||''});S.loading=false;S.adminEmpresaData=res;render();}
 function botAnswer(field,val){S.botState=S.botState||{step:0,answers:{}};S.botState.answers[field]=val;var steps=4;if(S.botState.step<steps-1)S.botState.step++;else S.botState.step=steps;render();}
