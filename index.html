@@ -574,45 +574,43 @@ async function migrateAllModulos(){
 }
 
 
+
 function se3SVG(){
  var z=S.zone;
- var o='<div style="margin:8px 0">';
- for(var i=0;i<SE3_ZONES.length;i++){
-  var n=SE3_ZONES[i],ac=(z===n.id);
-  o+='<div onclick="tZ(\''+n.id+'\')" style="display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:8px;margin-bottom:6px;cursor:pointer;border:2px solid '+(ac?n.col:'var(--bd)')+';background:'+(ac?'var(--card)':'var(--card2)')+'">';
-  o+='<div style="width:10px;height:10px;border-radius:50%;background:'+n.col+';flex-shrink:0"></div>';
-  o+='<span style="font-size:13px;font-weight:'+(ac?'700':'500')+';color:'+(ac?n.col:'var(--tx)')+'">'+n.label+'</span>';
-  o+='<span style="color:var(--mu);margin-left:auto">'+(ac?'▲':'▼')+'</span>';
-  o+='</div>';
-  if(ac){
-   o+='<div style="margin:-2px 0 8px;padding:10px 12px;background:var(--card);border-radius:8px;border-left:3px solid '+n.col+'">';
-   o+='<p style="font-size:13px;line-height:1.6;color:var(--tx)">'+n.desc+'</p>';
-   o+='</div>';
-  }
+ var zoData=typeof SE3_ZONES!=='undefined'?SE3_ZONES:[];
+ var o='<div style="position:relative;border-radius:10px;overflow:hidden;margin:8px 0;background:#e8e8e8">';
+ o+='<img src="https://edandiagnosticos.com/wp-content/uploads/2021/06/SE-3-2.jpg" style="width:100%;display:block;border-radius:10px" onerror="this.style.background='#ccc';this.alt='Imagen no disponible'">';
+ for(var i=0;i<zoData.length;i++){
+  var n=zoData[i],ac=(z===n.id);
+  o+='<div onclick="tZ(\''+n.id+'\')" style="position:absolute;left:'+n.x+'%;top:'+n.y+'%;width:'+n.w+'%;height:'+n.h+'%;border:2px solid '+n.col+';border-radius:4px;background:'+(ac?n.col+'55':'transparent')+';cursor:pointer;box-sizing:border-box"></div>';
  }
  o+='</div>';
+ var zo=null;
+ for(var i=0;i<zoData.length;i++){if(zoData[i].id===z)zo=zoData[i];}
+ if(zo){o+='<div style="padding:10px 12px;background:var(--card);border-radius:8px;border-left:3px solid '+zo.col+';margin-top:6px"><p style="font-weight:600;color:'+zo.col+';margin-bottom:4px">'+zo.label+'</p><p style="font-size:13px;line-height:1.6">'+zo.desc+'</p></div>';}
+ else{o+='<p class="muted" style="text-align:center;font-size:12px;margin-top:6px">Toca cada zona del equipo para ver los detalles</p>';}
  return o;
 }
 
+
+
 function dfm100SVG(){
  var z=S.zone;
- var o='<div style="margin:8px 0">';
- for(var i=0;i<DFM100_ZONES.length;i++){
-  var n=DFM100_ZONES[i],ac=(z===n.id);
-  o+='<div onclick="tZ(\''+n.id+'\')" style="display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:8px;margin-bottom:6px;cursor:pointer;border:2px solid '+(ac?n.col:'var(--bd)')+';background:'+(ac?'var(--card)':'var(--card2)')+'">';
-  o+='<div style="width:10px;height:10px;border-radius:50%;background:'+n.col+';flex-shrink:0"></div>';
-  o+='<span style="font-size:13px;font-weight:'+(ac?'700':'500')+';color:'+(ac?n.col:'var(--tx)')+'">'+n.label+'</span>';
-  o+='<span style="color:var(--mu);margin-left:auto">'+(ac?'▲':'▼')+'</span>';
-  o+='</div>';
-  if(ac){
-   o+='<div style="margin:-2px 0 8px;padding:10px 12px;background:var(--card);border-radius:8px;border-left:3px solid '+n.col+'">';
-   o+='<p style="font-size:13px;line-height:1.6;color:var(--tx)">'+n.desc+'</p>';
-   o+='</div>';
-  }
+ var zoData=typeof DFM100_ZONES!=='undefined'?DFM100_ZONES:[];
+ var o='<div style="position:relative;border-radius:10px;overflow:hidden;margin:8px 0;background:#e8e8e8">';
+ o+='<img src="https://www.novagen.co.za/2015/wp-content/uploads/2021/06/dfm100-e1624352398234.png" style="width:100%;display:block;border-radius:10px" onerror="this.style.background='#ccc';this.alt='Imagen no disponible'">';
+ for(var i=0;i<zoData.length;i++){
+  var n=zoData[i],ac=(z===n.id);
+  o+='<div onclick="tZ(\''+n.id+'\')" style="position:absolute;left:'+n.x+'%;top:'+n.y+'%;width:'+n.w+'%;height:'+n.h+'%;border:2px solid '+n.col+';border-radius:4px;background:'+(ac?n.col+'55':'transparent')+';cursor:pointer;box-sizing:border-box"></div>';
  }
  o+='</div>';
+ var zo=null;
+ for(var i=0;i<zoData.length;i++){if(zoData[i].id===z)zo=zoData[i];}
+ if(zo){o+='<div style="padding:10px 12px;background:var(--card);border-radius:8px;border-left:3px solid '+zo.col+';margin-top:6px"><p style="font-weight:600;color:'+zo.col+';margin-bottom:4px">'+zo.label+'</p><p style="font-size:13px;line-height:1.6">'+zo.desc+'</p></div>';}
+ else{o+='<p class="muted" style="text-align:center;font-size:12px;margin-top:6px">Toca cada zona del equipo para ver los detalles</p>';}
  return o;
 }
+
 
 function d123(){
  var steps=[
@@ -935,27 +933,24 @@ function hotImg(imgKey,hots,infoArr,title,sub){var a=S.al,ah=null,info=null;for(
 
 // Device SVGs with photo overlay
 
+
 function s5SVG(){
  var z=S.zone;
- var o='<div style="margin:8px 0">';
- for(var i=0;i<S5_ZONES.length;i++){
-  var n=S5_ZONES[i],ac=(z===n.id);
-  var bc=ac?n.col:'var(--bd)';
-  var bg=ac?'var(--card)':'var(--card2)';
-  o+='<div onclick="tZ(\''+n.id+'\')" style="display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:8px;margin-bottom:6px;cursor:pointer;border:2px solid '+bc+';background:'+bg+'">';
-  o+='<div style="width:12px;height:12px;border-radius:50%;background:'+n.col+';flex-shrink:0"></div>';
-  o+='<span style="font-size:13px;font-weight:'+(ac?'700':'500')+';color:'+(ac?n.col:'var(--tx)')+'">'+n.label+'</span>';
-  o+='<span style="color:var(--mu);margin-left:auto">'+(ac?'▲':'▼')+'</span>';
-  o+='</div>';
-  if(ac){
-   o+='<div style="margin:-2px 0 8px;padding:10px 12px;background:var(--card);border-radius:8px;border-left:3px solid '+n.col+'">';
-   o+='<p style="font-size:13px;line-height:1.6;color:var(--tx)">'+n.desc+'</p>';
-   o+='</div>';
-  }
+ var zoData=typeof S5_ZONES!=='undefined'?S5_ZONES:[];
+ var o='<div style="position:relative;border-radius:10px;overflow:hidden;margin:8px 0;background:#e8e8e8">';
+ o+='<img src="https://novagen.co.za/2015/wp-content/uploads/2021/06/COMEN-S5.jpg" style="width:100%;display:block;border-radius:10px" onerror="this.style.background='#ccc';this.alt='Imagen no disponible'">';
+ for(var i=0;i<zoData.length;i++){
+  var n=zoData[i],ac=(z===n.id);
+  o+='<div onclick="tZ(\''+n.id+'\')" style="position:absolute;left:'+n.x+'%;top:'+n.y+'%;width:'+n.w+'%;height:'+n.h+'%;border:2px solid '+n.col+';border-radius:4px;background:'+(ac?n.col+'55':'transparent')+';cursor:pointer;box-sizing:border-box"></div>';
  }
  o+='</div>';
+ var zo=null;
+ for(var i=0;i<zoData.length;i++){if(zoData[i].id===z)zo=zoData[i];}
+ if(zo){o+='<div style="padding:10px 12px;background:var(--card);border-radius:8px;border-left:3px solid '+zo.col+';margin-top:6px"><p style="font-weight:600;color:'+zo.col+';margin-bottom:4px">'+zo.label+'</p><p style="font-size:13px;line-height:1.6">'+zo.desc+'</p></div>';}
+ else{o+='<p class="muted" style="text-align:center;font-size:12px;margin-top:6px">Toca cada zona del equipo para ver los detalles</p>';}
  return o;
 }
+
 ;
 
 // ═══ YOUTUBE POR MODULO ═══
