@@ -410,16 +410,7 @@ function getModulosHabilitados(){
  return result;
 }
 
-function getModData(modId){
- var MQB=typeof MQ!=='undefined'?MQ:{};
- var maps={
-  'se3':{mods:typeof MODS_SE3!=='undefined'?MODS_SE3:[],quiz:typeof QUIZ_SE3!=='undefined'?QUIZ_SE3:[],mq:MQB.se3||{}},'s5':{mods:typeof MODS_S5!=='undefined'?MODS_S5:[],quiz:typeof QUIZ_S5!=='undefined'?QUIZ_S5:[],mq:typeof MQ_S5!=='undefined'?MQ_S5:{}},
-  'dfm100':{mods:typeof MODS_DFM100!=='undefined'?MODS_DFM100:[],quiz:typeof QUIZ_DFM100!=='undefined'?QUIZ_DFM100:[],mq:MQB.dfm100||{}},
-  'iram9808':{mods:typeof MODS_IRAM9808!=='undefined'?MODS_IRAM9808:[],quiz:typeof QUIZ_IRAM9808!=='undefined'?QUIZ_IRAM9808:[],mq:MQB.iram9808||{}},
-  'hs_basico':{mods:typeof MODS_HS!=='undefined'?MODS_HS:[],quiz:typeof QUIZ_HS!=='undefined'?QUIZ_HS:[],mq:MQB.hs_basico||{}},
- };
- return maps[modId]||{mods:[],quiz:[],mq:{}};
-}
+
 
 function getMQ(modId,mIdx){
  var d=getModData(modId);
@@ -1239,8 +1230,16 @@ function rSlide(mod,slide,mi,si){
 }
 
 function rModule(){
- var d=getModData(S.modId);if(!d||!d.mods.length)return rHome();
- var mod=d.mods[S.modIdx],slide=mod.slides[S.slideIdx],total=mod.slides.length,pct=((S.slideIdx+1)/total)*100;
+ var d=getModData(S.modId);
+ if(!d||!d.mods||!d.mods.length)return rHome();
+ // Guard S.modIdx bounds
+ if(S.modIdx<0||S.modIdx>=d.mods.length)S.modIdx=0;
+ var mod=d.mods[S.modIdx];
+ if(!mod||!mod.slides||!mod.slides.length){S.modIdx=0;mod=d.mods[0];}
+ if(!mod||!mod.slides)return rHome();
+ // Guard S.slideIdx bounds
+ if(S.slideIdx<0||S.slideIdx>=mod.slides.length)S.slideIdx=0;
+ var slide=mod.slides[S.slideIdx],total=mod.slides.length,pct=((S.slideIdx+1)/total)*100;
  var p=getProg(S.modId);
  var o='<div class="w">';
  if(S.reviewMode)o+='<div style="background:var(--ok-bg);border:.5px solid var(--ok-bd);border-radius:8px;padding:8px 12px;margin-bottom:10px;display:flex;align-items:center;gap:8px"><span>📖</span><p style="font-size:12px;color:var(--ok)">Modo repaso - Cert. vigente hasta '+p.certExpiry+'</p></div>';
