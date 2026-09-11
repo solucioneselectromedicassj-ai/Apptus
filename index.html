@@ -487,6 +487,42 @@ function getModData(modId){
 }
 
 // Load modules from Supabase in background after login
+
+async function runMigration(){
+ var btn=event&&event.target;
+ if(btn){btn.textContent='Sincronizando...';btn.disabled=true;}
+ var ids=['se3','dfm100','s5','iram9808','hs_basico'];
+ var ok=0,fail=0;
+ for(var i=0;i<ids.length;i++){
+  var d=getModData(ids[i]);
+  if(!d||!d.mods||!d.mods.length){fail++;continue;}
+  var catInfo=null;
+  for(var ci=0;ci<CATS.length;ci++){
+   for(var mi=0;mi<CATS[ci].modulos.length;mi++){
+    if(CATS[ci].modulos[mi].id===ids[i]){catInfo=CATS[ci].modulos[mi];break;}
+   }
+  }
+  var payload={
+   pw:'SEM2026super',
+   id:ids[i],
+   nombre:catInfo?catInfo.label:ids[i],
+   icono:catInfo?catInfo.icon:'📋',
+   categoria:'equipos',
+   sub:catInfo?catInfo.sub:'',
+   color:catInfo&&catInfo.color?catInfo.color:'#1a3a6b',
+   mods:d.mods,
+   quiz:d.quiz,
+   mq:d.mq,
+   version:1,
+   activo:true
+  };
+  var res=await apiPost('upsert_modulo',payload);
+  if(res&&res.ok)ok++;else fail++;
+ }
+ if(btn){btn.textContent='☁ Sincronizar modulos a la nube';btn.disabled=false;}
+ alert('Sincronizacion completada!\n\nSubidos: '+ok+'\nErrores: '+fail+'\n\nLos modulos ya estan en la nube. Los usuarios los cargaran automaticamente al abrir la app.');
+}
+
 async function syncModulos(modIds){
  if(!modIds||!modIds.length)return;
  var toLoad=modIds.filter(function(id){return!S.modulCache[id];});
