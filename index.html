@@ -579,7 +579,7 @@ function se3SVG(){
  var z=S.zone;
  var zoData=typeof SE3_ZONES!=='undefined'?SE3_ZONES:[];
  var o='<div style="position:relative;border-radius:10px;overflow:hidden;margin:8px 0;background:#e8e8e8">';
- o+='<img src="https://edandiagnosticos.com/wp-content/uploads/2021/06/SE-3-2.jpg" style="width:100%;display:block;border-radius:10px" onerror="this.style.background='#ccc';this.alt='Imagen no disponible'">';
+ o+='<img src="https://edandiagnosticos.com/wp-content/uploads/2021/06/SE-3-2.jpg" style="width:100%;display:block;border-radius:10px" onerror="this.style.display=\'none\'">';
  for(var i=0;i<zoData.length;i++){
   var n=zoData[i],ac=(z===n.id);
   o+='<div onclick="tZ(\''+n.id+'\')" style="position:absolute;left:'+n.x+'%;top:'+n.y+'%;width:'+n.w+'%;height:'+n.h+'%;border:2px solid '+n.col+';border-radius:4px;background:'+(ac?n.col+'55':'transparent')+';cursor:pointer;box-sizing:border-box"></div>';
@@ -598,7 +598,7 @@ function dfm100SVG(){
  var z=S.zone;
  var zoData=typeof DFM100_ZONES!=='undefined'?DFM100_ZONES:[];
  var o='<div style="position:relative;border-radius:10px;overflow:hidden;margin:8px 0;background:#e8e8e8">';
- o+='<img src="https://www.novagen.co.za/2015/wp-content/uploads/2021/06/dfm100-e1624352398234.png" style="width:100%;display:block;border-radius:10px" onerror="this.style.background='#ccc';this.alt='Imagen no disponible'">';
+ o+='<img src="https://www.novagen.co.za/2015/wp-content/uploads/2021/06/dfm100-e1624352398234.png" style="width:100%;display:block;border-radius:10px" onerror="this.style.display=\'none\'">';
  for(var i=0;i<zoData.length;i++){
   var n=zoData[i],ac=(z===n.id);
   o+='<div onclick="tZ(\''+n.id+'\')" style="position:absolute;left:'+n.x+'%;top:'+n.y+'%;width:'+n.w+'%;height:'+n.h+'%;border:2px solid '+n.col+';border-radius:4px;background:'+(ac?n.col+'55':'transparent')+';cursor:pointer;box-sizing:border-box"></div>';
@@ -938,7 +938,7 @@ function s5SVG(){
  var z=S.zone;
  var zoData=typeof S5_ZONES!=='undefined'?S5_ZONES:[];
  var o='<div style="position:relative;border-radius:10px;overflow:hidden;margin:8px 0;background:#e8e8e8">';
- o+='<img src="https://novagen.co.za/2015/wp-content/uploads/2021/06/COMEN-S5.jpg" style="width:100%;display:block;border-radius:10px" onerror="this.style.background='#ccc';this.alt='Imagen no disponible'">';
+ o+='<img src="https://novagen.co.za/2015/wp-content/uploads/2021/06/COMEN-S5.jpg" style="width:100%;display:block;border-radius:10px" onerror="this.style.display=\'none\'">';
  for(var i=0;i<zoData.length;i++){
   var n=zoData[i],ac=(z===n.id);
   o+='<div onclick="tZ(\''+n.id+'\')" style="position:absolute;left:'+n.x+'%;top:'+n.y+'%;width:'+n.w+'%;height:'+n.h+'%;border:2px solid '+n.col+';border-radius:4px;background:'+(ac?n.col+'55':'transparent')+';cursor:pointer;box-sizing:border-box"></div>';
