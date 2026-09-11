@@ -573,6 +573,82 @@ async function migrateAllModulos(){
  return results;
 }
 
+
+function se3SVG(){
+ var z=S.zone;
+ var o='<div style="margin:8px 0">';
+ for(var i=0;i<SE3_ZONES.length;i++){
+  var n=SE3_ZONES[i],ac=(z===n.id);
+  o+='<div onclick="tZ(\''+n.id+'\')" style="display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:8px;margin-bottom:6px;cursor:pointer;border:2px solid '+(ac?n.col:'var(--bd)')+';background:'+(ac?'var(--card)':'var(--card2)')+'">';
+  o+='<div style="width:10px;height:10px;border-radius:50%;background:'+n.col+';flex-shrink:0"></div>';
+  o+='<span style="font-size:13px;font-weight:'+(ac?'700':'500')+';color:'+(ac?n.col:'var(--tx)')+'">'+n.label+'</span>';
+  o+='<span style="color:var(--mu);margin-left:auto">'+(ac?'▲':'▼')+'</span>';
+  o+='</div>';
+  if(ac){
+   o+='<div style="margin:-2px 0 8px;padding:10px 12px;background:var(--card);border-radius:8px;border-left:3px solid '+n.col+'">';
+   o+='<p style="font-size:13px;line-height:1.6;color:var(--tx)">'+n.desc+'</p>';
+   o+='</div>';
+  }
+ }
+ o+='</div>';
+ return o;
+}
+
+function dfm100SVG(){
+ var z=S.zone;
+ var o='<div style="margin:8px 0">';
+ for(var i=0;i<DFM100_ZONES.length;i++){
+  var n=DFM100_ZONES[i],ac=(z===n.id);
+  o+='<div onclick="tZ(\''+n.id+'\')" style="display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:8px;margin-bottom:6px;cursor:pointer;border:2px solid '+(ac?n.col:'var(--bd)')+';background:'+(ac?'var(--card)':'var(--card2)')+'">';
+  o+='<div style="width:10px;height:10px;border-radius:50%;background:'+n.col+';flex-shrink:0"></div>';
+  o+='<span style="font-size:13px;font-weight:'+(ac?'700':'500')+';color:'+(ac?n.col:'var(--tx)')+'">'+n.label+'</span>';
+  o+='<span style="color:var(--mu);margin-left:auto">'+(ac?'▲':'▼')+'</span>';
+  o+='</div>';
+  if(ac){
+   o+='<div style="margin:-2px 0 8px;padding:10px 12px;background:var(--card);border-radius:8px;border-left:3px solid '+n.col+'">';
+   o+='<p style="font-size:13px;line-height:1.6;color:var(--tx)">'+n.desc+'</p>';
+   o+='</div>';
+  }
+ }
+ o+='</div>';
+ return o;
+}
+
+function d123(){
+ var steps=[
+  {n:'1',col:'#2e7d32',t:'Energy / Energia',d:'Seleccionar la energia de desfibrilacion (Joules). Adulto FV: iniciar con 200J.'},
+  {n:'2',col:'#f57c00',t:'Charge / Carga',d:'Presionar CHARGE. Tono creciente hasta estar listo. TODOS alejarse antes de la descarga.'},
+  {n:'3',col:'#b71c1c',t:'Shock / Descarga',d:'El boton SHOCK parpadea cuando esta listo. Anunciar "Todos afuera". Verificar y presionar.'},
+ ];
+ var o='<div style="margin:8px 0">';
+ for(var i=0;i<steps.length;i++){
+  var s=steps[i];
+  o+='<div style="display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:10px;background:'+s.col+'22;border:2px solid '+s.col+';margin-bottom:8px">';
+  o+='<div style="background:'+s.col+';color:white;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;flex-shrink:0">'+s.n+'</div>';
+  o+='<div><p style="font-weight:700;font-size:15px;color:'+s.col+';margin-bottom:4px">'+s.t+'</p>';
+  o+='<p style="font-size:13px;line-height:1.6;color:var(--tx)">'+s.d+'</p></div>';
+  o+='</div>';
+ }
+ o+='<div style="background:var(--warn-bg);border:1px solid var(--warn-bd);border-radius:8px;padding:10px;margin-top:4px">';
+ o+='<p style="font-size:12px;color:var(--warn)">Post-descarga: reanudar RCP inmediatamente. El equipo se recarga automaticamente.</p>';
+ o+='</div>';
+ o+='</div>';
+ return o;
+}
+
+function imgStepsSlide(slide){
+ var o=h3(slide.title||'',slide.sub||'');
+ if(slide.img)o+='<img src="'+slide.img+'" style="width:100%;border-radius:10px;margin-bottom:10px" onerror="this.style.display=\'none\'">';
+ if(slide.items)for(var i=0;i<slide.items.length;i++){
+  var st=slide.items[i];
+  o+='<div style="display:flex;gap:10px;padding:8px 0;border-bottom:.5px solid var(--bd)">';
+  o+='<div style="background:var(--p);color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">'+(i+1)+'</div>';
+  o+='<p style="font-size:13px;line-height:1.5">'+( st.t||st.text||'')+(st.d||st.desc?'<br><span style="color:var(--mu);font-size:12px">'+(st.d||st.desc)+'</span>':'')+'</p>';
+  o+='</div>';
+ }
+ return o;
+}
+
 function h3(t,s){return '<h3 style="font-size:17px;font-weight:500;margin-bottom:'+(s?'3px':'10px')+'">'+t+'</h3>'+(s?'<p class="muted" style="margin-bottom:10px">'+s+'</p>':'');}
 function crd(ic,t,d){return '<div style="display:flex;gap:12px;align-items:flex-start;padding:12px;background:var(--card2);border-radius:10px;margin-bottom:8px"><span style="font-size:22px">'+ic+'</span><div><p style="font-weight:500;margin-bottom:4px;font-size:14px">'+t+'</p><p class="muted" style="line-height:1.6;white-space:pre-line">'+d+'</p></div></div>';}
 function stp(n,t,d,c){return '<div class="srow"><div class="sn" style="background:'+c+'">'+n+'</div><div><p class="st">'+t+'</p>'+(d?'<p class="sd">'+d+'</p>':'')+'</div></div>';}
@@ -1225,6 +1301,8 @@ function rSlide(mod,slide,mi,si){
  if(slide.type==='notice'||slide.type==='info'){return h3(slide.title,slide.sub)+(slide.body?'<p style="font-size:14px;line-height:1.7">'+slide.body+'</p>':'')+(slide.warn?'<div style="background:var(--warn-bg);border:1px solid var(--warn-bd);border-radius:8px;padding:10px;margin-top:8px"><p style="font-size:13px;color:var(--warn)">'+slide.warn+'</p></div>':'');}
  // protocol123 (defib)
  if(slide.type==='protocol123'||slide.type==='defib123'){return h3(slide.title,slide.sub)+d123();}
+ // img_steps
+ if(slide.type==='img_steps'){return imgStepsSlide(slide);}
  // default
  return h3(slide.title||'',slide.sub||'');
 }
