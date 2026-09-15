@@ -721,7 +721,7 @@ function getModData(modId){
 async function runMigration(){
  var btn=event&&event.target;
  if(btn){btn.textContent='Sincronizando...';btn.disabled=true;}
- var ids=['se3','dfm100','s5','iram9808','hs_basico'];
+ var ids=['se3','dfm100','s5','mindray_d3','cardiomax','nihon_kohden','em_c12','iram9808','hs_basico'];
  var ok=0,fail=0;
  for(var i=0;i<ids.length;i++){
   var d=getModData(ids[i]);
@@ -802,7 +802,7 @@ async function uploadModuloToSupabase(modId){
 
 // Migrate ALL embedded modules to Supabase (run once from super-admin)
 async function migrateAllModulos(){
- var ids=['se3','dfm100','s5','iram9808','hs_basico'];
+ var ids=['se3','dfm100','s5','mindray_d3','cardiomax','nihon_kohden','em_c12','iram9808','hs_basico'];
  var results=[];
  for(var i=0;i<ids.length;i++){
   var r=await uploadModuloToSupabase(ids[i]);
