@@ -2,6 +2,9 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#1a3a6b">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -629,6 +632,7 @@ var CATS=[
  ]},
  {id:'empresa',label:'Modulo Empresa',icon:'🏢',desc:'Contenido especifico de tu organizacion',modulos:[]}, // cargado desde Supabase
 ];
+window.CATS=CATS;
 
 function getModulosHabilitados(){
  if(!S.empresa)return[];
@@ -2177,6 +2181,7 @@ function rSuper(){
 }
 
 function rEditEmpresa(){
+ if(!S.superEditEmpresa){S.superEditEmpresa={modulos_habilitados:[],codigo:'',activa:true,plan:'basico'};}
  var e=S.superEditEmpresa||{};
  var allMods=['se3','dfm100','s5','mindray_d3','cardiomax','nihon_kohden','em_c12','iram9808','hs_basico','empresa'];
  var modLabels={'se3':'EDAN SE-3','dfm100':'Philips DFM100','s5':'COMEN S5','mindray_d3':'Mindray BeneHeart D3','cardiomax':'Instramed CardioMax','nihon_kohden':'Nihon Kohden Cardiolife','em_c12':'E&M C-12','iram9808':'IRAM 9808 Ambulancias','hs_basico':'Higiene y Seguridad','empresa':'Modulo Empresa'};
