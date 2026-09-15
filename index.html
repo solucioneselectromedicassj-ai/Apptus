@@ -208,7 +208,7 @@ function getDeviceHash(){
 // ═══ STATE ═══
 var S={
  screen:'login',
- modulCache:{},modulLoading:{},
+ modulCache:{},modulLoading:{},previewMode:false,
  tcAccepted:(function(){try{return localStorage.getItem('at_tc')==='1';}catch(e){return false;}})(),
  user:null,empresa:null,rol:null,
  svcId:null,modId:null,modIdx:0,slideIdx:0,
@@ -1342,6 +1342,7 @@ function rModule(){
  var slide=mod.slides[S.slideIdx],total=mod.slides.length,pct=((S.slideIdx+1)/total)*100;
  var p=getProg(S.modId);
  var o='<div class="w">';
+ if(S.previewMode)o+='<div style="background:#1a3a6b22;border:.5px solid #1a3a6b44;border-radius:8px;padding:8px 12px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between"><span style="font-size:12px;color:#1a3a6b">Vista previa admin - sin guardar progreso</span><button onclick="S.previewMode=false;go('home')" style="background:none;border:none;color:var(--mu);cursor:pointer;font-size:11px">Salir</button></div>';
  if(S.reviewMode)o+='<div style="background:var(--ok-bg);border:.5px solid var(--ok-bd);border-radius:8px;padding:8px 12px;margin-bottom:10px;display:flex;align-items:center;gap:8px"><span>📖</span><p style="font-size:12px;color:var(--ok)">Modo repaso - Cert. vigente hasta '+p.certExpiry+'</p></div>';
  o+='<button class="back" onclick="go(\'home\')">&larr; Inicio</button>';
  o+='<div style="display:flex;gap:10px;align-items:center;margin-bottom:10px"><span style="font-size:24px">'+mod.icon+'</span><div><p style="font-weight:500;font-size:15px;margin-bottom:1px">'+mod.title+'</p><p class="muted" style="font-size:12px">Paso '+(S.slideIdx+1)+' de '+total+'</p></div></div>';
@@ -1985,6 +1986,14 @@ function resetModProgress(){
  try{localStorage.setItem('at_prog_'+S.user.id,JSON.stringify(S.progress));}catch(e){}
  S.modIdx=0;S.slideIdx=0;S.zone=null;S.ak=null;S.al=null;S.reviewMode=false;
  render();
+}
+
+
+function openModPreview(modId){
+ S.modId=modId;S.modIdx=0;S.slideIdx=0;
+ S.zone=null;S.ak=null;S.al=null;
+ S.previewMode=true;
+ S.screen='module';render();
 }
 
 </script>
