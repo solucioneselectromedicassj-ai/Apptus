@@ -1462,18 +1462,18 @@ function rHome(){
   +'<p class="muted" style="margin-top:6px;font-size:12px">Modulos vigentes: '+vigentes+'/'+mods.length+'</p></div>'
   +'<button onclick="logout()" style="background:none;border:none;color:var(--mu);cursor:pointer;font-size:12px">Salir</button></div>';
  if(mods.length===0){
-  if(S.rol===\'super_admin\'){
-   o+=\'<p style="font-size:12px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin:4px 0 8px">Vista previa de modulos</p>\';
+  if(S.rol==='super_admin'){
+   o+='<p style="font-size:12px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin:4px 0 8px">Vista previa de modulos</p>';
    for(var psi=0;psi<CATS.length;psi++){var psc=CATS[psi];
-    o+=\'<p style="font-size:11px;color:var(--mu);margin:4px 0 3px">\'+( psc.icon||\'📋\')+\' \'+psc.label+\'</p>\';
+    o+='<p style="font-size:11px;color:var(--mu);margin:4px 0 3px">'+(psc.icon||'📋')+' '+psc.label+'</p>';
     for(var psm=0;psm<psc.modulos.length;psm++){var psmod=psc.modulos[psm];
-     o+=\'<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--card2);border-radius:8px;margin-bottom:4px">\'
-      +\'<div style="display:flex;gap:8px;align-items:center"><span>\'+(psmod.icon||\'📋\')+\'</span><span style="font-size:13px">\'+psmod.label+\'</span></div>\'
-      +\'<button onclick="openModPreview(\\\'\'+psmod.id+\'\\\')" style="background:var(--p);color:white;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px">Ver</button></div>\';
+     o+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--card2);border-radius:8px;margin-bottom:4px">'
+      +'<div style="display:flex;gap:8px;align-items:center"><span>'+(psmod.icon||'📋')+'</span><span style="font-size:13px">'+psmod.label+'</span></div>'
+      +'<button onclick="openModPreview(\''+psmod.id+'\')" style="background:var(--p);color:white;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px">Ver</button></div>';
     }
    }
-  }else{o+=\'<div class="card" style="text-align:center;padding:24px"><p style="font-size:32px;margin-bottom:12px">📭</p><p style="font-weight:500;margin-bottom:6px">Sin modulos habilitados</p><p class="muted">Tu empresa no tiene modulos asignados. Contacta a tu administrador.</p></div>\';}
- } for(var i=0;i<mods.length;i++){var m=mods[i];if(!cats[m.cat])cats[m.cat]=[];cats[m.cat].push(m);}
+  }else{o+='<div class="card" style="text-align:center;padding:24px"><p style="font-size:32px;margin-bottom:12px">📭</p><p style="font-weight:500;margin-bottom:6px">Sin modulos habilitados</p><p class="muted">Contacta a tu administrador para habilitarlos.</p></div>';}
+ }
  var catOrder=['equipos','normas','higiene','empresa'];
  for(var ci=0;ci<catOrder.length;ci++){
   var catId=catOrder[ci];
