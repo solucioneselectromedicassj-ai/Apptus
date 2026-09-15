@@ -2060,6 +2060,7 @@ function rBotCapacitacion(){
 
 var _navStack2=_navStack||[];
 function render(){
+ if(typeof CATS==='undefined'||typeof S==='undefined'){setTimeout(function(){render();},50);return;}
  var app=document.getElementById('app');if(!app)return;
  try{
   if(!S.tcAccepted){app.innerHTML=rTC();return;}
