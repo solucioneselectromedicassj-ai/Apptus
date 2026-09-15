@@ -321,6 +321,164 @@ var MODS_S5=[
 var QUIZ_S5=[{q:'El primer paso para desfibrilar con el S5 es:',ops:['Presionar Charge (amarillo)','Girar el selector a la energia deseada','Presionar Shock (naranja)','Conectar los pads'],ans:1},{q:'El boton Shock (naranja) del S5 solo permite descargar cuando:',ops:['Siempre esta habilitado','El equipo esta completamente cargado (parpadea naranja)','Se mantiene presionado 3 segundos','El selector esta en AED'],ans:1},{q:'En modo AED, si el equipo indica "No Shock Advised" la accion es:',ops:['Aumentar energia y reintentar','Iniciar o continuar RCP por 2 minutos','Desconectar los pads','Esperar sin hacer nada'],ans:1},{q:'En cardioversion SYNC, despues de cada descarga el modo SYNC:',ops:['Permanece activo','Se desactiva y debe reactivarse','Se convierte en AED','Apaga el equipo'],ans:1},{q:'La captura en marcapasos se confirma cuando:',ops:['El equipo emite bip','Aparece espiga + QRS ancho en ECG Y pulso palpable','FC sube en pantalla','Alarma suena'],ans:1},{q:'La bateria del S5 soporta hasta:',ops:['50 descargas','100 descargas','210 descargas','500 descargas'],ans:2},{q:'Si la bateria esta por debajo del 50% al inicio del turno:',ops:['Usar igual, alcanza','Conectar a la red antes de salir a servicio','Apagar el equipo','Ignorar'],ans:1},{q:'El modo Marcapasos Demanda es recomendado porque:',ops:['Es mas rapido','Solo estimula cuando no detecta latido propio','Usa menos bateria','Es el unico modo'],ans:1},{q:'Los valores normales de SpO2 son:',ops:['85-90%','90-94%','95-100%','Cualquiera'],ans:2},{q:'El papel de la impresora del S5 se coloca con:',ops:['Cualquier lado','Lado termico (suave) hacia la cabeza de impresion','Siempre brillante hacia arriba','No importa'],ans:1}];
 var MQ_S5={0:[{q:'El S5 integra cuantas funciones principales?',ops:['2','3','4','6'],ans:2},{q:'La tecnologia BTE es:',ops:['Bateria Tipo Estandar','Bifasico exponencial truncado','Boton Tres Electrodos','Ninguna'],ans:1}],1:[{q:'Al encender, lo primero es verificar:',ops:['Conexion WiFi','Autotest sin errores y bateria adecuada','Impresion automatica','Nada'],ans:1}],2:[{q:'El orden correcto para desfibrilar es:',ops:['Shock-Charge-Energy','Energy-Charge-Shock','Charge-Energy-Shock','Energy-Shock-Charge'],ans:1},{q:'Antes de presionar Shock:',ops:['Anunciar y verificar que nadie toque al paciente','Mirar la pantalla','Esperar 10 segundos','Nada'],ans:0}],3:[{q:'En AED durante el analisis:',ops:['Continuar RCP','Nadie toca al paciente','Ajustar energia','Conectar oxigeno'],ans:1}],4:[{q:'La captura en pacing se confirma con:',ops:['Bip del equipo','Espiga + QRS ancho Y pulso palpable','FC en pantalla','Alarma'],ans:1}],5:[{q:'SpO2 normal en paciente estable:',ops:['85-90%','90-94%','95-100%','Cualquiera'],ans:2}],6:[{q:'Limpieza del S5 con:',ops:['Agua a presion','Solventes','Pano humedo con desinfectante','Vapor'],ans:2}]};
 
+
+// ═══ NEW CARDIO MODULES ═══
+var MODS_D3=[
+ {id:0,icon:"⚡",title:"El equipo",color:"#c62828",desc:"Descripción y paneles del D3",slides:[
+  {type:"device_dfm",title:"Partes del Mindray BeneHeart D3",sub:"Toca cada zona para ver la descripción"},
+  {type:"cards",title:"Características principales",sub:"Mindray BeneHeart D3",items:[
+   {ic:"⚡",t:"Desfibrilación bifásica",d:"Hasta 360J. Modos: Manual, DEA, SYNC. Tecnología bifásica optimizada."},
+   {ic:"💓",t:"Marcapasos externo",d:"Estimulación no invasiva. Frecuencia 30-180 lpm."},
+   {ic:"📊",t:"Monitorización",d:"ECG 3/5/12 derivaciones, SpO2, NIBP, RESP."},
+   {ic:"🔋",t:"Autonomía",d:"Batería recargable. Funciona con red y batería."},
+  ]},
+ ]},
+ {id:1,icon:"🔌",title:"Encendido y verificación",color:"#1565c0",desc:"Arranque y autotest",slides:[
+  {type:"steps",title:"Encendido del D3",sub:"",items:[
+   {t:"Girar selector a MON",d:"El equipo realiza autotest automático al encender."},
+   {t:"Verificar pantalla",d:"Sin mensajes de error. ECG visible."},
+   {t:"Verificar batería",d:"Carga adecuada. Si baja, conectar a red."},
+   {t:"Conectar accesorios",d:"Cable ECG o electrodos según uso previsto."},
+  ]},
+  {type:"checklist",key:"d3_turno",title:"Verificación de turno D3",sub:"",items:[
+   "Equipo enciende sin errores","Batería adecuada o enchufado","Cable ECG disponible",
+   "Pads de desfibrilación sin vencer","Papel de impresora cargado","Vuelve a Monitor al finalizar",
+  ]},
+ ]},
+ {id:2,icon:"💥",title:"Desfibrilación y modos",color:"#b71c1c",desc:"1-2-3 Carga Shock SYNC AED",slides:[
+  {type:"defib123",title:"Protocolo de desfibrilación D3",sub:""},
+  {type:"steps",title:"Desfibrilación manual D3",sub:"",items:[
+   {t:"Seleccionar Desfib. Manual y ajustar energía",d:"Adulto FV: iniciar con 200J."},
+   {t:"Cargar",d:"Presionar CARGA. Tono creciente. TODOS alejarse."},
+   {t:"Verificar y descargar",d:"DESCARGA parpadea cuando listo. Verificar zona despejada."},
+   {t:"Continuar RCP",d:"Reanudar compresiones inmediatamente."},
+  ],tip:{tp:"warn",tx:"SYNC se desactiva tras cada descarga. Reactivar manualmente."}},
+  {type:"paletas",title:"Posición de paletas / pads",sub:""},
+  {type:"sinc",title:"Cardioversión sincronizada (SYNC)",sub:""},
+  {type:"steps",title:"Modo AED del D3",sub:"",items:[
+   {t:"Girar selector a DEA",d:"Guía de voz activada."},
+   {t:"Conectar pads multifunción",d:"Posición esternal-apical. Conectar al equipo."},
+   {t:"Análisis automático",d:"No tocar al paciente durante el análisis."},
+   {t:"Actuar según resultado",d:"Shock si indica. RCP 2 minutos si no indica descarga."},
+  ]},
+ ]},
+ {id:3,icon:"✅",title:"Mantenimiento",color:"#2e7d32",desc:"Cuidado y registro",slides:[
+  {type:"cards",title:"Mantenimiento del D3",sub:"",items:[
+   {ic:"🔋",t:"Batería",d:"Mantener enchufado cuando no esté en uso. Cargar antes de salir a servicio."},
+   {ic:"🧹",t:"Limpieza",d:"Paño húmedo con desinfectante. No sumergir."},
+   {ic:"📦",t:"Electrodos",d:"Verificar vencimiento. Mantener repuesto disponible."},
+   {ic:"📋",t:"Registro",d:"Documentar cada uso: fecha, energía, número de descargas."},
+  ]},
+ ]},
+];
+var QUIZ_D3=[
+ {q:"Para iniciar desfibrilación manual en el D3, el primer paso es:",ops:["Presionar CARGA","Girar selector a Desfib. Manual y ajustar energía","Presionar DESCARGA","Activar AED"],ans:1},
+ {q:"El botón DESCARGA del D3:",ops:["Siempre disponible","Solo parpadea y se activa cuando el equipo está cargado","Se mantiene 3 segundos","Automático"],ans:1},
+ {q:"En modo AED del D3, durante el análisis:",ops:["Continuar RCP","Nadie toca al paciente","Ajustar energía","Conectar O2"],ans:1},
+ {q:"Después de cada descarga en modo SYNC:",ops:["SYNC permanece activo","SYNC se desactiva y debe reactivarse","Equipo se apaga","Cambia a AED"],ans:1},
+ {q:"La verificación de turno del D3 se realiza:",ops:["Solo si fue usado","Al inicio de cada guardia","Solo nocturnos","Semanalmente"],ans:1},
+ {q:"Si la batería del D3 está baja al inicio del turno:",ops:["Usar igual","Conectar a la red antes de salir","Apagar","Ignorar"],ans:1},
+ {q:"Para cardioversión sincronizada en el D3:",ops:["Igual que desfibrilación","Activar SYNC, sincroniza con onda R, luego cargar y descargar","Solo AED","No es posible"],ans:1},
+ {q:"El selector del D3 en posición Monitor:",ops:["AED activo","Monitorización de signos vitales","Apagado","Marcapasos activo"],ans:1},
+ {q:"Los pads del D3 deben colocarse:",ops:["Cualquier posición","Esternal derecho y apex axilar izquierdo","Solo pecho","Solo esternón"],ans:1},
+ {q:"Limpieza del D3 con:",ops:["Agua a presión","Solventes","Paño húmedo con desinfectante","Vapor"],ans:2},
+];
+var MQ_D3={0:[{q:"El D3 tiene cuántos modos?",ops:["2","3","4","6"],ans:2}],1:[{q:"Al encender el D3 verificar:",ops:["WiFi","Autotest y batería","Impresión","Nada"],ans:1}],2:[{q:"Orden para desfibrilar con D3:",ops:["Shock-Carga-Energía","Energía-Carga-Shock","Carga-Energía-Shock","Energía-Shock-Carga"],ans:1}],3:[{q:"En AED del D3:",ops:["Continuar RCP","Nadie toca","Ajustar energía","O2"],ans:1}]};
+
+var MODS_CM=[
+ {id:0,icon:"❤️",title:"El equipo",color:"#c62828",desc:"Partes del CardioMax",slides:[
+  {type:"device_dfm",title:"Partes del Instramed CardioMax",sub:"Toca cada zona para ver la descripción"},
+  {type:"notice",title:"CardioMax - padrón 1-2-3",sub:"",msg:"El CardioMax opera con padrón 1-Seleccionar-2-Cargar-3-Descargar. Interfaz en español con iconos intuitivos.",
+   params:[["Modos","Monitor / Desfib / DEA / Marcapaso"],["Interfaz","Español, botones rápidos"],["Monitoreo","ECG, SpO2, NIBP, RESP"],["Registro","Impresora térmica integrada"]],
+   warn:"Verificar equipo al inicio de cada turno."},
+ ]},
+ {id:1,icon:"⚡",title:"Desfibrilación y modos",color:"#b71c1c",desc:"Manual AED SYNC",slides:[
+  {type:"defib123",title:"Protocolo de desfibrilación CardioMax",sub:""},
+  {type:"paletas",title:"Posición de paletas / pads",sub:""},
+  {type:"sinc",title:"Cardioversión sincronizada",sub:""},
+  {type:"steps",title:"Modo AED del CardioMax",sub:"",items:[
+   {t:"Seleccionar DEA",d:"Guía de voz e indicaciones visuales."},
+   {t:"Conectar electrodos multifunción",d:"Posición esternal-apical."},
+   {t:"Análisis automático",d:"No tocar al paciente. El CardioMax decide."},
+   {t:"Actuar según indicación",d:"Shock si indica. RCP si no indica."},
+  ]},
+ ]},
+ {id:2,icon:"✅",title:"Verificación y cuidado",color:"#2e7d32",desc:"Turno y mantenimiento",slides:[
+  {type:"checklist",key:"cm_turno",title:"Verificación de turno CardioMax",sub:"",items:[
+   "Equipo enciende sin errores","Batería >50% o enchufado","Cable ECG disponible",
+   "Electrodos sin vencer","Papel cargado","Alarmas activas",
+  ]},
+  {type:"cards",title:"Cuidado del CardioMax",sub:"",items:[
+   {ic:"🔋",t:"Batería",d:"+100 descargas. Enchufar cuando no esté en uso."},
+   {ic:"🧹",t:"Limpieza",d:"Paño húmedo con desinfectante. LCD: paño suave."},
+   {ic:"📋",t:"Registro",d:"Documentar todo uso. El equipo guarda eventos."},
+  ]},
+ ]},
+];
+var QUIZ_CM=[
+ {q:"El CardioMax opera con padrón:",ops:["5 pasos","1-2-3 (Seleccionar-Cargar-Descargar)","Solo automático","Sin padrón"],ans:1},
+ {q:"La interfaz del CardioMax es en:",ops:["Inglés","Español con iconos","Portugués","Sin idioma"],ans:1},
+ {q:"Botón DESCARGA del CardioMax:",ops:["Siempre activo","Naranja cuando cargado y listo","Automático","Requiere clave"],ans:1},
+ {q:"El CardioMax monitoriza:",ops:["Solo ECG","ECG SpO2 NIBP RESP","Solo SpO2","Solo NIBP"],ans:1},
+ {q:"Autonomía batería del CardioMax:",ops:["10 descargas","50","Más de 100","Sin batería"],ans:2},
+ {q:"En AED del CardioMax, durante análisis:",ops:["Continuar RCP","Nadie toca","Ajustar energía","O2"],ans:1},
+ {q:"Cardioversión sincronizada en CardioMax:",ops:["Modo AED","SYNC activo sincroniza con R","No posible","Solo paletas"],ans:1},
+ {q:"Verificación turno CardioMax:",ops:["Solo si usado","Al inicio de cada guardia","Semanalmente","Mensual"],ans:1},
+ {q:"Pads del CardioMax:",ops:["Reutilizar siempre","Verificar vencimiento y tener repuesto","Cualquiera","Ignorar vencimiento"],ans:1},
+ {q:"Registro de uso CardioMax:",ops:["Opcional","Obligatorio fecha energía descargas","Solo servicio técnico","No necesario"],ans:1},
+];
+var MQ_CM={0:[{q:"CardioMax padrón:",ops:["1-2-3","5 pasos","Solo AED","Sin padrón"],ans:0}],1:[{q:"En AED CardioMax:",ops:["Continuar RCP","Nadie toca","Ajustar energía","O2"],ans:1}],2:[{q:"Verificación turno CardioMax:",ops:["Semanal","Inicio guardia","Mensual","Solo si usado"],ans:1}]};
+
+var MODS_NK=[
+ {id:0,icon:"💙",title:"El equipo",color:"#1565c0",desc:"Partes del Cardiolife",slides:[
+  {type:"device_dfm",title:"Partes del Nihon Kohden Cardiolife",sub:"Toca cada zona para ver la descripción"},
+  {type:"cards",title:"Características del Cardiolife",sub:"Serie TEC-5600/7721",items:[
+   {ic:"⚡",t:"Desfibrilación ActiBiphasic",d:"Tecnología bifásica exclusiva. Forma de onda constante independiente de impedancia del paciente."},
+   {ic:"📊",t:"Monitorización completa",d:"ECG 12 derivaciones, SpO2, CO2, NIBP, IBP, temperatura. Pantalla color alta resolución."},
+   {ic:"🔗",t:"Smart Cable™",d:"Plug-and-play. Reconoce automáticamente el sensor. Sin configuración compleja."},
+   {ic:"💓",t:"Marcapasos externo",d:"Modos demanda y fijo."},
+  ]},
+ ]},
+ {id:1,icon:"⚡",title:"Desfibrilación",color:"#b71c1c",desc:"Manual AED SYNC",slides:[
+  {type:"defib123",title:"Protocolo de desfibrilación Cardiolife",sub:""},
+  {type:"steps",title:"Desfibrilación manual",sub:"",items:[
+   {t:"Seleccionar modo Manual",d:"Girar selector. Ajustar energía."},
+   {t:"Cargar",d:"Botón de carga. Tono creciente. Todos alejarse."},
+   {t:"Verificar y descargar",d:"Botón shock parpadea cuando listo."},
+   {t:"Continuar RCP",d:"Reanudar compresiones inmediatamente."},
+  ]},
+  {type:"paletas",title:"Posición de paletas / pads",sub:""},
+  {type:"sinc",title:"Cardioversión sincronizada",sub:""},
+ ]},
+ {id:2,icon:"🤖",title:"Modo AED",color:"#c62828",desc:"Automático guiado",slides:[
+  {type:"steps",title:"Modo AED Cardiolife",sub:"",items:[
+   {t:"Activar modo AED",d:"Selector a AED. Guía de voz activada."},
+   {t:"Conectar electrodos Smart Cable™",d:"Posición esternal-apical."},
+   {t:"Análisis automático",d:"No tocar al paciente."},
+   {t:"Actuar según indicación",d:"Shock si indica. RCP 2 minutos si no."},
+  ]},
+ ]},
+ {id:3,icon:"✅",title:"Verificación",color:"#2e7d32",desc:"Turno y cuidado",slides:[
+  {type:"checklist",key:"nk_turno",title:"Verificación de turno Cardiolife",sub:"",items:[
+   "Equipo enciende sin errores","Batería adecuada o enchufado",
+   "Smart Cable™ disponible","Electrodos sin vencer","Papel cargado","Alarmas activas",
+  ]},
+ ]},
+];
+var QUIZ_NK=[
+ {q:"Tecnología de desfibrilación del Cardiolife:",ops:["BTE Standard","ActiBiphasic","TruncExp","NikonBiphasic"],ans:1},
+ {q:"Smart Cable™ del Cardiolife:",ops:["Configuración manual","Reconoce automáticamente el sensor","Solo ECG","Opcional"],ans:1},
+ {q:"En AED del Cardiolife, durante análisis:",ops:["Continuar RCP","Nadie toca","Ajustar energía","O2"],ans:1},
+ {q:"Cardioversión sincronizada Cardiolife:",ops:["Usar AED","SYNC activo sincroniza con R","No posible","Solo paletas"],ans:1},
+ {q:"El Cardiolife monitoriza:",ops:["Solo ECG","ECG SpO2 CO2 NIBP IBP temperatura","Solo SpO2","Solo 3 parámetros"],ans:1},
+ {q:"Verificación turno Cardiolife:",ops:["Solo si usado","Inicio de cada guardia","Semanalmente","No necesaria"],ans:1},
+ {q:"Electrodos multifunción del Cardiolife:",ops:["Reutilizar siempre","Verificar vencimiento y tener repuesto","Cualquiera","Ignorar vencimiento"],ans:1},
+ {q:"Después de descarga en Cardiolife:",ops:["Esperar ritmo","Reanudar RCP inmediatamente","Apagar","Quitar electrodos"],ans:1},
+ {q:"Selector Cardiolife en Monitor:",ops:["AED activo","Monitorización signos vitales","Apagado","Marcapasos"],ans:1},
+ {q:"Botón SHOCK Cardiolife:",ops:["Siempre disponible","Parpadea solo cuando cargado","3 segundos","Automático"],ans:1},
+];
+var MQ_NK={0:[{q:"Tecnología del Cardiolife:",ops:["Monofásica","ActiBiphasic","BTE","Ninguna"],ans:1}],1:[{q:"Orden para desfibrilar Cardiolife:",ops:["Shock-Carga","Energía-Carga-Shock","Carga-Energía","Energía-Shock"],ans:1}],2:[{q:"En AED Cardiolife:",ops:["Continuar RCP","Nadie toca","Ajustar","O2"],ans:1}],3:[{q:"Verificación turno Cardiolife:",ops:["Semanal","Inicio guardia","Mensual","Solo si usado"],ans:1}]};
+
 // ── Session restore ──
 (function(){
  try{
@@ -381,6 +539,9 @@ var CATS=[
   {id:'se3',label:'EDAN SE-3',sub:'Electrocardiografo',icon:'📈',data:'MODS_SE3',quiz:'QUIZ_SE3',mq:'MQ_SE3'},
   {id:'dfm100',label:'Philips DFM100',sub:'Cardiodesfibrilador',icon:'⚡',data:'MODS_DFM100',quiz:'QUIZ_DFM100',mq:'MQ_DFM100'},
   {id:'s5',label:'COMEN S5',sub:'Desfibrilador Monitor 4 en 1',icon:'💓',data:'MODS_S5',quiz:'QUIZ_S5',mq:'MQ_S5',ok:true},
+  {id:'mindray_d3',label:'Mindray BeneHeart D3',sub:'Desfibrilador Monitor Bifásico',icon:'💛',data:'MODS_D3',quiz:'QUIZ_D3',mq:'MQ_D3',ok:true},
+  {id:'cardiomax',label:'Instramed CardioMax',sub:'Monitor Cardioversor/Desfibrilador',icon:'❤️',data:'MODS_CM',quiz:'QUIZ_CM',mq:'MQ_CM',ok:true},
+  {id:'nihon_kohden',label:'Nihon Kohden Cardiolife',sub:'Desfibrilador Monitor - Serie TEC',icon:'💙',data:'MODS_NK',quiz:'QUIZ_NK',mq:'MQ_NK',ok:true},
  ]},
  {id:'normas',label:'Normas y Estandares',icon:'📋',desc:'Normativa argentina y estandares internacionales',modulos:[
   {id:'iram9808',label:'IRAM 9808',sub:'Vehiculos de Transporte Sanitario',icon:'🚑',data:'MODS_IRAM9808',quiz:'QUIZ_IRAM9808',mq:'MQ_IRAM9808'},
@@ -472,7 +633,7 @@ function getModData(modId){
   's5':{mods:typeof MODS_S5!=='undefined'?MODS_S5:[],quiz:typeof QUIZ_S5!=='undefined'?QUIZ_S5:[],mq:typeof MQ_S5!=='undefined'?MQ_S5:{}},
   'dfm100':{mods:typeof MODS_DFM100!=='undefined'?MODS_DFM100:[],quiz:typeof QUIZ_DFM100!=='undefined'?QUIZ_DFM100:[],mq:MQB.dfm100||{}},
   'iram9808':{mods:typeof MODS_IRAM9808!=='undefined'?MODS_IRAM9808:[],quiz:typeof QUIZ_IRAM9808!=='undefined'?QUIZ_IRAM9808:[],mq:MQB.iram9808||{}},
-  'hs_basico':{mods:typeof MODS_HS!=='undefined'?MODS_HS:[],quiz:typeof QUIZ_HS!=='undefined'?QUIZ_HS:[],mq:MQB.hs||{}},
+  'hs_basico':{mods:typeof MODS_HS!=='undefined'?MODS_HS:[],quiz:typeof QUIZ_HS!=='undefined'?QUIZ_HS:[],mq:MQB.hs||{}},'mindray_d3':{mods:typeof MODS_D3!=='undefined'?MODS_D3:[],quiz:typeof QUIZ_D3!=='undefined'?QUIZ_D3:[],mq:typeof MQ_D3!=='undefined'?MQ_D3:{}},'cardiomax':{mods:typeof MODS_CM!=='undefined'?MODS_CM:[],quiz:typeof QUIZ_CM!=='undefined'?QUIZ_CM:[],mq:typeof MQ_CM!=='undefined'?MQ_CM:{}},'nihon_kohden':{mods:typeof MODS_NK!=='undefined'?MODS_NK:[],quiz:typeof QUIZ_NK!=='undefined'?QUIZ_NK:[],mq:typeof MQ_NK!=='undefined'?MQ_NK:{}},
  };
  return maps[modId]||null;
 }
@@ -1930,8 +2091,8 @@ function rSuper(){
 
 function rEditEmpresa(){
  var e=S.superEditEmpresa||{};
- var allMods=['se3','dfm100','s5','iram9808','hs_basico','empresa'];
- var modLabels={'se3':'EDAN SE-3','dfm100':'Philips DFM100','s5':'COMEN S5','iram9808':'IRAM 9808 Ambulancias','hs_basico':'Higiene y Seguridad','empresa':'Modulo Empresa'};
+ var allMods=['se3','dfm100','s5','mindray_d3','cardiomax','nihon_kohden','iram9808','hs_basico','empresa'];
+ var modLabels={'se3':'EDAN SE-3','dfm100':'Philips DFM100','s5':'COMEN S5','mindray_d3':'Mindray BeneHeart D3','cardiomax':'Instramed CardioMax','nihon_kohden':'Nihon Kohden Cardiolife','iram9808':'IRAM 9808 Ambulancias','hs_basico':'Higiene y Seguridad','empresa':'Modulo Empresa'};
  var enabled=e.modulos_habilitados||[];
  var ytData=e.recursos_modulos||{};
  var autoC=e.codigo||genCode(e.nombre||'');
