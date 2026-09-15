@@ -1968,6 +1968,16 @@ function shareApp(){
  else{prompt('Copia este mensaje:',msg);}
 }
 
+
+function resetModProgress(){
+ if(!confirm('Reiniciar el progreso de este modulo? Tus evaluaciones anteriores se borran.'))return;
+ setCacheP(S.modId,{mods:[],done:false,score:null,date:null,certified:false,certDate:null,certExpiry:null});
+ saveProgress(S.modId,getProg(S.modId));
+ try{localStorage.setItem('at_prog_'+S.user.id,JSON.stringify(S.progress));}catch(e){}
+ S.modIdx=0;S.slideIdx=0;S.zone=null;S.ak=null;S.al=null;S.reviewMode=false;
+ render();
+}
+
 </script>
 </body>
 </html>
