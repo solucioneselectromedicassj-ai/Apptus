@@ -698,15 +698,15 @@ function getModData(modId){
  // Check runtime cache first (loaded from Supabase)
  if(S.modulCache[modId]){
   var c=S.modulCache[modId];
-  return {mods:c.mods||[],quiz:c.quiz||[],mq:c.mq||{}};
+  return {mods:c.mods||[],quiz:c.quiz||[],mq:c.mq||{},zonas:c.zonas||[],keys:c.keys_data||[],version:c.version||1};
  }
- // Check localStorage cache
+ // Check localStorage cache with version check
  try{
   var cached=localStorage.getItem('at_mod_'+modId);
   if(cached){
    var c=JSON.parse(cached);
    S.modulCache[modId]=c;
-   return {mods:c.mods||[],quiz:c.quiz||[],mq:c.mq||{}};
+   return {mods:c.mods||[],quiz:c.quiz||[],mq:c.mq||{},zonas:c.zonas||[],keys:c.keys_data||[],version:c.version||1};
   }
  }catch(e){}
  // Embedded fallback
@@ -759,6 +759,26 @@ async function runMigration(){
 }
 
 async function syncModulos(modIds){
+ if(!modIds||!modIds.length)return;
+ // Build version map from local cache
+ var versionMap={};
+ for(var i=0;i<modIds.length;i++){
+  try{var v=localStorage.getItem('at_mod_ver_'+modIds[i]);if(v)versionMap[modIds[i]]=parseInt(v);}catch(e){}
+ }
+ try{
+  var qp='ids='+modIds.join(',')+'&versions='+encodeURIComponent(JSON.stringify(versionMap));
+  var res=await apiGet('modulos?'+qp,{});
+  if(res.ok&&res.modulos){
+   for(var id in res.modulos){
+    var m=res.modulos[id];
+    S.modulCache[id]=m;
+    try{localStorage.setItem('at_mod_'+id,JSON.stringify(m));localStorage.setItem('at_mod_ver_'+id,String(m.version||1));}catch(e){}
+   }
+   if(S.screen==='home')render();
+  }
+ }catch(e){}
+}
+function _syncModulos_placeholder(){
  if(!modIds||!modIds.length)return;
  var toLoad=modIds.filter(function(id){return!S.modulCache[id];});
  if(!toLoad.length)return;
@@ -1576,6 +1596,68 @@ function rSlide(mod,slide,mi,si){
  if(slide.type==='notice'||slide.type==='info'){return h3(slide.title,slide.sub)+((slide.body||slide.msg)?'<p style="font-size:14px;line-height:1.7">'+(slide.body||slide.msg)+'</p>':'')+(slide.warn?'<div style="background:var(--warn-bg);border:1px solid var(--warn-bd);border-radius:8px;padding:10px;margin-top:8px"><p style="font-size:13px;color:var(--warn)">'+slide.warn+'</p></div>':'')+(slide.params?'<div style="margin-top:8px">'+slide.params.map(function(p){if(Array.isArray(p)){return'<div style="display:flex;gap:10px;padding:6px 0;border-bottom:.5px solid var(--bd)"><span style="font-size:12px;font-weight:600;color:var(--mu);min-width:90px">'+p[0]+'</span><span style="font-size:13px">'+p[1]+'</span></div>';}return'<div style="display:flex;gap:8px;padding:7px 0;border-bottom:.5px solid var(--bd)"><span style="font-size:16px">'+(p.ic||'•')+'</span><div><p style="font-size:13px;font-weight:500">'+(p.t||p.title||'')+'</p><p style="font-size:12px;color:var(--mu)">'+(p.d||p.desc||'')+'</p></div></div>';}).join('')+'</div>':'');}
  // protocol123 (defib)
  if(slide.type==='protocol123'||slide.type==='defib123'){return h3(slide.title,slide.sub)+d123();}
+
+ // texto
+ if(slide.type==='texto'){
+  var o2=h3(slide.title,slide.sub);
+  if(slide.body)o2+='<div style="font-size:14px;line-height:1.8;color:var(--tx)">'+slide.body+'</div>';
+  if(slide.items)for(var ti=0;ti<slide.items.length;ti++){
+   var it2=slide.items[ti];
+   o2+='<p style="font-size:13px;line-height:1.7;color:var(--mu);margin-bottom:8px">'+it2+'</p>';
+  }
+  return o2;
+ }
+ // imagen
+ if(slide.type==='imagen'){
+  var oi=h3(slide.title,slide.sub);
+  if(slide.url)oi+='<img src="'+slide.url+'" alt="'+(slide.alt||slide.title)+'" style="width:100%;border-radius:10px;margin-bottom:10px" onerror="this.style.display=\'none\'">';
+  if(slide.caption)oi+='<p class="muted" style="text-align:center;font-size:12px;margin-top:4px">'+slide.caption+'</p>';
+  if(slide.body)oi+='<div style="font-size:13px;line-height:1.7;margin-top:8px">'+slide.body+'</div>';
+  return oi;
+ }
+ // video
+ if(slide.type==='video'){
+  var ov=h3(slide.title,slide.sub);
+  if(slide.url){
+   var ytMatch=slide.url.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([A-Za-z0-9_-]+)/);
+   if(ytMatch)ov+='<div style="position:relative;padding-bottom:56.25%;height:0;border-radius:10px;overflow:hidden;margin-bottom:10px"><iframe src="https://www.youtube.com/embed/'+ytMatch[1]+'?rel=0" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allowfullscreen></iframe></div>';
+   else ov+='<video src="'+slide.url+'" controls style="width:100%;border-radius:10px;margin-bottom:10px"></video>';
+  }
+  if(slide.body)ov+='<div style="font-size:13px;line-height:1.7">'+slide.body+'</div>';
+  return ov;
+ }
+ // device_universal (uses zonas from Supabase)
+ if(slide.type==='device_universal'||slide.type==='device_equipo'){return h3(slide.title,slide.sub)+deviceZoneSVG(S.modId);}
+
+function deviceZoneSVG(modId){
+ var d=getModData(modId);
+ var zones=d&&d.zonas&&d.zonas.length>0?d.zonas:null;
+ // Fallback to embedded zones for known equipment
+ if(!zones){
+  var fallbacks={'se3':typeof SE3_ZONES!=='undefined'?SE3_ZONES:[],'dfm100':typeof DFM100_ZONES!=='undefined'?DFM100_ZONES:[],'s5':typeof S5_ZONES!=='undefined'?S5_ZONES:[]};
+  zones=fallbacks[modId]||[];
+ }
+ if(!zones||!zones.length)return '<p class="muted" style="text-align:center">Sin diagrama disponible para este equipo</p>';
+ var z=S.zone;
+ var o='<div style="margin:8px 0">';
+ for(var i=0;i<zones.length;i++){
+  var n=zones[i],ac=(z===n.id);
+  o+='<div onclick="tZ(\''+n.id+'\')" style="display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:8px;margin-bottom:6px;cursor:pointer;border:2px solid '+(ac?n.col:'var(--bd)')+';background:'+(ac?'var(--card)':'var(--card2)')+'">';
+  o+='<div style="width:14px;height:14px;border-radius:50%;background:'+n.col+';flex-shrink:0"></div>';
+  o+='<span style="font-size:14px;font-weight:'+(ac?'700':'500')+';color:'+(ac?n.col:'var(--tx)')+'">'+n.label+'</span>';
+  o+='<span style="color:var(--mu);margin-left:auto;font-size:16px">'+(ac?'▲':'▼')+'</span>';
+  o+='</div>';
+  if(ac){
+   o+='<div style="margin:-2px 0 8px 34px;padding:10px 12px;background:var(--card);border-radius:8px;border-left:3px solid '+n.col+'">';
+   o+='<p style="font-size:13px;line-height:1.65;color:var(--tx)">'+n.desc+'</p>';
+   o+='</div>';
+  }
+ }
+ if(!z)o+='<p class="muted" style="text-align:center;font-size:12px;margin-top:4px">Toca una zona para ver la descripcion</p>';
+ o+='</div>';
+ return o;
+}
+
  // img_steps
  if(slide.type==='img_steps'){return imgStepsSlide(slide);}
  // default
@@ -2103,10 +2185,23 @@ async function doLogin(){
  if(estado==='suspendida_admin'&&res.rol!=='super_admin'){S.loginErr='Cuenta suspendida. Contacta a SEM.';render();return;}
  if(estado==='suspendida_rrhh'&&res.rol==='usuario'){S.loginErr='Tu acceso esta suspendido. Contacta a Recursos Humanos.';render();return;}
  try{var p=localStorage.getItem('at_prog_'+S.user.id);if(p)S.progress=JSON.parse(p);localStorage.setItem('at_session',JSON.stringify({user:res.usuario,empresa:res.empresa,rol:res.rol,form:S.form}));}catch(e){}
- S.screen='home';render();
- // Background sync modules from Supabase
- var modIds=(res.empresa&&res.empresa.modulos_habilitados)||[];
- if(modIds.length)syncModulos(modIds);
+ S.screen='home';
+ // Cache modules returned from login response
+ if(res.modulos){
+  var vmap={};
+  for(var mid in res.modulos){
+   var m=res.modulos[mid];
+   S.modulCache[mid]=m;
+   try{
+    var cv=JSON.parse(localStorage.getItem('at_mod_ver_'+mid)||'0');
+    if(!cv||m.version>cv){
+     localStorage.setItem('at_mod_'+mid,JSON.stringify(m));
+     localStorage.setItem('at_mod_ver_'+mid,String(m.version||1));
+    }
+   }catch(e){}
+  }
+ }
+ render();
 }
 function logout(){try{localStorage.removeItem('at_session');}catch(e){}S.user=null;S.empresa=null;S.rol=null;S.progress={};S.screen='login';render();}
 function openMod(modId){S.modId=modId;var d=getModData(modId);var p=getProg(modId);if(p.certified&&isExpired(p.certExpiry)){setCacheP(modId,{mods:[],certified:false,certDate:null,certExpiry:null});saveProgress(modId,getProg(modId));}if(p.certified&&!isExpired(p.certExpiry)){logAcceso('repaso',modId);S.modIdx=0;S.slideIdx=0;S.zone=null;S.ak=null;S.al=null;S.reviewMode=true;S.screen='module';render();return;}logAcceso('capacitacion',modId);S.reviewMode=false;S.modIdx=0;if(d.mods.length>0&&p.mods.length>0&&p.mods.length<d.mods.length){for(var i=0;i<d.mods.length;i++){var found=false;for(var j=0;j<p.mods.length;j++){if(p.mods[j]===i){found=true;break;}}if(!found){S.modIdx=i;break;}}}S.slideIdx=0;S.zone=null;S.ak=null;S.al=null;S.screen='module';render();}
