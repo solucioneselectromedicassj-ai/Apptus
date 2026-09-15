@@ -559,6 +559,26 @@ var MQ_EMC12={
  4:[{q:"Gel conductor en paletas del C-12:",ops:["Opcional","Obligatorio en cada uso","Solo en descargas altas","No necesario"],ans:1}],
 };
 
+// ═══ MODULES CATALOG ═══
+var CATS=[
+ {id:'equipos',label:'Equipos Biomedicos',icon:'🔬',desc:'Equipos medicos y de laboratorio',modulos:[
+  {id:'se3',label:'EDAN SE-3',sub:'Electrocardiografo',icon:'📈',data:'MODS_SE3',quiz:'QUIZ_SE3',mq:'MQ_SE3'},
+  {id:'dfm100',label:'Philips DFM100',sub:'Cardiodesfibrilador',icon:'⚡',data:'MODS_DFM100',quiz:'QUIZ_DFM100',mq:'MQ_DFM100'},
+  {id:'s5',label:'COMEN S5',sub:'Desfibrilador Monitor 4 en 1',icon:'💓',data:'MODS_S5',quiz:'QUIZ_S5',mq:'MQ_S5',ok:true},
+  {id:'mindray_d3',label:'Mindray BeneHeart D3',sub:'Desfibrilador Monitor Bifásico',icon:'💛',data:'MODS_D3',quiz:'QUIZ_D3',mq:'MQ_D3',ok:true},
+  {id:'cardiomax',label:'Instramed CardioMax',sub:'Monitor Cardioversor/Desfibrilador',icon:'❤️',data:'MODS_CM',quiz:'QUIZ_CM',mq:'MQ_CM',ok:true},
+  {id:'nihon_kohden',label:'Nihon Kohden Cardiolife',sub:'Desfibrilador Monitor - Serie TEC',icon:'💙',data:'MODS_NK',quiz:'QUIZ_NK',mq:'MQ_NK',ok:true},
+  {id:'em_c12',label:'E&M C-12',sub:'Monitor Desfibrilador - E&M Electromedicina Argentina',icon:'🇦🇷',data:'MODS_EMC12',quiz:'QUIZ_EMC12',mq:'MQ_EMC12',ok:true},
+ ]},
+ {id:'normas',label:'Normas y Estandares',icon:'📋',desc:'Normativa argentina y estandares internacionales',modulos:[
+  {id:'iram9808',label:'IRAM 9808',sub:'Vehiculos de Transporte Sanitario',icon:'🚑',data:'MODS_IRAM9808',quiz:'QUIZ_IRAM9808',mq:'MQ_IRAM9808'},
+ ]},
+ {id:'higiene',label:'Higiene y Seguridad',icon:'⛑️',desc:'Seguridad en el trabajo y EPP',modulos:[
+  {id:'hs_basico',label:'H y S Basico',sub:'Prevencion de riesgos laborales',icon:'⚠️',data:'MODS_HS',quiz:'QUIZ_HS',mq:'MQ_HS'},
+ ]},
+ {id:'empresa',label:'Modulo Empresa',icon:'🏢',desc:'Contenido especifico de tu organizacion',modulos:[]}, // cargado desde Supabase
+];
+window.CATS=CATS;
 // ── Session restore ──
 (function(){
  try{
@@ -613,26 +633,6 @@ async function logAcceso(tipo,modId,detalle){
  await apiPost('log',{usuario_id:S.user.id,empresa_id:S.empresa.id,tipo:tipo,modulo_id:modId||null,detalle:detalle||null});
 }
 
-// ═══ MODULES CATALOG ═══
-var CATS=[
- {id:'equipos',label:'Equipos Biomedicos',icon:'🔬',desc:'Equipos medicos y de laboratorio',modulos:[
-  {id:'se3',label:'EDAN SE-3',sub:'Electrocardiografo',icon:'📈',data:'MODS_SE3',quiz:'QUIZ_SE3',mq:'MQ_SE3'},
-  {id:'dfm100',label:'Philips DFM100',sub:'Cardiodesfibrilador',icon:'⚡',data:'MODS_DFM100',quiz:'QUIZ_DFM100',mq:'MQ_DFM100'},
-  {id:'s5',label:'COMEN S5',sub:'Desfibrilador Monitor 4 en 1',icon:'💓',data:'MODS_S5',quiz:'QUIZ_S5',mq:'MQ_S5',ok:true},
-  {id:'mindray_d3',label:'Mindray BeneHeart D3',sub:'Desfibrilador Monitor Bifásico',icon:'💛',data:'MODS_D3',quiz:'QUIZ_D3',mq:'MQ_D3',ok:true},
-  {id:'cardiomax',label:'Instramed CardioMax',sub:'Monitor Cardioversor/Desfibrilador',icon:'❤️',data:'MODS_CM',quiz:'QUIZ_CM',mq:'MQ_CM',ok:true},
-  {id:'nihon_kohden',label:'Nihon Kohden Cardiolife',sub:'Desfibrilador Monitor - Serie TEC',icon:'💙',data:'MODS_NK',quiz:'QUIZ_NK',mq:'MQ_NK',ok:true},
-  {id:'em_c12',label:'E&M C-12',sub:'Monitor Desfibrilador - E&M Electromedicina Argentina',icon:'🇦🇷',data:'MODS_EMC12',quiz:'QUIZ_EMC12',mq:'MQ_EMC12',ok:true},
- ]},
- {id:'normas',label:'Normas y Estandares',icon:'📋',desc:'Normativa argentina y estandares internacionales',modulos:[
-  {id:'iram9808',label:'IRAM 9808',sub:'Vehiculos de Transporte Sanitario',icon:'🚑',data:'MODS_IRAM9808',quiz:'QUIZ_IRAM9808',mq:'MQ_IRAM9808'},
- ]},
- {id:'higiene',label:'Higiene y Seguridad',icon:'⛑️',desc:'Seguridad en el trabajo y EPP',modulos:[
-  {id:'hs_basico',label:'H y S Basico',sub:'Prevencion de riesgos laborales',icon:'⚠️',data:'MODS_HS',quiz:'QUIZ_HS',mq:'MQ_HS'},
- ]},
- {id:'empresa',label:'Modulo Empresa',icon:'🏢',desc:'Contenido especifico de tu organizacion',modulos:[]}, // cargado desde Supabase
-];
-window.CATS=CATS;
 
 function getModulosHabilitados(){
  if(!S.empresa)return[];
