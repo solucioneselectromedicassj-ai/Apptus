@@ -2238,3 +2238,83 @@ function openModPreview(modId){
 </script>
 </body>
 </html>
+
+// ── Recovered missing handler functions ─────────────────────────────────
+function newEmpresa(){S.superEditEmpresa={modulos_habilitados:[],codigo:'',telefonos_capacitacion:[]};S.superError='';S.superLoading=false;go('edit_empresa');}
+function editEmpresa(id){var emps=S.superEmpresas||[];var e=null;for(var i=0;i<emps.length;i++){if(emps[i].id===id){e=emps[i];break;}}if(!e)return;S.superEditEmpresa=Object.assign({},e);S.superError='';S.superLoading=false;go('edit_empresa');}
+function toggleMod(m){
+ var en=document.getElementById('ename');if(en)S.superEditEmpresa.nombre=en.value;
+ var ec=document.getElementById('ecode');if(ec)S.superEditEmpresa.codigo=ec.value.toUpperCase();
+ var ep=document.getElementById('eplan');if(ep)S.superEditEmpresa.plan=ep.value;
+ var e=S.superEditEmpresa;var mods=e.modulos_habilitados||[];
+ var idx=mods.indexOf(m);if(idx>=0)mods.splice(idx,1);else mods.push(m);
+ e.modulos_habilitados=mods;render();
+}
+function autoCode(){var nameEl=document.getElementById('ename');var codeEl=document.getElementById('ecode');if(!nameEl||!codeEl)return;if(!codeEl.value||codeEl.dataset.auto){codeEl.value=genCode(nameEl.value);codeEl.dataset.auto='1';}}
+function toggleActivaEmpresa(){var e=S.superEditEmpresa;e.activa=!e.activa;render();}
+
+// ── Fix bot step1 navigation ──────────────────────────────────────────────
+// Override rBotCapacitacion to fix catKey/catIdx lookup
+var _rBotCapacitacion_orig = typeof rBotCapacitacion === 'function' ? rBotCapacitacion : null;
+function rBotCapacitacion(){
+ var bs=S.botState||{step:0};
+ var o='<div class="w"><button class="back" onclick="go(\'home\')">&larr; Inicio</button>';
+ o+='<h2 style="font-size:18px;font-weight:500;margin-bottom:4px">Consulta rapida</h2>';
+ o+='<p class="muted" style="margin-bottom:14px">Encontra el tema que buscas</p>';
+ var enabledMods=(S.empresa&&S.empresa.modulos_habilitados)||[];
+ var isSuperAdmin=(S.rol==='super_admin');
+
+ if(bs.step===0){
+  // Step 0: show categories
+  var cats={};
+  for(var ci=0;ci<CATS.length;ci++){
+   var cat=CATS[ci];
+   var catMods=cat.modulos.filter(function(m){return isSuperAdmin||enabledMods.indexOf(m.id)>=0;});
+   if(catMods.length===0)continue;
+   cats[ci]={label:cat.label,icon:cat.icon||'📋',mods:catMods,idx:ci};
+  }
+  o+='<div class="card"><p style="font-weight:600;margin-bottom:12px">Selecciona el area</p>';
+  var catIdxs=Object.keys(cats);
+  for(var ki=0;ki<catIdxs.length;ki++){
+   var ci2=catIdxs[ki];var cat2=cats[ci2];
+   o+='<div onclick="S.botState={step:1,catIdx:'+ci2+'};render()" class="eqli" style="cursor:pointer;margin-bottom:8px">';
+   o+='<span style="font-size:28px">'+cat2.icon+'</span><div><p style="font-weight:500">'+cat2.label+'</p><p class="muted" style="font-size:12px">'+cat2.mods.length+' modulo'+(cat2.mods.length>1?'s':'')+'</p></div><span style="color:var(--mu)">&rsaquo;</span></div>';
+  }
+  o+='</div>';
+ } else if(bs.step===1){
+  // Step 1: show modules in category
+  var ci3=bs.catIdx||0;
+  var cat3=CATS[ci3]||{label:'',modulos:[],icon:''};
+  var catMods3=cat3.modulos.filter(function(m){return isSuperAdmin||enabledMods.indexOf(m.id)>=0;});
+  o+='<button class="back" onclick="S.botState={step:0};render()">&larr; '+cat3.label+'</button>';
+  o+='<div class="card"><p style="font-weight:600;margin-bottom:12px">'+cat3.label+'</p>';
+  for(var mi=0;mi<catMods3.length;mi++){
+   var mod=catMods3[mi];
+   o+='<div onclick="S.botState={step:2,catIdx:'+ci3+',modId:\''+mod.id+'\'};render()" class="eqli" style="cursor:pointer;margin-bottom:8px">';
+   o+='<span style="font-size:24px">'+(mod.icon||'📋')+'</span><div><p style="font-weight:500">'+mod.label+'</p><p class="muted" style="font-size:12px">'+(mod.sub||'')+'</p></div><span style="color:var(--mu)">&rsaquo;</span></div>';
+  }
+  o+='</div>';
+ } else if(bs.step===2){
+  // Step 2: show topics in module
+  var modId=bs.modId;var d=getModData(modId);
+  var modInfo=null;
+  for(var ci4=0;ci4<CATS.length;ci4++){for(var mi2=0;mi2<CATS[ci4].modulos.length;mi2++){if(CATS[ci4].modulos[mi2].id===modId)modInfo=CATS[ci4].modulos[mi2];}}
+  var ci5=bs.catIdx||0;
+  o+='<button class="back" onclick="S.botState={step:1,catIdx:'+ci5+'};render()">&larr; '+(modInfo?modInfo.label:modId)+'</button>';
+  o+='<div class="card"><p style="font-weight:600;margin-bottom:12px">Selecciona el tema</p>';
+  if(d&&d.mods&&d.mods.length>0){
+   for(var ti=0;ti<d.mods.length;ti++){
+    var topic=d.mods[ti];
+    o+='<div onclick="openModAt(\''+modId+'\','+ti+')" style="display:flex;gap:12px;align-items:center;padding:10px 12px;background:var(--card2);border-radius:8px;margin-bottom:6px;cursor:pointer;border:.5px solid var(--bd)">';
+    o+='<span style="font-size:20px">'+(topic.icon||'📋')+'</span><div style="flex:1"><p style="font-size:14px;font-weight:500">'+topic.title+'</p><p class="muted" style="font-size:12px">'+(topic.desc||'')+'</p></div><span style="color:var(--mu)">&rsaquo;</span></div>';
+   }
+  }else{o+='<p class="muted">Sin temas disponibles. Intenta sincronizar modulos.</p>';}
+  o+='</div>';
+ }
+ o+='</div>';
+ return o;
+}
+
+</script>
+</body>
+</html>
