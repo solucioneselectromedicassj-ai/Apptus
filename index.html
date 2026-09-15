@@ -778,25 +778,6 @@ async function syncModulos(modIds){
   }
  }catch(e){}
 }
-// sync done
- if(!modIds||!modIds.length)return;
- var toLoad=modIds.filter(function(id){return!S.modulCache[id];});
- if(!toLoad.length)return;
- try{
-  var res=await apiGet('modulos',{ids:toLoad.join(',')});
-  if(res.ok&&res.modulos){
-   var mods=res.modulos;
-   for(var id in mods){
-    var m=mods[id];
-    S.modulCache[id]=m;
-    // Cache in localStorage for offline
-    try{localStorage.setItem('at_mod_'+id,JSON.stringify(m));}catch(e){}
-   }
-   // Silently refresh home if it's the current screen
-   if(S.screen==='home')render();
-  }
- }catch(e){}
-}
 
 // Upload local module to Supabase (super-admin migration tool)
 async function uploadModuloToSupabase(modId){
