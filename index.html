@@ -479,6 +479,83 @@ var QUIZ_NK=[
 ];
 var MQ_NK={0:[{q:"Tecnología del Cardiolife:",ops:["Monofásica","ActiBiphasic","BTE","Ninguna"],ans:1}],1:[{q:"Orden para desfibrilar Cardiolife:",ops:["Shock-Carga","Energía-Carga-Shock","Carga-Energía","Energía-Shock"],ans:1}],2:[{q:"En AED Cardiolife:",ops:["Continuar RCP","Nadie toca","Ajustar","O2"],ans:1}],3:[{q:"Verificación turno Cardiolife:",ops:["Semanal","Inicio guardia","Mensual","Solo si usado"],ans:1}]};
 
+
+var MODS_EMC12=[
+ {id:0,icon:"🇦🇷",title:"El equipo",color:"#1a3a6b",desc:"Partes del E&M C-12",slides:[
+  {type:"device_dfm",title:"Partes del E&M C-12",sub:"Toca cada zona para ver la descripción"},
+  {type:"notice",title:"E&M C-12 - Monitor Desfibrilador argentino",sub:"",
+   msg:"El C-12 es fabricado por E&M Electromedicina en Argentina. Opera con sistema 1-2-3 para desfibrilación en emergencias. Pantalla LCD de alto contraste con curva de trazo sólido y manual de ayuda resumido integrado.",
+   params:[["Energía","1 a 360 Joules, libre o sincronizada"],["Alimentación","Red 110-220Vca, batería interna o 12Vcc"],["Monitoreo","ECG 3 derivaciones desde electrodos o paletas"],["Registro","Impresora térmica 600 dpi, 50mm"],["Alarmas","Configurables 10-300 ppm, tono grave"]],
+   warn:"Verificar funcionamiento y medir energía entregada periódicamente con el técnico."},
+ ]},
+ {id:1,icon:"⚡",title:"Encendido y verificación",color:"#1565c0",desc:"Arranque y turno",slides:[
+  {type:"steps",title:"Encendido del C-12",sub:"",items:[
+   {t:"Conectar a la red o verificar batería",d:"El C-12 funciona con red 110-220Vca, batería interna o 12Vcc. Verificar fuente de alimentación disponible."},
+   {t:"Encender el equipo",d:"Interruptor principal. Verificar que la pantalla muestre curva de ECG sin mensajes de error."},
+   {t:"Conectar electrodos o paletas",d:"Monitoreo desde electrodos de cable (DI, DII, DIII) o directamente desde las paletas de desfibrilación."},
+   {t:"Verificar alarmas",d:"Configurar límites de alarma de FC según protocolo del servicio."},
+  ]},
+  {type:"checklist",key:"c12_turno",title:"Verificación de turno - C-12",sub:"",items:[
+   "Equipo enciende sin errores en pantalla",
+   "Batería con carga adecuada o enchufado a la red",
+   "Cable de paciente disponible y en buen estado",
+   "Paletas externas limpias y con gel conductor disponible",
+   "Papel termosensible 50mm cargado en impresora",
+   "Alarmas de FC configuradas y audibles",
+   "Registro de verificación completado en planilla del servicio",
+  ]},
+ ]},
+ {id:2,icon:"💥",title:"Desfibrilación 1-2-3",color:"#b71c1c",desc:"Sistema 1-2-3 libre y sincronizada",slides:[
+  {type:"defib123",title:"Sistema 1-2-3 del E&M C-12",sub:"La misma lógica: Seleccionar - Cargar - Descargar"},
+  {type:"steps",title:"Desfibrilación manual paso a paso",sub:"",items:[
+   {t:"1 - Seleccionar energía",d:"Girar selector de energía al nivel deseado (1-360J). Adulto FV sin RCP previa: iniciar con 200J. Ajustar con teclado digital."},
+   {t:"Aplicar gel a paletas",d:"Aplicar gel conductor uniformemente en ambas paletas externas antes de colocarlas en el paciente."},
+   {t:"2 - Cargar",d:"Presionar botón CARGA en teclado o en paleta esternal. Señal sonora creciente. TODOS alejarse antes de la descarga."},
+   {t:"3 - Verificar y descargar",d:"Verificar zona despejada. Mantener presión firme de paletas. Presionar botón de descarga en AMBAS paletas simultáneamente o en teclado."},
+   {t:"Post-descarga",d:"Reanudar RCP inmediatamente. El C-12 permite verificar la energía efectivamente entregada en pantalla."},
+  ],tip:{tp:"warn",tx:"Para SYNC: activar modo sincronizado antes de cargar. SYNC se desactiva tras cada descarga."}},
+  {type:"paletas",title:"Posición de paletas",sub:"Esternal derecho y apex izquierdo"},
+  {type:"sinc",title:"Cardioversión sincronizada (SYNC)",sub:"El C-12 muestra espiga de detección en modo sincronizado"},
+ ]},
+ {id:3,icon:"📊",title:"Monitorización ECG",color:"#2e7d32",desc:"Monitoreo continuo y registro",slides:[
+  {type:"leads_limb",title:"Derivaciones del C-12",sub:"Monitoreo ECG desde electrodos o paletas"},
+  {type:"steps",title:"Monitorización con el C-12",sub:"",items:[
+   {t:"Conectar cable de paciente",d:"3 derivaciones (DI, DII, DIII). Electrodos de extremidades. Verificar curva limpia sin artefactos."},
+   {t:"Ajustar amplitud",d:"Control de amplitud: 0.5 / 1 / 2 cm/mV. Ajustar para visualizar correctamente la onda QRS."},
+   {t:"Ajustar velocidad",d:"Dos velocidades: 25 mm/s (estándar) o 50 mm/s (análisis detallado)."},
+   {t:"Configurar alarmas",d:"Configurar límites superior e inferior de FC entre 10-300 ppm. Ajustar volumen del tono."},
+   {t:"Usar impresora si necesario",d:"Imprimir ECG en tiempo real o demorado. El registro incluye fecha, hora, FC, derivación y amplitud."},
+  ]},
+ ]},
+ {id:4,icon:"🔧",title:"Mantenimiento básico",color:"#37474f",desc:"Cuidado y verificación técnica",slides:[
+  {type:"cards",title:"Cuidado del E&M C-12",sub:"Responsabilidades del operador",items:[
+   {ic:"🔋",t:"Batería interna",d:"Mantener enchufado cuando no esté en uso para mantener carga. La batería soporta funcionamiento sin red eléctrica."},
+   {ic:"🧹",t:"Limpieza",d:"Paño húmedo con solución desinfectante. Limpiar paletas después de cada uso. No sumergir en agua."},
+   {ic:"⚡",t:"Gel conductor",d:"Renovar gel en cada uso con paletas. Sin gel adecuado la energía entregada disminuye y puede quemar la piel."},
+   {ic:"📋",t:"Verificación técnica",d:"El técnico debe verificar periódicamente la energía entregada con un medidor. Documentar en libro de mantenimiento."},
+  ]},
+ ]},
+];
+var QUIZ_EMC12=[
+ {q:"El E&M C-12 es fabricado por:",ops:["Empresa alemana","E&M Electromedicina Argentina","Empresa brasileña","Empresa china"],ans:1},
+ {q:"El sistema de desfibrilación del C-12 se llama:",ops:["Sistema automático AED","Sistema 1-2-3","Sistema SYNC obligatorio","Sin nombre"],ans:1},
+ {q:"La energía máxima de descarga del C-12 es:",ops:["200J","300J","360J","500J"],ans:2},
+ {q:"El C-12 puede monitorizar ECG desde:",ops:["Solo electrodos","Solo paletas","Electrodos de cable de paciente o desde las propias paletas","Solo 1 derivación"],ans:2},
+ {q:"Para activar cardioversión sincronizada en el C-12:",ops:["Usar modo AED","Activar SYNC antes de cargar. Se desactiva tras cada descarga.","No es posible","Solo con paletas internas"],ans:1},
+ {q:"Para descargar con las paletas externas del C-12:",ops:["Un solo botón en el teclado","Presionar botones en AMBAS paletas simultáneamente o desde teclado","Un botón en la paleta esternal","Solo desde paleta apical"],ans:1},
+ {q:"El papel de registro del C-12 es:",ops:["Papel común A4","Papel termosensible 50mm","Papel de tinta","No tiene impresora"],ans:1},
+ {q:"La amplitud de ECG del C-12 se puede ajustar a:",ops:["Solo 1 cm/mV","0.5 / 1 / 2 cm/mV","5 / 10 cm/mV","No es ajustable"],ans:1},
+ {q:"Si al verificar el turno la batería del C-12 está baja:",ops:["Usar igual","Conectar a la red antes de salir a servicio","Apagar el equipo","Ignorar"],ans:1},
+ {q:"El registro de verificación de turno del C-12 debe:",ops:["No es necesario","Completarse en la planilla del servicio al inicio de guardia","Solo si fue usado","Solo semanalmente"],ans:1},
+];
+var MQ_EMC12={
+ 0:[{q:"El C-12 fue fabricado en:",ops:["Alemania","Argentina","Brasil","China"],ans:1},{q:"Energía máxima del C-12:",ops:["200J","300J","360J","500J"],ans:2}],
+ 1:[{q:"Verificación de turno del C-12:",ops:["Solo si fue usado","Inicio de guardia","Semanal","Mensual"],ans:1}],
+ 2:[{q:"Para descargar con paletas del C-12:",ops:["Un botón solo","Ambas paletas simultáneamente","Solo teclado","Automático"],ans:1}],
+ 3:[{q:"Amplitud ECG del C-12 se ajusta a:",ops:["Solo 1 cm/mV","0.5/1/2 cm/mV","5/10 cm/mV","No ajustable"],ans:1}],
+ 4:[{q:"Gel conductor en paletas del C-12:",ops:["Opcional","Obligatorio en cada uso","Solo en descargas altas","No necesario"],ans:1}],
+};
+
 // ── Session restore ──
 (function(){
  try{
@@ -542,6 +619,7 @@ var CATS=[
   {id:'mindray_d3',label:'Mindray BeneHeart D3',sub:'Desfibrilador Monitor Bifásico',icon:'💛',data:'MODS_D3',quiz:'QUIZ_D3',mq:'MQ_D3',ok:true},
   {id:'cardiomax',label:'Instramed CardioMax',sub:'Monitor Cardioversor/Desfibrilador',icon:'❤️',data:'MODS_CM',quiz:'QUIZ_CM',mq:'MQ_CM',ok:true},
   {id:'nihon_kohden',label:'Nihon Kohden Cardiolife',sub:'Desfibrilador Monitor - Serie TEC',icon:'💙',data:'MODS_NK',quiz:'QUIZ_NK',mq:'MQ_NK',ok:true},
+  {id:'em_c12',label:'E&M C-12',sub:'Monitor Desfibrilador - E&M Electromedicina Argentina',icon:'🇦🇷',data:'MODS_EMC12',quiz:'QUIZ_EMC12',mq:'MQ_EMC12',ok:true},
  ]},
  {id:'normas',label:'Normas y Estandares',icon:'📋',desc:'Normativa argentina y estandares internacionales',modulos:[
   {id:'iram9808',label:'IRAM 9808',sub:'Vehiculos de Transporte Sanitario',icon:'🚑',data:'MODS_IRAM9808',quiz:'QUIZ_IRAM9808',mq:'MQ_IRAM9808'},
@@ -633,7 +711,7 @@ function getModData(modId){
   's5':{mods:typeof MODS_S5!=='undefined'?MODS_S5:[],quiz:typeof QUIZ_S5!=='undefined'?QUIZ_S5:[],mq:typeof MQ_S5!=='undefined'?MQ_S5:{}},
   'dfm100':{mods:typeof MODS_DFM100!=='undefined'?MODS_DFM100:[],quiz:typeof QUIZ_DFM100!=='undefined'?QUIZ_DFM100:[],mq:MQB.dfm100||{}},
   'iram9808':{mods:typeof MODS_IRAM9808!=='undefined'?MODS_IRAM9808:[],quiz:typeof QUIZ_IRAM9808!=='undefined'?QUIZ_IRAM9808:[],mq:MQB.iram9808||{}},
-  'hs_basico':{mods:typeof MODS_HS!=='undefined'?MODS_HS:[],quiz:typeof QUIZ_HS!=='undefined'?QUIZ_HS:[],mq:MQB.hs||{}},'mindray_d3':{mods:typeof MODS_D3!=='undefined'?MODS_D3:[],quiz:typeof QUIZ_D3!=='undefined'?QUIZ_D3:[],mq:typeof MQ_D3!=='undefined'?MQ_D3:{}},'cardiomax':{mods:typeof MODS_CM!=='undefined'?MODS_CM:[],quiz:typeof QUIZ_CM!=='undefined'?QUIZ_CM:[],mq:typeof MQ_CM!=='undefined'?MQ_CM:{}},'nihon_kohden':{mods:typeof MODS_NK!=='undefined'?MODS_NK:[],quiz:typeof QUIZ_NK!=='undefined'?QUIZ_NK:[],mq:typeof MQ_NK!=='undefined'?MQ_NK:{}},
+  'hs_basico':{mods:typeof MODS_HS!=='undefined'?MODS_HS:[],quiz:typeof QUIZ_HS!=='undefined'?QUIZ_HS:[],mq:MQB.hs||{}},'mindray_d3':{mods:typeof MODS_D3!=='undefined'?MODS_D3:[],quiz:typeof QUIZ_D3!=='undefined'?QUIZ_D3:[],mq:typeof MQ_D3!=='undefined'?MQ_D3:{}},'cardiomax':{mods:typeof MODS_CM!=='undefined'?MODS_CM:[],quiz:typeof QUIZ_CM!=='undefined'?QUIZ_CM:[],mq:typeof MQ_CM!=='undefined'?MQ_CM:{}},'nihon_kohden':{mods:typeof MODS_NK!=='undefined'?MODS_NK:[],quiz:typeof QUIZ_NK!=='undefined'?QUIZ_NK:[],mq:typeof MQ_NK!=='undefined'?MQ_NK:{}},'em_c12':{mods:typeof MODS_EMC12!=='undefined'?MODS_EMC12:[],quiz:typeof QUIZ_EMC12!=='undefined'?QUIZ_EMC12:[],mq:typeof MQ_EMC12!=='undefined'?MQ_EMC12:{}},
  };
  return maps[modId]||null;
 }
@@ -2091,8 +2169,8 @@ function rSuper(){
 
 function rEditEmpresa(){
  var e=S.superEditEmpresa||{};
- var allMods=['se3','dfm100','s5','mindray_d3','cardiomax','nihon_kohden','iram9808','hs_basico','empresa'];
- var modLabels={'se3':'EDAN SE-3','dfm100':'Philips DFM100','s5':'COMEN S5','mindray_d3':'Mindray BeneHeart D3','cardiomax':'Instramed CardioMax','nihon_kohden':'Nihon Kohden Cardiolife','iram9808':'IRAM 9808 Ambulancias','hs_basico':'Higiene y Seguridad','empresa':'Modulo Empresa'};
+ var allMods=['se3','dfm100','s5','mindray_d3','cardiomax','nihon_kohden','em_c12','iram9808','hs_basico','empresa'];
+ var modLabels={'se3':'EDAN SE-3','dfm100':'Philips DFM100','s5':'COMEN S5','mindray_d3':'Mindray BeneHeart D3','cardiomax':'Instramed CardioMax','nihon_kohden':'Nihon Kohden Cardiolife','em_c12':'E&M C-12','iram9808':'IRAM 9808 Ambulancias','hs_basico':'Higiene y Seguridad','empresa':'Modulo Empresa'};
  var enabled=e.modulos_habilitados||[];
  var ytData=e.recursos_modulos||{};
  var autoC=e.codigo||genCode(e.nombre||'');
