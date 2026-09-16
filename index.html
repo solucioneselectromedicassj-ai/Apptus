@@ -107,6 +107,7 @@ var CATS=[
  {id:'empresa',label:'Modulo Empresa',icon:'🏢',desc:'Contenido especifico de tu organizacion',modulos:[]}, // cargado desde Supabase
 ];
 window.CATS=CATS;
+function getCats(){return window.CATS||[];}
 
 
 var IMG={};
@@ -625,6 +626,7 @@ async function logAcceso(tipo,modId,detalle){
 
 
 function getModulosHabilitados(){
+var CATS=getCats();
  if(!S.empresa)return[];
  var enabled=S.empresa.modulos_habilitados||[];
  var result=[];
@@ -713,6 +715,7 @@ function getModData(modId){
 // Load modules from Supabase in background after login
 
 async function runMigration(){
+var CATS=getCats();
  var btn=event&&event.target;
  if(btn){btn.textContent='Sincronizando...';btn.disabled=true;}
  var ids=['se3','dfm100','s5','mindray_d3','cardiomax','nihon_kohden','em_c12','iram9808','hs_basico'];
@@ -770,6 +773,7 @@ async function syncModulos(modIds){
 
 // Upload local module to Supabase (super-admin migration tool)
 async function uploadModuloToSupabase(modId){
+var CATS=getCats();
  var d=getModData(modId);
  if(!d)return;
  var catInfo=null;
@@ -1213,6 +1217,7 @@ function getYT(modId){
 // ═══ EVENTOS / CONFERENCIAS ═══
 
 function rSolicitud(){
+var CATS=getCats();
  var bs=S.botSol||{};
  var o='<div class="w"><button class="back" onclick="go(\'module\')">&larr; Modulo</button>';
  o+='<h2 style="font-size:18px;font-weight:500;margin-bottom:12px">Solicitar capacitacion presencial</h2>';
@@ -1397,6 +1402,7 @@ async function saveEvento(){
 
 // ═══ FAQ SCREEN ═══
 function rFAQ(){
+var CATS=getCats();
  var modId=S.modId||'';
  var faqs=FAQ[modId]||[];
  var modLabel=modId;
@@ -1446,6 +1452,7 @@ function rLogin(){
 }
 
 function rHome(){
+var CATS=getCats();
  var u=S.user,emp=S.empresa;
  var mods=getModulosHabilitados();
  var vigentes=0;
@@ -1727,6 +1734,7 @@ function rQuiz(){
 }
 
 function rResult(){
+var CATS=getCats();
  var d=getModData(S.modId);if(!d)return rHome();
  var p=getProg(S.modId);var pass=p.score>=PASS_QUIZ;var pct=Math.round(p.score/d.quiz.length*100);
  var modInfo=null;for(var i=0;i<CATS.length;i++){for(var j=0;j<CATS[i].modulos.length;j++){if(CATS[i].modulos[j].id===S.modId)modInfo=CATS[i].modulos[j];}}
@@ -1943,6 +1951,7 @@ async function saveEvento(){
  else{S.superError=res.error||'Error al guardar';render();}
 }
 async function enviarSolicitud(){
+var CATS=getCats();
  var u=S.user||{},emp=S.empresa||{};
  var modLabel=S.modId;
  for(var i=0;i<CATS.length;i++){for(var j=0;j<CATS[i].modulos.length;j++){if(CATS[i].modulos[j].id===S.modId)modLabel=CATS[i].modulos[j].label;}}
@@ -2008,6 +2017,7 @@ function showTC(){
 
 
 function rPreQuiz(){
+var CATS=getCats();
  var modId=S.modId;
  var modLabel=modId;
  for(var i=0;i<CATS.length;i++){for(var j=0;j<CATS[i].modulos.length;j++){if(CATS[i].modulos[j].id===modId)modLabel=CATS[i].modulos[j].label;}}
@@ -2121,6 +2131,7 @@ function rBotCapacitacion(){
 
 var _navStack2=_navStack||[];
 function render(){
+var CATS=getCats();
  if(typeof CATS==='undefined'||typeof S==='undefined'){setTimeout(function(){render();},50);return;}
  var app=document.getElementById('app');if(!app)return;
  try{
@@ -2346,6 +2357,7 @@ function toggleActivaEmpresa(){var e=S.superEditEmpresa;e.activa=!e.activa;rende
 // Override rBotCapacitacion to fix catKey/catIdx lookup
 var _rBotCapacitacion_orig = typeof rBotCapacitacion === 'function' ? rBotCapacitacion : null;
 function rBotCapacitacion(){
+var CATS=getCats();
  var bs=S.botState||{step:0};
  var o='<div class="w"><button class="back" onclick="go(\'home\')">&larr; Inicio</button>';
  o+='<h2 style="font-size:18px;font-weight:500;margin-bottom:4px">Consulta rapida</h2>';
