@@ -85,16 +85,18 @@ input,select{width:100%;padding:10px 12px;border-radius:8px;border:.5px solid va
 </div>
 <div id="app"></div>
 <div class="watermark" id="wm"></div>
-<script>// ═══ MODULES CATALOG ═══
+<script>// ── Failsafe: ensure globals exist before any code runs ──
+if(typeof window!=='undefined'&&typeof window.CATS==='undefined'){window.CATS=[];}
+// ═══ MODULES CATALOG ═══
 var CATS=[
  {id:'equipos',label:'Equipos Biomedicos',icon:'🔬',desc:'Equipos medicos y de laboratorio',modulos:[
   {id:'se3',label:'EDAN SE-3',sub:'Electrocardiografo',icon:'📈',data:'MODS_SE3',quiz:'QUIZ_SE3',mq:'MQ_SE3'},
   {id:'dfm100',label:'Philips DFM100',sub:'Cardiodesfibrilador',icon:'⚡',data:'MODS_DFM100',quiz:'QUIZ_DFM100',mq:'MQ_DFM100'},
   {id:'s5',label:'COMEN S5',sub:'Desfibrilador Monitor 4 en 1',icon:'💓',data:'MODS_S5',quiz:'QUIZ_S5',mq:'MQ_S5',ok:true},
   {id:'mindray_d3',label:'Mindray BeneHeart D3',sub:'Desfibrilador Monitor Bifásico',icon:'💛',data:'MODS_D3',quiz:'QUIZ_D3',mq:'MQ_D3',ok:true},
-  {id:'cardiomax',label:'Instramed CardioMax',sub:'Monitor Cardioversor/Desfibrilador',icon:'❤️',data:'MODS_CM',quiz:'QUIZ_CM',mq:'MQ_CM',ok:true},
+  {id:'cardiomax',label:'Instramed CardioMax',sub:'Monitor Cardioversor/Desfibrilador',icon:'❤',data:'MODS_CM',quiz:'QUIZ_CM',mq:'MQ_CM',ok:true},
   {id:'nihon_kohden',label:'Nihon Kohden Cardiolife',sub:'Desfibrilador Monitor - Serie TEC',icon:'💙',data:'MODS_NK',quiz:'QUIZ_NK',mq:'MQ_NK',ok:true},
-  {id:'em_c12',label:'E&M C-12',sub:'Monitor Desfibrilador - E&M Electromedicina Argentina',icon:'🇦🇷',data:'MODS_EMC12',quiz:'QUIZ_EMC12',mq:'MQ_EMC12',ok:true},
+  {id:'em_c12',label:'E&M C-12',sub:'Monitor Desfibrilador - E&M Electromedicina Argentina',icon:'AR',data:'MODS_EMC12',quiz:'QUIZ_EMC12',mq:'MQ_EMC12',ok:true},
  ]},
  {id:'normas',label:'Normas y Estandares',icon:'📋',desc:'Normativa argentina y estandares internacionales',modulos:[
   {id:'iram9808',label:'IRAM 9808',sub:'Vehiculos de Transporte Sanitario',icon:'🚑',data:'MODS_IRAM9808',quiz:'QUIZ_IRAM9808',mq:'MQ_IRAM9808'},
@@ -492,7 +494,7 @@ var MQ_NK={0:[{q:"Tecnología del Cardiolife:",ops:["Monofásica","ActiBiphasic"
 
 
 var MODS_EMC12=[
- {id:0,icon:"🇦🇷",title:"El equipo",color:"#1a3a6b",desc:"Partes del E&M C-12",slides:[
+ {id:0,icon:"AR",title:"El equipo",color:"#1a3a6b",desc:"Partes del E&M C-12",slides:[
   {type:"device_dfm",title:"Partes del E&M C-12",sub:"Toca cada zona para ver la descripción"},
   {type:"notice",title:"E&M C-12 - Monitor Desfibrilador argentino",sub:"",
    msg:"El C-12 es fabricado por E&M Electromedicina en Argentina. Opera con sistema 1-2-3 para desfibrilación en emergencias. Pantalla LCD de alto contraste con curva de trazo sólido y manual de ayuda resumido integrado.",
