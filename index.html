@@ -628,22 +628,45 @@ async function logAcceso(tipo,modId,detalle){
 }
 
 
+// Metadata (label/sub/icon/categoria) for one module id.
+// Prefers the live copy synced from Supabase (at_modulos) so modules created
+// in Builder-apptus show up even if they were never hardcoded into CATS.
+// Falls back to the embedded CATS catalog for the legacy built-in modules.
+function getModuloMeta(id){
+ var c=S.modulCache[id];
+ if(!c){try{var raw=localStorage.getItem('at_mod_'+id);if(raw)c=JSON.parse(raw);}catch(e){}}
+ if(c&&c.nombre)return{label:c.nombre,sub:c.sub||'',icon:c.icono||'📋',cat:c.categoria||'equipos'};
+ var CATS=getCats();
+ for(var i=0;i<CATS.length;i++){
+  for(var j=0;j<CATS[i].modulos.length;j++){
+   if(CATS[i].modulos[j].id===id)return Object.assign({cat:CATS[i].id},CATS[i].modulos[j]);
+  }
+ }
+ return null;
+}
+
+function getModuloLabel(id){var m=getModuloMeta(id);return m?m.label:id;}
+
+function catShellFor(catId){
+ var CATS=getCats();
+ for(var i=0;i<CATS.length;i++)if(CATS[i].id===catId)return CATS[i];
+ return null;
+}
+
 function getModulosHabilitados(){
-var CATS=getCats();
  if(!S.empresa)return[];
  var enabled=S.empresa.modulos_habilitados||[];
  var result=[];
- for(var i=0;i<CATS.length;i++){
-  var cat=CATS[i];
-  if(cat.id==='empresa'){
-   // Custom modules loaded from Supabase
-   if(enabled.indexOf('empresa')>=0&&S.moduloEmpresa){var em=Object.assign({},S.moduloEmpresa,{cat:cat.id,catLabel:cat.label,catIcon:cat.icon,id:'empresa_custom'});result.push(em);}
+ for(var i=0;i<enabled.length;i++){
+  var id=enabled[i];
+  if(id==='empresa'){
+   if(S.moduloEmpresa){var shell=catShellFor('empresa');result.push(Object.assign({},S.moduloEmpresa,{cat:'empresa',catLabel:shell?shell.label:'Modulo Empresa',catIcon:shell?shell.icon:'🏢',id:'empresa_custom'}));}
    continue;
   }
-  for(var j=0;j<cat.modulos.length;j++){
-   var mod=cat.modulos[j];
-   if(enabled.indexOf(mod.id)>=0){var m2=Object.assign({},mod,{cat:cat.id,catLabel:cat.label,catIcon:cat.icon});result.push(m2);}
-  }
+  var meta=getModuloMeta(id);
+  if(!meta)continue;
+  var shell2=catShellFor(meta.cat);
+  result.push(Object.assign({id:id},meta,{catLabel:shell2?shell2.label:meta.cat,catIcon:shell2?shell2.icon:'📋'}));
  }
  return result;
 }
@@ -761,7 +784,7 @@ async function syncModulos(modIds){
  if(!modIds.length)return;
  try{
   var idList=modIds.map(encodeURIComponent).join(',');
-  var url=SB_URL+'/rest/v1/at_modulos?select=id,nombre,sub,icono,mods,quiz,zonas,updated_at&activo=eq.true&id=in.('+idList+')';
+  var url=SB_URL+'/rest/v1/at_modulos?select=id,nombre,sub,icono,categoria,mods,quiz,zonas,updated_at&activo=eq.true&id=in.('+idList+')';
   var r=await fetch(url,{headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}});
   if(!r.ok)return;
   var rows=await r.json();
@@ -1242,7 +1265,7 @@ var CATS=getCats();
  o+='</div>';
  // Module
  var modLabel=S.modId;
- for(var i=0;i<CATS.length;i++){for(var j=0;j<CATS[i].modulos.length;j++){if(CATS[i].modulos[j].id===S.modId)modLabel=CATS[i].modulos[j].label;}}
+ modLabel=getModuloLabel(S.modId);
  o+='<p style="font-size:14px;font-weight:500;margin-bottom:6px">Modulo: '+modLabel+'</p>';
  o+='<label>Cuantas personas necesitan la capacitacion?</label>';
  o+='<select id="sol_pers"><option>Solo yo</option><option>2 a 5 personas</option><option>6 a 10 personas</option><option>Mas de 10 personas</option></select>';
@@ -1263,7 +1286,7 @@ var CATS=getCats();
 async function enviarSolicitud(){
  var u=S.user||{},emp=S.empresa||{};
  var modLabel=S.modId;
- for(var i=0;i<CATS.length;i++){for(var j=0;j<CATS[i].modulos.length;j++){if(CATS[i].modulos[j].id===S.modId)modLabel=CATS[i].modulos[j].label;}}
+ modLabel=getModuloLabel(S.modId);
  var sol={
   empresa_id:emp.id,usuario_id:u.id||null,
   usuario_nombre:u.nombre||'',usuario_legajo:u.legajo||'',
@@ -1418,7 +1441,7 @@ var CATS=getCats();
  var modId=S.modId||'';
  var faqs=FAQ[modId]||[];
  var modLabel=modId;
- for(var i=0;i<CATS.length;i++){for(var j=0;j<CATS[i].modulos.length;j++){if(CATS[i].modulos[j].id===modId)modLabel=CATS[i].modulos[j].label;}}
+ modLabel=getModuloLabel(modId);
  var o='<div class="w"><button class="back" onclick="go(\'module\')">&larr; Modulo</button>';
  o+='<h2 style="font-size:18px;font-weight:500;margin-bottom:4px">Preguntas frecuentes</h2>';
  o+='<p class="muted" style="margin-bottom:16px">'+modLabel+'</p>';
@@ -1679,9 +1702,9 @@ function rModule(){
  if(S.previewMode)o+='<div style="background:#1a3a6b22;border:.5px solid #1a3a6b44;border-radius:8px;padding:8px 12px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between"><span style="font-size:12px;color:#1a3a6b">Vista previa admin</span><button onclick="S.previewMode=false;go(\'home\')" style="background:none;border:none;color:var(--mu);cursor:pointer;font-size:11px">Salir</button></div>';
  if(S.reviewMode)o+='<div style="background:var(--ok-bg);border:.5px solid var(--ok-bd);border-radius:8px;padding:8px 12px;margin-bottom:10px;display:flex;align-items:center;gap:8px"><span>📖</span><p style="font-size:12px;color:var(--ok)">Modo repaso - Cert. vigente hasta '+p.certExpiry+'</p></div>';
  o+='<button class="back" onclick="go(\'home\')">&larr; Inicio</button>';
- o+='<div style="display:flex;gap:10px;align-items:center;margin-bottom:10px"><span style="font-size:24px">'+mod.icon+'</span><div><p style="font-weight:500;font-size:15px;margin-bottom:1px">'+mod.title+'</p><p class="muted" style="font-size:12px">Paso '+(S.slideIdx+1)+' de '+total+'</p></div></div>';
+ o+='<div style="display:flex;gap:10px;align-items:center;margin-bottom:10px"><span style="font-size:24px">'+(mod.icon||'📘')+'</span><div><p style="font-weight:500;font-size:15px;margin-bottom:1px">'+mod.title+'</p><p class="muted" style="font-size:12px">Paso '+(S.slideIdx+1)+' de '+total+'</p></div></div>';
  o+='<div style="display:flex;gap:3px;margin-bottom:10px">';
- for(var i=0;i<total;i++)o+='<div style="height:4px;flex:1;border-radius:2px;background:'+(i<=S.slideIdx?mod.color:'var(--bd)')+'"></div>';
+ for(var i=0;i<total;i++)o+='<div style="height:4px;flex:1;border-radius:2px;background:'+(i<=S.slideIdx?(mod.color||'#1a3a6b'):'var(--bd)')+'"></div>';
  o+='</div>';
  o+='<div class="card">'+rSlide(mod,slide,S.modIdx,S.slideIdx)+'</div>';
  o+='<div style="display:flex;gap:8px">';
@@ -1689,10 +1712,10 @@ function rModule(){
  if(S.slideIdx<total-1){
   o+='<button class="btn btn-p" style="flex:2;background:#1a3a6b" onclick="nS()">Siguiente &rarr;</button>';
  }else if(S.reviewMode){
-  if(S.modIdx<d.mods.length-1)o+='<button class="btn" style="background:'+mod.color+';color:white;flex:2" onclick="nMod()">Siguiente modulo &rarr;</button>';
+  if(S.modIdx<d.mods.length-1)o+='<button class="btn" style="background:'+(mod.color||'#1a3a6b')+';color:white;flex:2" onclick="nMod()">Siguiente modulo &rarr;</button>';
   else o+='<button class="btn btn-p" style="flex:2;background:#1a3a6b" onclick="go(\'home\')">&larr; Volver</button>';
  }else{
-  o+='<button class="btn" style="background:'+mod.color+';color:white;flex:2" onclick="cM()">Completar y mini-evaluacion &rarr;</button>';
+  o+='<button class="btn" style="background:'+(mod.color||'#1a3a6b')+';color:white;flex:2" onclick="cM()">Completar y mini-evaluacion &rarr;</button>';
  }
  o+='</div>';
  o+='<div style="display:flex;gap:8px">';
@@ -1711,7 +1734,7 @@ function rMiniQuiz(){
  var d=getModData(S.modId);var mod=d&&d.mods?d.mods[mq.moduleId]:null;
  var o='<div class="w">';
  o+='<div style="background:var(--warn-bg);border:1px solid var(--warn-bd);border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:8px">';
- o+='<span style="font-size:18px">'+(mod?mod.icon:'📝')+'</span>';
+ o+='<span style="font-size:18px">'+(mod&&mod.icon?mod.icon:'📝')+'</span>';
  o+='<div><p style="font-size:12px;font-weight:600;color:var(--warn)">Mini-evaluacion: '+(mod?mod.title:'')+'</p><p class="muted" style="font-size:11px">Necesitas 75% para pasar este modulo</p></div></div>';
  o+='<p class="muted" style="margin-bottom:6px">Pregunta '+(mq.qIdx+1)+' de '+mq.questions.length+'</p>';
  o+='<div class="prog" style="margin-bottom:12px"><div class="pf" style="width:'+(mq.qIdx/mq.questions.length*100)+'%;background:var(--warn)"></div></div>';
@@ -1751,7 +1774,7 @@ function rResult(){
 var CATS=getCats();
  var d=getModData(S.modId);if(!d)return rHome();
  var p=getProg(S.modId);var pass=p.score>=PASS_QUIZ;var pct=Math.round(p.score/d.quiz.length*100);
- var modInfo=null;for(var i=0;i<CATS.length;i++){for(var j=0;j<CATS[i].modulos.length;j++){if(CATS[i].modulos[j].id===S.modId)modInfo=CATS[i].modulos[j];}}
+ var modInfo=getModuloMeta(S.modId);
  var exm=EXPIRY[S.form.rol]||12;
  var waMsg='AppTus - Soporte Tecnico Operativo\nEmpresa: '+(S.empresa?S.empresa.nombre:'')+'\nModulo: '+(modInfo?modInfo.label:S.modId)+'\n'+(S.user?S.user.nombre:'')+(S.user&&S.user.legajo?' (Leg. '+S.user.legajo+')':'')+'\n'+S.form.rol+'\nResultado: '+p.score+'/'+d.quiz.length+' ('+pct+'%)\n'+(pass?'APROBADO - Certificado por '+exm+' meses':'NO APROBADO - Requiere refuerzo')+'\nFecha: '+p.certDate+(pass?'\nVigente hasta: '+p.certExpiry:'');
  var o='<div class="w">'+atHeader();
@@ -1968,7 +1991,7 @@ async function enviarSolicitud(){
 var CATS=getCats();
  var u=S.user||{},emp=S.empresa||{};
  var modLabel=S.modId;
- for(var i=0;i<CATS.length;i++){for(var j=0;j<CATS[i].modulos.length;j++){if(CATS[i].modulos[j].id===S.modId)modLabel=CATS[i].modulos[j].label;}}
+ modLabel=getModuloLabel(S.modId);
  var sol={empresa_id:emp.id,usuario_id:u.id||null,usuario_nombre:u.nombre||'',usuario_legajo:u.legajo||'',usuario_rol:(S.form&&S.form.rol)||'',modulo_id:S.modId,modulo_nombre:modLabel,personas:(document.getElementById('sol_pers')||{}).value||'',turno:(document.getElementById('sol_turno')||{}).value||'',lugar:(document.getElementById('sol_lugar')||{}).value||'',observaciones:(document.getElementById('sol_obs')||{}).value||''};
  S.solError='';
  var res=await apiPost('solicitud',sol);
@@ -2034,7 +2057,7 @@ function rPreQuiz(){
 var CATS=getCats();
  var modId=S.modId;
  var modLabel=modId;
- for(var i=0;i<CATS.length;i++){for(var j=0;j<CATS[i].modulos.length;j++){if(CATS[i].modulos[j].id===modId)modLabel=CATS[i].modulos[j].label;}}
+ modLabel=getModuloLabel(modId);
  var p=getProg(modId);var d=getModData(modId);
  var nQ=d&&d.quiz?d.quiz.length:10;
  var roles={'Residente':'6 meses','Medico/a':'12 meses','Enfermero/a':'12 meses','Tecnico/a':'12 meses'};
@@ -2090,59 +2113,6 @@ async function sendSurvey(){
  S.survey={};go('home');
  alert('Gracias por tu encuesta!');
 }
-function rBotCapacitacion(){
- var bs=S.botState||{step:0};
- var o='<div class="w"><button class="back" onclick="go(\'home\')">&larr; Inicio</button>';
- o+='<h2 style="font-size:18px;font-weight:500;margin-bottom:4px">Consulta rapida</h2>';
- o+='<p class="muted" style="margin-bottom:14px">Encontra el tema que buscas</p>';
- // Super-admin sees all modules; regular users see their empresa modules
- var mods=S.rol==='super_admin'
-  ?CATS.reduce(function(acc,cat){return acc.concat(cat.modulos.map(function(m){return Object.assign({},m,{cat:cat.id,catLabel:cat.label,catIcon:cat.icon});}));},[])
-  :getModulosHabilitados();
- if(bs.step===0){
-  var cats={};
-  for(var i=0;i<mods.length;i++){var m=mods[i];if(!cats[m.cat])cats[m.cat]={label:m.catLabel,icon:m.catIcon,mods:[]};cats[m.cat].mods.push(m);}
-  o+='<div class="card"><p style="font-weight:600;margin-bottom:12px">Selecciona el area</p>';
-  var catKeys=Object.keys(cats);
-  for(var ci=0;ci<catKeys.length;ci++){
-   var cat=cats[catKeys[ci]];
-   o+='<div onclick="S.botState={step:1,catIdx:"+(ci)+",catKey:\""+(catKeys[ci])+"\"};render()" class="eqli" style="cursor:pointer;margin-bottom:8px">';
-   o+='<span style="font-size:28px">'+cat.icon+'</span><div><p style="font-weight:500">'+cat.label+'</p><p class="muted" style="font-size:12px">'+cat.mods.length+' modulo'+(cat.mods.length>1?'s':'')+'</p></div><span style="color:var(--mu)">&rsaquo;</span></div>';
-  }
-  o+='</div>';
- }else if(bs.step===1){
-  // Get mods from CATS by catKey
-  var co2=null;if(bs.catKey){for(var ci2=0;ci2<CATS.length;ci2++){if(CATS[ci2].id===bs.catKey){co2=CATS[ci2];break;}}}if(!co2&&bs.catIdx!=null)co2=CATS[bs.catIdx];var catMods=co2?co2.modulos.slice():[];var en2=(S.empresa&&S.empresa.modulos_habilitados)||[];if(S.rol!=='super_admin'&&en2.length>0)catMods=catMods.filter(function(m){return en2.indexOf(m.id)>=0;});
-  // For super-admin without empresa, show all
-  if(S.rol==='super_admin'){var enabledMods=catMods;}
-  else{var enabled2=(S.empresa&&S.empresa.modulos_habilitados)||[];catMods=catMods.filter(function(m){return enabled2.indexOf(m.id)>=0;});}
-  var catObj1=CATS[bs.catIdx]||{label:'',modulos:[]};
-  o+='<button class="back" onclick="S.botState={step:0};render()">&larr; '+catObj1.label+'</button>';
-  o+='<div class="card"><p style="font-weight:600;margin-bottom:12px">Selecciona el modulo</p>';
-  for(var mi=0;mi<catMods.length;mi++){
-   var mod=catMods[mi];
-   o+='<div onclick="S.botState={step:2,catKey:bs.catKey,catMods:catMods,modId:\''+mod.id+'\'};render()" class="eqli" style="cursor:pointer;margin-bottom:8px">';
-   o+='<span style="font-size:24px">'+mod.icon+'</span><div><p style="font-weight:500">'+mod.label+'</p><p class="muted" style="font-size:12px">'+mod.sub+'</p></div><span style="color:var(--mu)">&rsaquo;</span></div>';
-  }
-  o+='</div>';
- }else if(bs.step===2){
-  var modId=bs.modId;var d=getModData(modId);
-  o+='<button class="back" onclick="S.botState={step:1,catKey:bs.catKey,catMods:bs.catMods};render()">&larr; Modulos</button>';
-  o+='<div class="card"><p style="font-weight:600;margin-bottom:12px">Selecciona el tema</p>';
-  if(d&&d.mods.length>0){
-   for(var ti=0;ti<d.mods.length;ti++){
-    var topic=d.mods[ti];
-    o+='<div onclick="openModAt(\''+modId+'\','+ti+')" style="display:flex;gap:12px;align-items:center;padding:10px 12px;background:var(--card2);border-radius:8px;margin-bottom:6px;cursor:pointer;border:.5px solid var(--bd)">';
-    o+='<span style="font-size:20px">'+topic.icon+'</span><div style="flex:1"><p style="font-size:14px;font-weight:500">'+topic.title+'</p><p class="muted" style="font-size:12px">'+topic.desc+'</p></div><span style="color:var(--mu)">&rsaquo;</span></div>';
-   }
-  }else{o+='<p class="muted">Sin temas disponibles</p>';}
-  o+='</div>';
- }
- o+='</div>';
- return o;
-}
-
-
 var _navStack2=_navStack||[];
 function render(){
 var CATS=getCats();
@@ -2353,55 +2323,46 @@ function toggleMod(m){
 function autoCode(){var nameEl=document.getElementById('ename');var codeEl=document.getElementById('ecode');if(!nameEl||!codeEl)return;if(!codeEl.value||codeEl.dataset.auto){codeEl.value=genCode(nameEl.value);codeEl.dataset.auto='1';}}
 function toggleActivaEmpresa(){var e=S.superEditEmpresa;e.activa=!e.activa;render();}
 
-// ── Fix bot step1 navigation ──────────────────────────────────────────────
-// Override rBotCapacitacion to fix catKey/catIdx lookup
-var _rBotCapacitacion_orig = typeof rBotCapacitacion === 'function' ? rBotCapacitacion : null;
+// Super-admin browses the full embedded catalog as a preview; regular users
+// see only their empresa's enabled modules, sourced dynamically (Supabase
+// sync + legacy CATS fallback) via getModulosHabilitados() so modules
+// created purely in Builder-apptus show up here too.
 function rBotCapacitacion(){
-var CATS=getCats();
+ var CATS=getCats();
  var bs=S.botState||{step:0};
  var o='<div class="w"><button class="back" onclick="go(\'home\')">&larr; Inicio</button>';
  o+='<h2 style="font-size:18px;font-weight:500;margin-bottom:4px">Consulta rapida</h2>';
  o+='<p class="muted" style="margin-bottom:14px">Encontra el tema que buscas</p>';
- var enabledMods=(S.empresa&&S.empresa.modulos_habilitados)||[];
- var isSuperAdmin=(S.rol==='super_admin');
-
+ var mods=S.rol==='super_admin'
+  ?CATS.reduce(function(acc,cat){return acc.concat(cat.modulos.map(function(m){return Object.assign({},m,{cat:cat.id,catLabel:cat.label,catIcon:cat.icon});}));},[])
+  :getModulosHabilitados();
  if(bs.step===0){
-  // Step 0: show categories
   var cats={};
-  for(var ci=0;ci<CATS.length;ci++){
-   var cat=CATS[ci];
-   var catMods=cat.modulos.filter(function(m){return isSuperAdmin||enabledMods.indexOf(m.id)>=0;});
-   if(catMods.length===0)continue;
-   cats[ci]={label:cat.label,icon:cat.icon||'📋',mods:catMods,idx:ci};
-  }
+  for(var i=0;i<mods.length;i++){var m=mods[i];if(!cats[m.cat])cats[m.cat]={label:m.catLabel,icon:m.catIcon,mods:[]};cats[m.cat].mods.push(m);}
   o+='<div class="card"><p style="font-weight:600;margin-bottom:12px">Selecciona el area</p>';
-  var catIdxs=Object.keys(cats);
-  for(var ki=0;ki<catIdxs.length;ki++){
-   var ci2=catIdxs[ki];var cat2=cats[ci2];
-   o+='<div onclick="S.botState={step:1,catIdx:'+ci2+'};render()" class="eqli" style="cursor:pointer;margin-bottom:8px">';
-   o+='<span style="font-size:28px">'+cat2.icon+'</span><div><p style="font-weight:500">'+cat2.label+'</p><p class="muted" style="font-size:12px">'+cat2.mods.length+' modulo'+(cat2.mods.length>1?'s':'')+'</p></div><span style="color:var(--mu)">&rsaquo;</span></div>';
+  var catKeys=Object.keys(cats);
+  for(var ci=0;ci<catKeys.length;ci++){
+   var catKey=catKeys[ci];var cat=cats[catKey];
+   o+='<div onclick="S.botState={step:1,catKey:\''+catKey+'\'};render()" class="eqli" style="cursor:pointer;margin-bottom:8px">';
+   o+='<span style="font-size:28px">'+cat.icon+'</span><div><p style="font-weight:500">'+cat.label+'</p><p class="muted" style="font-size:12px">'+cat.mods.length+' modulo'+(cat.mods.length>1?'s':'')+'</p></div><span style="color:var(--mu)">&rsaquo;</span></div>';
   }
   o+='</div>';
  } else if(bs.step===1){
-  // Step 1: show modules in category
-  var ci3=bs.catIdx||0;
-  var cat3=CATS[ci3]||{label:'',modulos:[],icon:''};
-  var catMods3=cat3.modulos.filter(function(m){return isSuperAdmin||enabledMods.indexOf(m.id)>=0;});
-  o+='<button class="back" onclick="S.botState={step:0};render()">&larr; '+cat3.label+'</button>';
-  o+='<div class="card"><p style="font-weight:600;margin-bottom:12px">'+cat3.label+'</p>';
-  for(var mi=0;mi<catMods3.length;mi++){
-   var mod=catMods3[mi];
-   o+='<div onclick="S.botState={step:2,catIdx:'+ci3+',modId:\''+mod.id+'\'};render()" class="eqli" style="cursor:pointer;margin-bottom:8px">';
+  var catKey1=bs.catKey;
+  var catMods=mods.filter(function(m){return m.cat===catKey1;});
+  var catLabel=catMods.length?catMods[0].catLabel:'';
+  o+='<button class="back" onclick="S.botState={step:0};render()">&larr; '+catLabel+'</button>';
+  o+='<div class="card"><p style="font-weight:600;margin-bottom:12px">'+catLabel+'</p>';
+  for(var mi=0;mi<catMods.length;mi++){
+   var mod=catMods[mi];
+   o+='<div onclick="S.botState={step:2,catKey:\''+catKey1+'\',modId:\''+mod.id+'\'};render()" class="eqli" style="cursor:pointer;margin-bottom:8px">';
    o+='<span style="font-size:24px">'+(mod.icon||'📋')+'</span><div><p style="font-weight:500">'+mod.label+'</p><p class="muted" style="font-size:12px">'+(mod.sub||'')+'</p></div><span style="color:var(--mu)">&rsaquo;</span></div>';
   }
   o+='</div>';
  } else if(bs.step===2){
-  // Step 2: show topics in module
   var modId=bs.modId;var d=getModData(modId);
-  var modInfo=null;
-  for(var ci4=0;ci4<CATS.length;ci4++){for(var mi2=0;mi2<CATS[ci4].modulos.length;mi2++){if(CATS[ci4].modulos[mi2].id===modId)modInfo=CATS[ci4].modulos[mi2];}}
-  var ci5=bs.catIdx||0;
-  o+='<button class="back" onclick="S.botState={step:1,catIdx:'+ci5+'};render()">&larr; '+(modInfo?modInfo.label:modId)+'</button>';
+  var modInfo=getModuloMeta(modId);
+  o+='<button class="back" onclick="S.botState={step:1,catKey:\''+(bs.catKey||'')+'\'};render()">&larr; '+(modInfo?modInfo.label:modId)+'</button>';
   o+='<div class="card"><p style="font-weight:600;margin-bottom:12px">Selecciona el tema</p>';
   if(d&&d.mods&&d.mods.length>0){
    for(var ti=0;ti<d.mods.length;ti++){
