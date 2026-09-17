@@ -115,6 +115,8 @@ var IMG={};
 
 // ═══ CONFIG ═══
 var API = 'https://drfyicdwwltzzahqixlz.supabase.co/functions/v1/apptus-api';
+var SB_URL = 'https://drfyicdwwltzzahqixlz.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyZnlpY2R3d2x0enphaHFpeGx6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMjgzMDEsImV4cCI6MjA5NDkwNDMwMX0.Ar9pc4OAI09mb4Mu96wlSyimNNuLS54NZ-eqsh80pOU';
 
 var SE3_ZONES=[
  {id:'recorder',label:'Registrador/Papel',col:'#6a1b9a',x:4,y:8,w:38,h:84,desc:'Registrador termico 80mm. Para cambiar: tirar pestanas hacia arriba, insertar con lado termico hacia abajo, cerrar al clic.'},
@@ -581,6 +583,7 @@ var MQ_EMC12={
     if(s.form)S.form=Object.assign(S.form,s.form);
     try{var p=localStorage.getItem('at_prog_'+s.user.id);if(p)S.progress=JSON.parse(p);}catch(e2){}
     if(S.tcAccepted)S.screen='home';
+    syncModulos(S.empresa.modulos_habilitados);
    }
   }
  }catch(e){}
@@ -750,24 +753,33 @@ var CATS=getCats();
  alert('Sincronizacion completada!\n\nSubidos: '+ok+'\nErrores: '+fail+'\n\nLos modulos ya estan en la nube. Los usuarios los cargaran automaticamente al abrir la app.');
 }
 
+// Sync modules from Supabase (at_modulos) for the empresa's enabled module ids.
+// Version marker is the row's updated_at: only overwrite the local cache when
+// the server copy is newer than what's cached.
 async function syncModulos(modIds){
- if(!modIds||!modIds.length)return;
- // Build version map from local cache
- var versionMap={};
- for(var i=0;i<modIds.length;i++){
-  try{var v=localStorage.getItem('at_mod_ver_'+modIds[i]);if(v)versionMap[modIds[i]]=parseInt(v);}catch(e){}
- }
+ modIds=(modIds||[]).filter(function(id){return id&&id!=='empresa';});
+ if(!modIds.length)return;
  try{
-  var qp='ids='+modIds.join(',')+'&versions='+encodeURIComponent(JSON.stringify(versionMap));
-  var res=await apiGet('modulos?'+qp,{});
-  if(res.ok&&res.modulos){
-   for(var id in res.modulos){
-    var m=res.modulos[id];
-    S.modulCache[id]=m;
-    try{localStorage.setItem('at_mod_'+id,JSON.stringify(m));localStorage.setItem('at_mod_ver_'+id,String(m.version||1));}catch(e){}
+  var idList=modIds.map(encodeURIComponent).join(',');
+  var url=SB_URL+'/rest/v1/at_modulos?select=id,nombre,sub,icono,mods,quiz,zonas,updated_at&activo=eq.true&id=in.('+idList+')';
+  var r=await fetch(url,{headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}});
+  if(!r.ok)return;
+  var rows=await r.json();
+  var changed=false;
+  for(var i=0;i<rows.length;i++){
+   var m=rows[i];
+   var cachedVer=null;
+   try{cachedVer=localStorage.getItem('at_mod_ver_'+m.id);}catch(e){}
+   if(!cachedVer||new Date(m.updated_at)>new Date(cachedVer)){
+    S.modulCache[m.id]=m;
+    try{
+     localStorage.setItem('at_mod_'+m.id,JSON.stringify(m));
+     localStorage.setItem('at_mod_ver_'+m.id,m.updated_at);
+    }catch(e){}
+    changed=true;
    }
-   if(S.screen==='home')render();
   }
+  if(changed&&(S.screen==='home'||S.screen==='module'))render();
  }catch(e){}
 }
 
@@ -1476,6 +1488,8 @@ var CATS=getCats();
    }
   }else{o+='<div class="card" style="text-align:center;padding:24px"><p style="font-size:32px;margin-bottom:12px">📭</p><p style="font-weight:500;margin-bottom:6px">Sin modulos habilitados</p><p class="muted">Contacta a tu administrador para habilitarlos.</p></div>';}
  }
+ var cats={};
+ for(var mci=0;mci<mods.length;mci++){var mcm=mods[mci];if(!cats[mcm.cat])cats[mcm.cat]=[];cats[mcm.cat].push(mcm);}
  var catOrder=['equipos','normas','higiene','empresa'];
  for(var ci=0;ci<catOrder.length;ci++){
   var catId=catOrder[ci];
@@ -2175,21 +2189,7 @@ async function doLogin(){
  if(estado==='suspendida_rrhh'&&res.rol==='usuario'){S.loginErr='Tu acceso esta suspendido. Contacta a Recursos Humanos.';render();return;}
  try{var p=localStorage.getItem('at_prog_'+S.user.id);if(p)S.progress=JSON.parse(p);localStorage.setItem('at_session',JSON.stringify({user:res.usuario,empresa:res.empresa,rol:res.rol,form:S.form}));}catch(e){}
  S.screen='home';
- // Cache modules returned from login response
- if(res.modulos){
-  var vmap={};
-  for(var mid in res.modulos){
-   var m=res.modulos[mid];
-   S.modulCache[mid]=m;
-   try{
-    var cv=JSON.parse(localStorage.getItem('at_mod_ver_'+mid)||'0');
-    if(!cv||m.version>cv){
-     localStorage.setItem('at_mod_'+mid,JSON.stringify(m));
-     localStorage.setItem('at_mod_ver_'+mid,String(m.version||1));
-    }
-   }catch(e){}
-  }
- }
+ syncModulos(S.empresa.modulos_habilitados);
  render();
 }
 function logout(){try{localStorage.removeItem('at_session');}catch(e){}S.user=null;S.empresa=null;S.rol=null;S.progress={};S.screen='login';render();}
