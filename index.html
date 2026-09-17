@@ -224,6 +224,7 @@ function getDeviceHash(){
 // ═══ STATE ═══
 var S={
  screen:'login',
+ isDemo:false,
  modulCache:{},modulLoading:{},previewMode:false,
  tcAccepted:(function(){try{return localStorage.getItem('at_tc')==='1';}catch(e){return false;}})(),
  user:null,empresa:null,rol:null,
@@ -595,6 +596,12 @@ var MQ_EMC12={
   if(cod)S.form.codigo_empresa=cod.toUpperCase();
  }catch(e){}
 })();
+// ── URL param: ?demo=1 drops straight into the sample walkthrough, no login ──
+(function(){
+ try{
+  if(new URLSearchParams(window.location.search).get('demo')==='1')startDemo();
+ }catch(e){}
+})();
 
 // ═══ API CALLS ═══
 async function apiPost(action, data){
@@ -703,7 +710,8 @@ function setWatermark(){
 function atHeader(){
  var nombre=S.empresa?S.empresa.nombre:'AppTus';
  var color=S.empresa?S.empresa.color_principal:'#1a3a6b';
- return '<div class="hdr-at" style="background:linear-gradient(135deg,'+color+','+color+'cc)">'
+ var ribbon=S.isDemo?'<div style="background:#f59e0b;color:#1a1a1a;text-align:center;padding:6px 10px;font-size:11px;font-weight:700;border-radius:10px 10px 0 0;display:flex;align-items:center;justify-content:center;gap:10px">🎬 MODO DEMO — datos de ejemplo<button onclick="exitDemo()" style="background:rgba(0,0,0,.18);color:#1a1a1a;border:none;border-radius:6px;padding:2px 9px;cursor:pointer;font-size:10px;font-weight:700">Salir</button></div>':'';
+ return ribbon+'<div class="hdr-at" style="background:linear-gradient(135deg,'+color+','+color+'cc)">'
   +'<svg width="36" height="36" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="rgba(255,255,255,0.15)"/><path d="M50 18 L75 30 L75 54 Q75 72 50 82 Q25 72 25 54 L25 30 Z" fill="none" stroke="white" stroke-width="4"/><path d="M35 52 L45 62 L67 40" fill="none" stroke="#22c55e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
   +'<div><p style="font-size:11px;color:rgba(255,255,255,.65);margin-bottom:1px">AppTus | '+nombre+'</p>'
   +'<p style="font-weight:700;font-size:13px;color:white">Soporte Tecnico Operativo</p></div></div>';
@@ -1945,7 +1953,10 @@ async function toggleSuspendUser(userId){
  u.activo=newActivo;render();
 }
 
-async function updSol(id,estado){await apiPost('upd_solicitud',{id:id,estado:estado});loadAdminData();}
+async function updSol(id,estado){
+ if(S.isDemo){var sol=(S.adminEmpresaData.solicitudes||[]).filter(function(s){return s.id===id;})[0];if(sol)sol.estado=estado;render();return;}
+ await apiPost('upd_solicitud',{id:id,estado:estado});loadAdminData();
+}
 async function loadSuperData(){var local=localStorage.getItem('at_super_empresas');if(local){try{S.superEmpresas=JSON.parse(local);}catch(e){S.superEmpresas=[];}}else{S.superEmpresas=[];}render();try{var res=await apiGet('super_empresas',{pw:'SEM2026super'});if(res.ok&&res.empresas&&res.empresas.length>0){S.superEmpresas=res.empresas;localStorage.setItem('at_super_empresas',JSON.stringify(res.empresas));render();}}catch(e){}}
 function saveSuperLocal(empresa){var list=S.superEmpresas||[];var idx=list.findIndex(function(e){return e.id===empresa.id;});if(idx>=0)list[idx]=empresa;else list.push(empresa);S.superEmpresas=list;localStorage.setItem('at_super_empresas',JSON.stringify(list));}
 function openEventos(){S.eventos=null;go('eventos');loadEventos();}
@@ -2217,7 +2228,7 @@ function cM(){
   S.screen='module';render();
  }
 }
-async function loadAdminData(){if(!S.empresa)return;S.loading=true;render();var res=await apiGet('admin_empresa',{empresa_id:S.empresa.id,mes:S.adminMonth||''});S.loading=false;S.adminEmpresaData=res;render();}
+async function loadAdminData(){if(!S.empresa||S.isDemo)return;S.loading=true;render();var res=await apiGet('admin_empresa',{empresa_id:S.empresa.id,mes:S.adminMonth||''});S.loading=false;S.adminEmpresaData=res;render();}
 function botAnswer(field,val){S.botState=S.botState||{step:0,answers:{}};S.botState.answers[field]=val;var steps=4;if(S.botState.step<steps-1)S.botState.step++;else S.botState.step=steps;render();}
 async function loadSuperData(){var local=localStorage.getItem('at_super_empresas');if(local){try{S.superEmpresas=JSON.parse(local);}catch(e){S.superEmpresas=[];}}else{S.superEmpresas=[];}render();try{var res=await apiGet('super_empresas',{pw:'SEM2026super'});if(res.ok&&res.empresas&&res.empresas.length>0){S.superEmpresas=res.empresas;localStorage.setItem('at_super_empresas',JSON.stringify(res.empresas));render();}}catch(e){}}
 function saveSuperLocal(empresa){var list=S.superEmpresas||[];var idx=list.findIndex(function(e){return e.id===empresa.id;});if(idx>=0)list[idx]=empresa;else list.push(empresa);S.superEmpresas=list;localStorage.setItem('at_super_empresas',JSON.stringify(list));}
@@ -2231,6 +2242,61 @@ function acceptTC(){
 }
 function doShare(codigo,nombre,link){var msg='Te invito a '+nombre+' en AppTus.\n\nLink directo:\n'+link+'\n\nO usa el codigo: '+codigo;if(navigator.share){navigator.share({title:'AppTus - '+nombre,text:msg,url:link});}else if(navigator.clipboard){navigator.clipboard.writeText(link).then(function(){alert('Link copiado!');});}else{prompt('Copia este link:',link);}}
 function shareEmpresaLink(codigo,nombre){doShare(codigo,nombre,window.location.href.split('?')[0]+'?codigo='+encodeURIComponent(codigo));}
+
+// ═══ DEMO MODE ═══
+// Self-contained walkthrough with realistic sample data: no login, no backend calls.
+// Uses the legacy embedded modules (se3/s5/dfm100/iram9808/hs_basico) since their full
+// content ships inside this file already, so the demo works even offline.
+function startDemo(){
+ function d(n){var dt=new Date();dt.setDate(dt.getDate()+n);return dt.toISOString().slice(0,10);}
+ S.isDemo=true;
+ S.user={id:'demo_user',nombre:'Ana Martinez',legajo:'D-1024'};
+ S.empresa={id:'demo',nombre:'Hospital Demo SEM',codigo:'DEMO',codigo_rrhh:'DEMORH',color_principal:'#1a3a6b',estado_acceso:'activa',modulos_habilitados:['se3','s5','dfm100','iram9808','hs_basico']};
+ S.rol='admin_empresa';
+ S.form=Object.assign({},S.form,{nombre:'Ana Martinez',legajo:'D-1024',codigo_empresa:'DEMO',rol:'Jefa de Enfermeria'});
+ S.progress={
+  se3:{mods:[0,1],certified:true,certDate:d(-30),certExpiry:d(335),score:9,totalQ:10},
+  s5:{mods:[0,1,2],certified:true,certDate:d(-400),certExpiry:d(-35),score:8,totalQ:10},
+  dfm100:{mods:[0],certified:false,score:0,totalQ:10}
+ };
+ S.adminEmpresaData={
+  ok:true,
+  usuarios:[
+   {id:'demo_user',nombre:'Ana Martinez',legajo:'D-1024',rol:'admin_empresa',ultimo_acceso:d(0),activo:true},
+   {id:'u2',nombre:'Carlos Gimenez',legajo:'D-2031',rol:'usuario',ultimo_acceso:d(-2),activo:true},
+   {id:'u3',nombre:'Laura Fernandez',legajo:'D-3355',rol:'rrhh',ultimo_acceso:d(-5),activo:true},
+   {id:'u4',nombre:'Marcos Diaz',legajo:'D-4820',rol:'usuario',ultimo_acceso:d(-20),activo:false}
+  ],
+  progreso:[
+   {usuario_id:'demo_user',modulo_id:'se3',certificado:true,fecha_vencimiento:d(335),modulos_completados:[0,1],updated_at:d(-30)},
+   {usuario_id:'demo_user',modulo_id:'s5',certificado:true,fecha_vencimiento:d(-35),modulos_completados:[0,1,2],updated_at:d(-400)},
+   {usuario_id:'u2',modulo_id:'se3',certificado:true,fecha_vencimiento:d(200),modulos_completados:[0,1],updated_at:d(-10)},
+   {usuario_id:'u2',modulo_id:'hs_basico',certificado:false,modulos_completados:[0],updated_at:d(-3)},
+   {usuario_id:'u3',modulo_id:'iram9808',certificado:true,fecha_vencimiento:d(100),modulos_completados:[0],updated_at:d(-15)},
+   {usuario_id:'u4',modulo_id:'dfm100',certificado:false,modulos_completados:[],updated_at:d(-20)}
+  ],
+  solicitudes:[
+   {id:'sol1',usuario_nombre:'Carlos Gimenez',usuario_rol:'usuario',fecha_solicitud:d(-2),personas:'2 a 5 personas',turno:'Manana',lugar:'Sala de capacitacion',estado:'pendiente',modulo_nombre:'Philips DFM100'},
+   {id:'sol2',usuario_nombre:'Laura Fernandez',usuario_rol:'rrhh',fecha_solicitud:d(-6),personas:'Solo yo',turno:'Tarde',lugar:'Oficina RRHH',estado:'coordinado',modulo_nombre:'IRAM 9808'}
+  ]
+ };
+ S.tcAccepted=true;
+ try{localStorage.setItem('at_tc','1');}catch(e){}
+ S.screen='home';
+ render();
+}
+function exitDemo(){
+ S.isDemo=false;S.user=null;S.empresa=null;S.rol=null;S.progress={};S.adminEmpresaData=null;S.screen='login';
+ S.form={nombre:'',legajo:'',codigo_empresa:'',rol:'Tecnico/a'};
+ try{localStorage.removeItem('at_session');}catch(e){}
+ try{var u=new URL(window.location.href);u.searchParams.delete('demo');window.history.replaceState({},'',u.toString());}catch(e){}
+ render();
+}
+function openDemoShare(){
+ var link=window.location.href.split('?')[0]+'?demo=1';
+ doShare('DEMO','AppTus (demo)',link);
+ startDemo();
+}
 function showSplash(){var sp=document.getElementById('splash');if(!sp)return;setTimeout(function(){sp.style.opacity='0';sp.style.transition='opacity .4s';setTimeout(function(){sp.parentNode&&sp.parentNode.removeChild(sp);},400);},1200);}
 render();
 showSplash();
@@ -2240,6 +2306,7 @@ function rSuper(){
  var o='<div class="w"><button class="back" onclick="go(\'home\')">&larr; Volver</button>';
  o+='<h2 style="font-size:18px;font-weight:500;margin-bottom:12px">Gestionar empresas</h2>';
  o+='<button class="btn" style="background:#22c55e;color:#000;margin-bottom:12px" onclick="newEmpresa()">+ Nueva empresa</button>';
+ o+='<button class="btn" style="background:#f59e0b;color:#1a1a1a;margin-bottom:12px" onclick="openDemoShare()">🎬 Ver / compartir demo de AppTus</button>';
  o+='<button class="btn" style="background:var(--card2);color:var(--mu);margin-bottom:12px;font-size:12px" onclick="migrateAllModulos()">↑ Sincronizar modulos a la nube</button>';
  if(S.superLoading)return o+'<p class="muted" style="text-align:center;padding:20px">Guardando...</p></div>';
  if(S.superEmpresas===null){loadSuperData();return o+'<p class="muted" style="text-align:center;padding:20px">Cargando...</p></div>';}
