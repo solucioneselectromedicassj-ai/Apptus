@@ -2438,6 +2438,9 @@ function startDemo(){
  try{localStorage.setItem('at_tc','1');}catch(e){}
  S.screen='home';
  render();
+ // Pull the latest Builder-authored content (real photos/hotspots, edited text)
+ // for the curated demo modules, so changes made in Builder show up here too.
+ syncModulos(S.empresa.modulos_habilitados);
 }
 function exitDemo(){
  S.isDemo=false;S.user=null;S.empresa=null;S.rol=null;S.progress={};S.adminEmpresaData=null;S.screen='login';
