@@ -1210,7 +1210,7 @@ function isExpired(e){return !e||new Date(e)<new Date();}
 function daysLeft(e){return e?Math.max(0,Math.ceil((new Date(e)-new Date())/(864e5))):0;}
 
 // UI helpers
-function rh(){return '<div class="rh"><img src="'+'https://drfyicdwwltzzahqixlz.supabase.co/storage/v1/object/public/apptus-media/logos/rawson.png'+'" style="width:36px;height:36px;border-radius:4px;object-fit:contain"><div><p style="font-size:11px;color:rgba(255,255,255,.7);margin-bottom:1px">HOSPITAL RAWSON</p><p style="font-weight:700;font-size:13px;color:white">Capacitacion Permanente</p></div></div>';}
+function rh(){return '<div class="rh"><img src="'+'https://drfyicdwwltzzahqixlz.supabase.co/storage/v1/object/public/apptus-media/logos/rawson.png'+'" style="width:36px;height:36px;border-radius:4px;object-fit:contain"><div><p style="font-size:11px;color:rgba(255,255,255,.7);margin-bottom:1px">HOSPITAL RAWSON</p><p style="font-weight:700;font-size:13px;color:white">Soporte Tecnico Operativo</p></div></div>';}
 function h3(t,s){return '<h3 style="font-size:17px;font-weight:500;margin-bottom:'+(s?'3px':'10px')+'">'+t+'</h3>'+(s?'<p class="muted" style="margin-bottom:10px">'+s+'</p>':'');}
 function crd(ic,t,d){return '<div style="display:flex;gap:12px;align-items:flex-start;padding:12px;background:var(--card2);border-radius:10px;margin-bottom:8px"><span style="font-size:22px">'+ic+'</span><div><p style="font-weight:500;margin-bottom:4px;font-size:14px">'+t+'</p><p class="muted" style="line-height:1.6;white-space:pre-line">'+d+'</p></div></div>';}
 function stp(n,t,d,c){return '<div class="srow"><div class="sn" style="background:'+c+'">'+n+'</div><div><p class="st">'+t+'</p>'+(d?'<p class="sd">'+d+'</p>':'')+'</div></div>';}
@@ -1263,7 +1263,7 @@ function rSolicitud(){
 var CATS=getCats();
  var bs=S.botSol||{};
  var o='<div class="w"><button class="back" onclick="go(\'module\')">&larr; Modulo</button>';
- o+='<h2 style="font-size:18px;font-weight:500;margin-bottom:12px">Solicitar capacitacion presencial</h2>';
+ o+='<h2 style="font-size:18px;font-weight:500;margin-bottom:12px">Solicitar asistencia tecnica presencial</h2>';
  o+='<div class="card">';
  // Show user info pre-filled
  var u=S.user||{},emp=S.empresa||{};
@@ -1275,7 +1275,7 @@ var CATS=getCats();
  var modLabel=S.modId;
  modLabel=getModuloLabel(S.modId);
  o+='<p style="font-size:14px;font-weight:500;margin-bottom:6px">Modulo: '+modLabel+'</p>';
- o+='<label>Cuantas personas necesitan la capacitacion?</label>';
+ o+='<label>Cuantas personas necesitan la asistencia?</label>';
  o+='<select id="sol_pers"><option>Solo yo</option><option>2 a 5 personas</option><option>6 a 10 personas</option><option>Mas de 10 personas</option></select>';
  o+='<label>Horario preferido</label>';
  o+='<select id="sol_turno"><option>Manana (8-12)</option><option>Tarde (12-18)</option><option>Noche (18-22)</option><option>Fin de semana</option></select>';
@@ -1284,7 +1284,7 @@ var CATS=getCats();
  o+='<label>Observaciones (opcional)</label>';
  o+='<textarea id="sol_obs" style="width:100%;background:var(--card2);border:.5px solid var(--bds);border-radius:8px;padding:10px;color:var(--tx);font-size:13px;resize:none;min-height:60px" placeholder="Datos adicionales, urgencia, etc..."></textarea>';
  if(S.solError)o+='<p style="color:var(--err);font-size:13px;margin-top:4px">'+S.solError+'</p>';
- if(S.solOk)o+='<div class="ts" style="margin-top:8px;padding:12px">Tu solicitud fue registrada. RRHH o el administrador te va a coordinar la capacitacion.</div>';
+ if(S.solOk)o+='<div class="ts" style="margin-top:8px;padding:12px">Tu solicitud fue registrada. RRHH o el administrador te va a coordinar la asistencia.</div>';
  if(!S.solOk)o+='<button class="btn btn-p" style="background:#1a3a6b;margin-top:8px" onclick="enviarSolicitud()">Enviar solicitud</button>';
  o+='<button class="btn btn-g" onclick="go(\'module\')">Volver al modulo</button>';
  o+='</div></div>';
@@ -1400,7 +1400,7 @@ function rNuevoEvento(){
  o += '<h2 style="font-size:18px;font-weight:500;margin-bottom:12px">' + (ev.id?'Editar evento':'Nuevo evento') + '</h2>';
  o += '<div class="card">';
  o += '<label>Título</label><input id="ev_titulo" value="' + (ev.titulo||'') + '" placeholder="Ej: Capacitación DFM100 - Turno mañana">';
- o += '<label>Tipo</label><select id="ev_tipo"><option value="conferencia"' + (ev.tipo==='conferencia'?' selected':'') + '>Conferencia / Charla</option><option value="capacitacion"' + (ev.tipo==='capacitacion'?' selected':'') + '>Capacitación presencial</option><option value="repaso"' + (ev.tipo==='repaso'?' selected':'') + '>Repaso y consultas</option></select>';
+ o += '<label>Tipo</label><select id="ev_tipo"><option value="conferencia"' + (ev.tipo==='conferencia'?' selected':'') + '>Conferencia / Charla</option><option value="capacitacion"' + (ev.tipo==='capacitacion'?' selected':'') + '>Asistencia tecnica presencial</option><option value="repaso"' + (ev.tipo==='repaso'?' selected':'') + '>Repaso y consultas</option></select>';
  o += '<div class="g2"><div><label>Fecha</label><input type="date" id="ev_fecha" value="' + (ev.fecha||'') + '"></div><div><label>Hora</label><input type="time" id="ev_hora" value="' + (ev.hora||'') + '"></div></div>';
  o += '<label>Módulo relacionado (opcional)</label><select id="ev_modulo"><option value="">-- Sin módulo específico --</option>';
  var mods2=[{id:'se3',n:'EDAN SE-3'},{id:'dfm100',n:'Philips DFM100'},{id:'iram9808',n:'IRAM 9808'},{id:'hs_basico',n:'Higiene y Seguridad'}];
@@ -1490,7 +1490,7 @@ function rLogin(){
   +(S.loginErr?'<p style="color:var(--err);font-size:13px;margin-top:4px;margin-bottom:4px">'+S.loginErr+'</p>':'')
   +'<button class="btn btn-p" style="margin-top:8px;background:#1a3a6b" onclick="doLogin()">'+(S.loading?'Verificando...':'Ingresar')+'</button>'
   +'</div>'
-  +'<p class="muted" style="text-align:center;font-size:12px">¿No tenes tu codigo de empresa? Consulta a tu area de RRHH o capacitacion.</p>'
+  +'<p class="muted" style="text-align:center;font-size:12px">¿No tenes tu codigo de empresa? Consulta a tu area de RRHH o soporte.</p>'
   +'</div>';
 }
 
@@ -1756,7 +1756,7 @@ function rModule(){
  }
  o+='</div>';
  o+='<div style="display:flex;gap:8px">';
- o+='<button class="btn btn-g" style="flex:1;margin-top:8px" onclick="S.solOk=false;S.solError=\'\';go(\'solicitud\')">Solicitar capacitacion</button>';
+ o+='<button class="btn btn-g" style="flex:1;margin-top:8px" onclick="S.solOk=false;S.solError=\'\';go(\'solicitud\')">Solicitar asistencia tecnica</button>';
  o+='<button class="btn btn-g" style="flex:1;margin-top:8px" onclick="go(\'faq\')">FAQ</button>';
  var ytU=getYT(S.modId);
  if(ytU)o+='<a href="'+ytU+'" target="_blank" style="flex:1;display:flex;align-items:center;justify-content:center;background:#ff0000;color:white;padding:10px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:600;margin-top:8px">YouTube</a>';
@@ -1789,7 +1789,7 @@ function rMQResult(){
  o+='<div class="card"><p class="muted" style="margin-bottom:4px">'+(mod?mod.title:'')+'</p>';
  o+='<p style="font-size:18px;font-weight:500;color:'+(pass?'var(--ok)':'var(--err)')+';margin-bottom:8px">'+(pass?'Modulo aprobado':'No aprobado')+'</p>';
  o+='<p style="font-size:32px;font-weight:500;color:'+(pass?'var(--ok)':'var(--err)')+';margin-bottom:12px">'+mq.score+'/'+mq.questions.length+'</p>';
- if(pass){var pp=getProg(S.modId),dm=d&&d.mods?d.mods.length:1,done=pp.mods.length;o+='<p class="muted" style="margin-bottom:16px">Modulos completados: '+done+'/'+dm+'</p>';if(done>=dm){o+='<div style="background:var(--ok-bg);border:1.5px solid var(--ok-bd);border-radius:10px;padding:12px;margin-bottom:12px"><p style="color:var(--ok);font-weight:600">Capacitacion completa!</p><p style="color:var(--ok);font-size:13px;line-height:1.6;margin-top:4px">Todos los modulos superados. Podes rendir la verificacion de conocimiento de certificacion.</p></div>';}o+='<button class="btn btn-p" style="background:#1a3a6b" onclick="go(\'home\')">Volver al inicio</button>';}
+ if(pass){var pp=getProg(S.modId),dm=d&&d.mods?d.mods.length:1,done=pp.mods.length;o+='<p class="muted" style="margin-bottom:16px">Modulos completados: '+done+'/'+dm+'</p>';if(done>=dm){o+='<div style="background:var(--ok-bg);border:1.5px solid var(--ok-bd);border-radius:10px;padding:12px;margin-bottom:12px"><p style="color:var(--ok);font-weight:600">¡Recorrido completo!</p><p style="color:var(--ok);font-size:13px;line-height:1.6;margin-top:4px">Todos los modulos superados. Podes hacer la autoevaluacion final.</p></div>';}o+='<button class="btn btn-p" style="background:#1a3a6b" onclick="go(\'home\')">Volver al inicio</button>';}
  else{o+='<p class="muted" style="margin-bottom:16px">Necesitas '+Math.ceil(mq.questions.length*0.75)+'/'+mq.questions.length+' para pasar. Repasa el modulo.</p><button class="btn" style="background:var(--warn);color:white" onclick="retryMQ()">Reintentar</button><button class="btn btn-g" onclick="reviewMod()">Repasar el modulo</button>';}
  o+='</div></div>';
  return o;
@@ -1813,7 +1813,7 @@ var CATS=getCats();
  var p=getProg(S.modId);var pass=p.score>=PASS_QUIZ;var pct=Math.round(p.score/d.quiz.length*100);
  var modInfo=getModuloMeta(S.modId);
  var exm=EXPIRY[S.form.rol]||12;
- var waMsg='AppTus - Soporte Tecnico Operativo\nEmpresa: '+(S.empresa?S.empresa.nombre:'')+'\nModulo: '+(modInfo?modInfo.label:S.modId)+'\n'+(S.user?S.user.nombre:'')+(S.user&&S.user.legajo?' (Leg. '+S.user.legajo+')':'')+'\n'+S.form.rol+'\nResultado: '+p.score+'/'+d.quiz.length+' ('+pct+'%)\n'+(pass?'APROBADO - Certificado por '+exm+' meses':'NO APROBADO - Requiere refuerzo')+'\nFecha: '+p.certDate+(pass?'\nVigente hasta: '+p.certExpiry:'');
+ var waMsg='AppTus - Soporte Tecnico Operativo\nEmpresa: '+(S.empresa?S.empresa.nombre:'')+'\nModulo: '+(modInfo?modInfo.label:S.modId)+'\n'+(S.user?S.user.nombre:'')+(S.user&&S.user.legajo?' (Leg. '+S.user.legajo+')':'')+'\n'+S.form.rol+'\nResultado: '+p.score+'/'+d.quiz.length+' ('+pct+'%)\n'+(pass?'APROBADO - Acceso habilitado por '+exm+' meses':'NO APROBADO - Requiere refuerzo')+'\nFecha: '+p.certDate+(pass?'\nVigente hasta: '+p.certExpiry:'');
  var o='<div class="w">'+atHeader();
  o+='<div style="text-align:center;margin:16px 0"><div style="font-size:52px;margin-bottom:12px">'+(pass?'🏆':'📚')+'</div></div>';
  o+='<div class="card">'
@@ -1867,7 +1867,7 @@ function rAdmin(){
  }
  // SOLICITUDES
  if(solList.length>0){
-  o+='<p style="font-size:12px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin:8px 0 6px">Solicitudes de capacitacion</p>';
+  o+='<p style="font-size:12px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin:8px 0 6px">Solicitudes de asistencia tecnica</p>';
   var solByMod={};
   for(var si=0;si<solList.length;si++){var sl=solList[si];var mk2=sl.modulo_nombre||sl.modulo_id||'General';if(!solByMod[mk2])solByMod[mk2]=[];solByMod[mk2].push(sl);}
   var modKeys=Object.keys(solByMod);
@@ -2276,7 +2276,7 @@ function startDemo(){
    {usuario_id:'u4',modulo_id:'dfm100',certificado:false,modulos_completados:[],updated_at:d(-20)}
   ],
   solicitudes:[
-   {id:'sol1',usuario_nombre:'Carlos Gimenez',usuario_rol:'usuario',fecha_solicitud:d(-2),personas:'2 a 5 personas',turno:'Manana',lugar:'Sala de capacitacion',estado:'pendiente',modulo_nombre:'Philips DFM100'},
+   {id:'sol1',usuario_nombre:'Carlos Gimenez',usuario_rol:'usuario',fecha_solicitud:d(-2),personas:'2 a 5 personas',turno:'Manana',lugar:'Sala de reuniones',estado:'pendiente',modulo_nombre:'Philips DFM100'},
    {id:'sol2',usuario_nombre:'Laura Fernandez',usuario_rol:'rrhh',fecha_solicitud:d(-6),personas:'Solo yo',turno:'Tarde',lugar:'Oficina RRHH',estado:'coordinado',modulo_nombre:'IRAM 9808'}
   ]
  };
@@ -2353,7 +2353,7 @@ function rEditEmpresa(){
  o+='<label>Contacto</label><input id="econtacto" value="'+(e.contacto||'')+'" placeholder="Nombre del responsable">';
  o+='<label>Telefono empresa</label><input id="etelefono" value="'+(e.telefono||'')+'" placeholder="+54 264 ...">';
  o+='<label>Telefono solicitudes (WhatsApp)</label><input id="etelefono_admin" value="'+(e.telefono_admin||'')+'" placeholder="+54 264 ...">';
- o+='<label>Email</label><input id="eemail" value="'+(e.email||'')+'" placeholder="capacitacion@empresa.com">';
+ o+='<label>Email</label><input id="eemail" value="'+(e.email||'')+'" placeholder="soporte@empresa.com">';
  o+='<label>Direccion</label><input id="edireccion" value="'+(e.direccion||'')+'" placeholder="Calle, numero, ciudad">';
  o+='<label>Localidad</label><input id="elocalidad" value="'+(e.localidad||'')+'" placeholder="San Juan, San Juan">';
  o+='<div class="g2"><div><label>Plan</label><select id="eplan"><option'+(e.plan==='basico'?' selected':'')+'>basico</option><option'+(e.plan==='profesional'?' selected':'')+'>profesional</option><option'+(e.plan==='completo'?' selected':'')+'>completo</option></select></div><div><label>Pago</label><select id="epago_periodo"><option value="mensual"'+(e.pago_periodo==='mensual'?' selected':'')+'>Mensual</option><option value="bimestral"'+(e.pago_periodo==='bimestral'?' selected':'')+'>Bimestral</option><option value="semestral"'+(e.pago_periodo==='semestral'?' selected':'')+'>Semestral</option><option value="anual"'+(e.pago_periodo==='anual'?' selected':'')+'>Anual</option></select></div></div>';
