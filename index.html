@@ -1880,7 +1880,9 @@ function rModule(){
   if(S.modIdx<d.mods.length-1)o+='<button class="btn" style="background:'+(mod.color||'#1a3a6b')+';color:white;flex:2" onclick="nMod()">Siguiente modulo &rarr;</button>';
   else o+='<button class="btn btn-p" style="flex:2;background:#1a3a6b" onclick="go(\'home\')">&larr; Volver</button>';
  }else{
-  o+='<button class="btn" style="background:'+(mod.color||'#1a3a6b')+';color:white;flex:2" onclick="cM()">Completar y mini-evaluacion &rarr;</button>';
+  var cmMode=(S.evalChoice&&S.evalChoice[S.modId])||'final';
+  var cmHasQ=cmMode==='secciones'&&getMQ('',S.modId,S.modIdx).length>0;
+  o+='<button class="btn" style="background:'+(mod.color||'#1a3a6b')+';color:white;flex:2" onclick="cM()">'+(cmHasQ?'Completar seccion y evaluacion &rarr;':'Completar seccion &rarr;')+'</button>';
  }
  o+='</div>';
  o+='<div style="display:flex;gap:8px">';
@@ -2292,7 +2294,8 @@ var CATS=getCats();
   var sc={login:rLogin,home:rHome,module:rModule,miniquiz:rMiniQuiz,mq_result:rMQResult,
    quiz:rQuiz,result:rResult,expired:rExpired,admin:rAdmin,super:rSuper,
    edit_empresa:rEditEmpresa,survey:rSurvey,eventos:rEventos,nuevo_evento:rNuevoEvento,
-   faq:rFAQ,bot_capacitacion:rBotCapacitacion,solicitud:rSolicitud,empresa_creada:rEmpresaCreada,pre_quiz:rPreQuiz};
+   faq:rFAQ,bot_capacitacion:rBotCapacitacion,solicitud:rSolicitud,empresa_creada:rEmpresaCreada,pre_quiz:rPreQuiz,
+   eval_choice:rEvalChoice,mini_quiz:rMiniQuiz,mini_result:rMiniResult,eval_summary:rEvalSummary};
   var fn=sc[S.screen]||rLogin;
   app.innerHTML=fn();
   setWatermark();
@@ -2333,7 +2336,14 @@ async function doLogin(){
  render();
 }
 function logout(){try{localStorage.removeItem('at_session');}catch(e){}S.user=null;S.empresa=null;S.rol=null;S.progress={};S.screen='login';render();}
-function openMod(modId){S.modId=modId;var d=getModData(modId);var p=getProg(modId);if(p.certified&&isExpired(p.certExpiry)){setCacheP(modId,{mods:[],certified:false,certDate:null,certExpiry:null});saveProgress(modId,getProg(modId));}if(p.certified&&!isExpired(p.certExpiry)){logAcceso('repaso',modId);S.modIdx=0;S.slideIdx=0;S.zone=null;S.ak=null;S.al=null;S.reviewMode=true;S.screen='module';render();return;}logAcceso('capacitacion',modId);S.reviewMode=false;S.modIdx=0;if(d.mods.length>0&&p.mods.length>0&&p.mods.length<d.mods.length){for(var i=0;i<d.mods.length;i++){var found=false;for(var j=0;j<p.mods.length;j++){if(p.mods[j]===i){found=true;break;}}if(!found){S.modIdx=i;break;}}}S.slideIdx=0;S.zone=null;S.ak=null;S.al=null;S.screen='module';render();}
+function openMod(modId){S.modId=modId;var d=getModData(modId);var p=getProg(modId);if(p.certified&&isExpired(p.certExpiry)){setCacheP(modId,{mods:[],certified:false,certDate:null,certExpiry:null});saveProgress(modId,getProg(modId));}if(p.certified&&!isExpired(p.certExpiry)){logAcceso('repaso',modId);S.modIdx=0;S.slideIdx=0;S.zone=null;S.ak=null;S.al=null;S.reviewMode=true;S.screen='module';render();return;}logAcceso('capacitacion',modId);S.reviewMode=false;S.modIdx=0;if(d.mods.length>0&&p.mods.length>0&&p.mods.length<d.mods.length){for(var i=0;i<d.mods.length;i++){var found=false;for(var j=0;j<p.mods.length;j++){if(p.mods[j]===i){found=true;break;}}if(!found){S.modIdx=i;break;}}}S.slideIdx=0;S.zone=null;S.ak=null;S.al=null;
+ // Fresh start on a module with real per-section evaluation content: let the user
+ // choose between quizzing after every section or one combined evaluation at the end.
+ var hasSections=d.mods.length>1&&d.mq&&Object.keys(d.mq).length>0;
+ if(p.mods.length===0&&hasSections&&!(S.evalChoice&&S.evalChoice[modId])){
+  S.evalChoiceModId=modId;S.screen='eval_choice';render();return;
+ }
+ S.screen='module';render();}
 function openModAt(modId,modIdx){S.modId=modId;S.modIdx=modIdx;S.slideIdx=0;S.zone=null;S.ak=null;S.al=null;var p=getProg(modId);S.reviewMode=p.certified&&!isExpired(p.certExpiry);if(!S.reviewMode)logAcceso('capacitacion',modId);S.screen='module';render();}
 function beginQuiz(modId){S.modId=modId;S.ans=[];S.qIdx=0;S.chosen=null;S.screen='quiz';render();}
 function rQ(){S.ans=[];S.qIdx=0;S.chosen=null;S.screen='quiz';render();}
@@ -2365,7 +2375,33 @@ function tZ(id){S.zone=(S.zone===id?null:id);render();}
 function tK(i){S.ak=(S.ak===i?null:i);render();}
 function tL(id){S.al=(S.al===id?null:id);render();}
 function tC(key,idx){if(!S.chk[key])S.chk[key]={};S.chk[key][idx]=!S.chk[key][idx];render();}
+// ═══ EVALUACION: entre secciones o al final (elegido en rEvalChoice) ═══
+function rEvalChoice(){
+ var modId=S.evalChoiceModId;var modInfo=getModuloMeta(modId);
+ var o='<div class="w"><button class="back" onclick="go(\'home\')">&larr; Inicio</button>';
+ o+='<h2 style="font-size:18px;font-weight:500;margin-bottom:4px">'+(modInfo?modInfo.label:modId)+'</h2>';
+ o+='<p class="muted" style="margin-bottom:16px">Como preferis evaluarte en este modulo?</p>';
+ o+='<div class="card" style="margin-bottom:10px;cursor:pointer" onclick="chooseEvalMode(\'secciones\')"><p style="font-weight:600;font-size:15px;margin-bottom:4px">Entre secciones</p><p class="muted" style="font-size:13px;line-height:1.5">Al terminar cada seccion respondes unas preguntas antes de pasar a la siguiente. Al final se muestra el resultado de cada seccion.</p></div>';
+ o+='<div class="card" style="cursor:pointer" onclick="chooseEvalMode(\'final\')"><p style="font-weight:600;font-size:15px;margin-bottom:4px">Al final del modulo</p><p class="muted" style="font-size:13px;line-height:1.5">Avanzas libremente con Siguiente por todas las secciones y al terminar respondes una sola evaluacion.</p></div>';
+ o+='</div>';
+ return o;
+}
+function chooseEvalMode(mode){
+ S.evalChoice=S.evalChoice||{};S.evalChoice[S.evalChoiceModId]=mode;
+ S.modId=S.evalChoiceModId;
+ S.screen='module';render();
+}
 function cM(){
+ var mode=(S.evalChoice&&S.evalChoice[S.modId])||'final';
+ var secQs=mode==='secciones'?getMQ('',S.modId,S.modIdx):[];
+ if(mode==='secciones'&&secQs.length>0){
+  S.miniQuiz={modId:S.modId,modIdx:S.modIdx,qs:secQs,qIdx:0,ans:[],chosen:null};
+  S.screen='mini_quiz';render();
+  return;
+ }
+ advanceAfterSection();
+}
+function advanceAfterSection(){
  var d=getModData(S.modId);
  if(!d||!d.mods)return;
  // Mark this micro-module as done
@@ -2375,14 +2411,114 @@ function cM(){
  setCacheP(S.modId,{mods:mods});
  saveProgress(S.modId,getProg(S.modId));
  try{localStorage.setItem('at_prog_'+S.user.id,JSON.stringify(S.progress));}catch(e){}
+ var mode=(S.evalChoice&&S.evalChoice[S.modId])||'final';
  if(mods.length>=(d.mods||[]).length){
-  // All micro-modules done → offer evaluation or go home
-  S.screen='pre_quiz';render();
+  if(mode==='secciones'){finishSeccionesEval();}
+  else{S.screen='pre_quiz';render();}
  }else{
   // Move to next micro-module
   S.modIdx++;S.slideIdx=0;S.zone=null;S.ak=null;S.al=null;
   S.screen='module';render();
  }
+}
+function rMiniQuiz(){
+ var mq=S.miniQuiz;if(!mq||!mq.qs.length)return rHome();
+ var q=mq.qs[mq.qIdx],pct=mq.qIdx/mq.qs.length*100;
+ var d=getModData(mq.modId);var topic=d.mods[mq.modIdx];
+ var o='<div class="w">';
+ o+='<div style="background:var(--warn-bg);border:1px solid var(--warn-bd);border-radius:10px;padding:10px 14px;margin-bottom:12px"><p style="font-size:12px;font-weight:600;color:var(--warn)">Evaluacion de la seccion: '+(topic?topic.title:'')+'</p><p class="muted" style="font-size:11px">Necesitas 70% para continuar</p></div>';
+ o+='<p class="muted" style="margin-bottom:6px">Pregunta '+(mq.qIdx+1)+' de '+mq.qs.length+'</p>';
+ o+='<div class="prog" style="margin-bottom:14px"><div class="pf" style="width:'+pct+'%;background:#7c3aed"></div></div>';
+ o+='<div class="card"><p style="font-size:16px;font-weight:500;line-height:1.55;margin-bottom:16px">'+q.q+'</p>';
+ for(var i=0;i<q.ops.length;i++){var cls='opt',ltr=String.fromCharCode(65+i);if(mq.chosen!==null){if(i===q.ans){cls+=' ok';ltr='V';}else if(i===mq.chosen){cls+=' no';ltr='X';}}o+='<div class="'+cls+'" onclick="answerSection('+i+')">'+'<span class="ol">'+ltr+'</span><span>'+q.ops[i]+'</span></div>';}
+ o+='</div></div>';
+ return o;
+}
+function answerSection(i){
+ var mq=S.miniQuiz;if(!mq||mq.chosen!==null)return;
+ var q=mq.qs[mq.qIdx];
+ mq.chosen=i;
+ mq.ans.push(i===q.ans?1:0);
+ render();
+ setTimeout(function(){
+  if(mq.qIdx<mq.qs.length-1){mq.qIdx++;mq.chosen=null;render();}
+  else{
+   var score=mq.ans.reduce(function(a,b){return a+b;},0);
+   var pass=(score/mq.qs.length)>=0.7;
+   S.sectionResults=S.sectionResults||{};
+   S.sectionResults[mq.modId]=S.sectionResults[mq.modId]||{};
+   S.sectionResults[mq.modId][mq.modIdx]={score:score,total:mq.qs.length,pass:pass};
+   S.screen='mini_result';render();
+  }
+ },900);
+}
+function rMiniResult(){
+ var mq=S.miniQuiz;if(!mq)return rHome();
+ var r=S.sectionResults&&S.sectionResults[mq.modId]&&S.sectionResults[mq.modId][mq.modIdx];
+ if(!r)return rHome();
+ var pct=Math.round(r.score/r.total*100);
+ var d=getModData(mq.modId);var topic=d.mods[mq.modIdx];
+ var o='<div class="w" style="text-align:center;padding-top:24px">';
+ o+='<div style="font-size:48px;margin-bottom:12px">'+(r.pass?'✅':'⚠️')+'</div>';
+ o+='<div class="card">';
+ o+='<p class="muted" style="margin-bottom:4px">'+(topic?topic.title:'')+'</p>';
+ o+='<p style="font-size:34px;font-weight:500;color:'+(r.pass?'var(--ok)':'var(--err)')+';margin-bottom:4px">'+r.score+'/'+r.total+'</p>';
+ o+='<p class="muted" style="margin-bottom:14px">'+pct+'% - minimo: 70%</p>';
+ if(r.pass){o+='<button class="btn btn-p" style="background:#1a3a6b" onclick="advanceAfterSection()">Continuar &rarr;</button>';}
+ else{
+  o+='<button class="btn" style="background:var(--warn);color:white;margin-bottom:8px" onclick="retrySection()">Reintentar evaluacion</button>';
+  o+='<button class="btn btn-g" onclick="reviewSection()">Repasar la seccion</button>';
+ }
+ o+='</div></div>';
+ return o;
+}
+function retrySection(){
+ var mq=S.miniQuiz;if(!mq)return;
+ var qs=getMQ('',mq.modId,mq.modIdx);
+ S.miniQuiz={modId:mq.modId,modIdx:mq.modIdx,qs:qs,qIdx:0,ans:[],chosen:null};
+ S.screen='mini_quiz';render();
+}
+function reviewSection(){
+ var mq=S.miniQuiz;if(!mq)return;
+ S.modId=mq.modId;S.modIdx=mq.modIdx;S.slideIdx=0;S.zone=null;S.ak=null;S.al=null;
+ S.screen='module';render();
+}
+function finishSeccionesEval(){
+ var modId=S.modId;
+ var results=(S.sectionResults&&S.sectionResults[modId])||{};
+ var totalScore=0,totalQ=0;
+ Object.keys(results).forEach(function(k){totalScore+=results[k].score;totalQ+=results[k].total;});
+ var pass=totalQ>0&&(totalScore/totalQ)>=0.8;
+ var today=new Date().toISOString().slice(0,10);
+ setCacheP(modId,{certified:pass,certDate:pass?today:null,certExpiry:pass?calcExpiry(S.form.rol,today):null,score:totalScore,totalQ:totalQ});
+ saveProgress(modId,getProg(modId));
+ try{localStorage.setItem('at_prog_'+S.user.id,JSON.stringify(S.progress));}catch(e){}
+ S.screen='eval_summary';render();
+}
+function rEvalSummary(){
+ var modId=S.modId;var d=getModData(modId);var p=getProg(modId);
+ var modInfo=getModuloMeta(modId);
+ var results=(S.sectionResults&&S.sectionResults[modId])||{};
+ var pass=p.certified;
+ var pct=p.totalQ>0?Math.round(p.score/p.totalQ*100):0;
+ var o='<div class="w">'+atHeader();
+ o+='<div style="text-align:center;margin:16px 0"><div style="font-size:52px;margin-bottom:12px">'+(pass?'🏆':'📚')+'</div></div>';
+ o+='<div class="card">';
+ o+='<p class="muted" style="margin-bottom:4px">'+(modInfo?modInfo.label:modId)+'</p>';
+ o+='<p style="font-size:18px;font-weight:500;color:'+(pass?'var(--ok)':'var(--err)')+';margin-bottom:8px">'+(pass?'Consulta completada':'No aprobado')+'</p>';
+ o+='<p style="font-size:40px;font-weight:500;color:'+(pass?'var(--ok)':'var(--err)')+';margin-bottom:4px">'+p.score+'/'+p.totalQ+'</p>';
+ o+='<p class="muted" style="margin-bottom:16px">'+pct+'% - minimo: 80%</p>';
+ o+='</div>';
+ o+='<p style="font-size:12px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px">Resultado por seccion</p>';
+ if(d&&d.mods)for(var i=0;i<d.mods.length;i++){
+  var r=results[i];if(!r)continue;
+  var topic=d.mods[i];var p2=Math.round(r.score/r.total*100);
+  o+='<div class="eqli" style="cursor:default"><span style="font-size:20px">'+(r.pass?'✅':'⚠️')+'</span><div style="flex:1"><p style="font-weight:500;font-size:14px">'+(topic?topic.title:'Seccion '+(i+1))+'</p><p class="muted" style="font-size:12px">'+r.score+'/'+r.total+' ('+p2+'%)</p></div></div>';
+ }
+ if(pass)o+='<div style="background:var(--ok-bg);border:1.5px solid var(--ok-bd);border-radius:12px;padding:14px;margin:12px 0"><p style="font-weight:700;color:var(--ok);margin-bottom:6px">Consulta registrada</p><p style="font-size:13px;color:var(--ok);line-height:1.6">Acceso habilitado hasta '+p.certExpiry+'.</p></div>';
+ o+='<button class="btn btn-p" style="background:#1a3a6b" onclick="go(\'home\')">&larr; Volver al inicio</button>';
+ o+='</div>';
+ return o;
 }
 async function loadAdminData(){if(!S.empresa||S.isDemo)return;S.loading=true;render();var res=await apiGet('admin_empresa',{empresa_id:S.empresa.id,mes:S.adminMonth||''});S.loading=false;S.adminEmpresaData=res;render();}
 function botAnswer(field,val){S.botState=S.botState||{step:0,answers:{}};S.botState.answers[field]=val;var steps=4;if(S.botState.step<steps-1)S.botState.step++;else S.botState.step=steps;render();}
