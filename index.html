@@ -87,24 +87,37 @@ input,select{width:100%;padding:10px 12px;border-radius:8px;border:.5px solid va
 <div class="watermark" id="wm"></div>
 <script>// ── Failsafe: ensure globals exist before any code runs ──
 if(typeof window!=='undefined'&&typeof window.CATS==='undefined'){window.CATS=[];}
+// ═══ ICONOS POR FAMILIA ═══
+// Un solo icono profesional (SVG, sin emojis) por categoria/familia de equipo,
+// para que p.ej. todos los modulos de cardio (equipos) compartan el mismo icono.
+function familyIcon(cat){
+ var attrs='width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;display:inline-block"';
+ var defs={
+  equipos:'<svg '+attrs+'><path d="M2.5 13h4l2 6 4-16 2 10 2-4h5"/></svg>',
+  normas:'<svg '+attrs+'><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>',
+  higiene:'<svg '+attrs+'><path d="M12 3l7 3v5c0 4.97-3.05 8.5-7 10-3.95-1.5-7-5.03-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>',
+  empresa:'<svg '+attrs+'><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 13h18"/></svg>'
+ };
+ return defs[cat]||'<svg '+attrs+'><path d="M14.7 6.3a4 4 0 1 1-5.66 5.66L4 17v3h3l5.04-5.04a4 4 0 0 1 5.66-5.66l-2.83 2.83-2-2 2.83-2.83z"/></svg>';
+}
 // ═══ MODULES CATALOG ═══
 var CATS=[
- {id:'equipos',label:'Equipos Biomedicos',icon:'🔬',desc:'Equipos medicos y de laboratorio',modulos:[
-  {id:'se3',label:'EDAN SE-3',sub:'Electrocardiografo',icon:'📈',data:'MODS_SE3',quiz:'QUIZ_SE3',mq:'MQ_SE3'},
-  {id:'dfm100',label:'Philips DFM100',sub:'Cardiodesfibrilador',icon:'⚡',data:'MODS_DFM100',quiz:'QUIZ_DFM100',mq:'MQ_DFM100'},
-  {id:'s5',label:'COMEN S5',sub:'Desfibrilador Monitor 4 en 1',icon:'💓',data:'MODS_S5',quiz:'QUIZ_S5',mq:'MQ_S5',ok:true},
-  {id:'mindray_d3',label:'Mindray BeneHeart D3',sub:'Desfibrilador Monitor Bifásico',icon:'💛',data:'MODS_D3',quiz:'QUIZ_D3',mq:'MQ_D3',ok:true},
-  {id:'cardiomax',label:'Instramed CardioMax',sub:'Monitor Cardioversor/Desfibrilador',icon:'❤',data:'MODS_CM',quiz:'QUIZ_CM',mq:'MQ_CM',ok:true},
-  {id:'nihon_kohden',label:'Nihon Kohden Cardiolife',sub:'Desfibrilador Monitor - Serie TEC',icon:'💙',data:'MODS_NK',quiz:'QUIZ_NK',mq:'MQ_NK',ok:true},
-  {id:'em_c12',label:'E&M C-12',sub:'Monitor Desfibrilador - E&M Electromedicina Argentina',icon:'AR',data:'MODS_EMC12',quiz:'QUIZ_EMC12',mq:'MQ_EMC12',ok:true},
+ {id:'equipos',label:'Equipos Biomedicos',icon:familyIcon('equipos'),desc:'Equipos medicos y de laboratorio',modulos:[
+  {id:'se3',label:'EDAN SE-3',sub:'Electrocardiografo',icon:familyIcon('equipos'),data:'MODS_SE3',quiz:'QUIZ_SE3',mq:'MQ_SE3'},
+  {id:'dfm100',label:'Philips DFM100',sub:'Cardiodesfibrilador',icon:familyIcon('equipos'),data:'MODS_DFM100',quiz:'QUIZ_DFM100',mq:'MQ_DFM100'},
+  {id:'s5',label:'COMEN S5',sub:'Desfibrilador Monitor 4 en 1',icon:familyIcon('equipos'),data:'MODS_S5',quiz:'QUIZ_S5',mq:'MQ_S5',ok:true},
+  {id:'mindray_d3',label:'Mindray BeneHeart D3',sub:'Desfibrilador Monitor Bifásico',icon:familyIcon('equipos'),data:'MODS_D3',quiz:'QUIZ_D3',mq:'MQ_D3',ok:true},
+  {id:'cardiomax',label:'Instramed CardioMax',sub:'Monitor Cardioversor/Desfibrilador',icon:familyIcon('equipos'),data:'MODS_CM',quiz:'QUIZ_CM',mq:'MQ_CM',ok:true},
+  {id:'nihon_kohden',label:'Nihon Kohden Cardiolife',sub:'Desfibrilador Monitor - Serie TEC',icon:familyIcon('equipos'),data:'MODS_NK',quiz:'QUIZ_NK',mq:'MQ_NK',ok:true},
+  {id:'em_c12',label:'E&M C-12',sub:'Monitor Desfibrilador - E&M Electromedicina Argentina',icon:familyIcon('equipos'),data:'MODS_EMC12',quiz:'QUIZ_EMC12',mq:'MQ_EMC12',ok:true},
  ]},
- {id:'normas',label:'Normas y Estandares',icon:'📋',desc:'Normativa argentina y estandares internacionales',modulos:[
-  {id:'iram9808',label:'IRAM 9808',sub:'Vehiculos de Transporte Sanitario',icon:'🚑',data:'MODS_IRAM9808',quiz:'QUIZ_IRAM9808',mq:'MQ_IRAM9808'},
+ {id:'normas',label:'Normas y Estandares',icon:familyIcon('normas'),desc:'Normativa argentina y estandares internacionales',modulos:[
+  {id:'iram9808',label:'IRAM 9808',sub:'Vehiculos de Transporte Sanitario',icon:familyIcon('normas'),data:'MODS_IRAM9808',quiz:'QUIZ_IRAM9808',mq:'MQ_IRAM9808'},
  ]},
- {id:'higiene',label:'Higiene y Seguridad',icon:'⛑️',desc:'Seguridad en el trabajo y EPP',modulos:[
-  {id:'hs_basico',label:'H y S Basico',sub:'Prevencion de riesgos laborales',icon:'⚠️',data:'MODS_HS',quiz:'QUIZ_HS',mq:'MQ_HS'},
+ {id:'higiene',label:'Higiene y Seguridad',icon:familyIcon('higiene'),desc:'Seguridad en el trabajo y EPP',modulos:[
+  {id:'hs_basico',label:'H y S Basico',sub:'Prevencion de riesgos laborales',icon:familyIcon('higiene'),data:'MODS_HS',quiz:'QUIZ_HS',mq:'MQ_HS'},
  ]},
- {id:'empresa',label:'Modulo Empresa',icon:'🏢',desc:'Contenido especifico de tu organizacion',modulos:[]}, // cargado desde Supabase
+ {id:'empresa',label:'Modulo Empresa',icon:familyIcon('empresa'),desc:'Contenido especifico de tu organizacion',modulos:[]}, // cargado desde Supabase
 ];
 window.CATS=CATS;
 function getCats(){return window.CATS||[];}
@@ -643,7 +656,7 @@ async function logAcceso(tipo,modId,detalle){
 function getModuloMeta(id){
  var c=S.modulCache[id];
  if(!c){try{var raw=localStorage.getItem('at_mod_'+id);if(raw)c=JSON.parse(raw);}catch(e){}}
- if(c&&c.nombre)return{label:c.nombre,sub:c.sub||'',icon:c.icono||'📋',cat:c.categoria||'equipos'};
+ if(c&&c.nombre)return{label:c.nombre,sub:c.sub||'',icon:familyIcon(c.categoria||'equipos'),cat:c.categoria||'equipos'};
  var CATS=getCats();
  for(var i=0;i<CATS.length;i++){
   for(var j=0;j<CATS[i].modulos.length;j++){
@@ -677,13 +690,13 @@ function getModulosHabilitados(){
  for(var i=0;i<enabled.length;i++){
   var id=enabled[i];
   if(id==='empresa'){
-   if(S.moduloEmpresa){var shell=catShellFor('empresa');result.push(Object.assign({},S.moduloEmpresa,{cat:'empresa',catLabel:shell?shell.label:'Modulo Empresa',catIcon:shell?shell.icon:'🏢',id:'empresa_custom'}));}
+   if(S.moduloEmpresa){var shell=catShellFor('empresa');result.push(Object.assign({},S.moduloEmpresa,{cat:'empresa',catLabel:shell?shell.label:'Modulo Empresa',catIcon:shell?shell.icon:familyIcon('empresa'),id:'empresa_custom'}));}
    continue;
   }
   var meta=getModuloMeta(id);
   if(!meta)continue;
   var shell2=catShellFor(meta.cat);
-  result.push(Object.assign({id:id},meta,{catLabel:shell2?shell2.label:meta.cat,catIcon:shell2?shell2.icon:'📋'}));
+  result.push(Object.assign({id:id},meta,{catLabel:shell2?shell2.label:meta.cat,catIcon:shell2?shell2.icon:familyIcon(meta.cat)}));
  }
  return result;
 }
@@ -1920,7 +1933,7 @@ var CATS=getCats();
 
 function rAdmin(){
  var emp=S.empresa||{};
- var o='<div class="w">';
+ var o='<div class="w" style="padding-bottom:76px">';
  // Counter for RRHH/admin
  if(S.rol!=='super_admin')o+=rContadorDias();
  o+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">';
@@ -2005,6 +2018,7 @@ function rAdmin(){
   o+='</div></div>';
  }
  o+='</div>';
+ o+='<div style="position:fixed;left:0;right:0;bottom:0;max-width:500px;margin:0 auto;background:var(--card);border-top:.5px solid var(--bd);padding:10px 16px;display:flex;gap:8px;z-index:50"><button class="btn btn-p" style="flex:1;background:#1a3a6b;margin:0" onclick="go(\'home\')">← Modulos</button></div>';
  return o;
 }
 
