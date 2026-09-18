@@ -124,6 +124,7 @@ function getCats(){return window.CATS||[];}
 
 
 var IMG={};
+var FAQ={};
 
 
 // ═══ CONFIG ═══
@@ -685,7 +686,7 @@ function allKnownModuloIds(){
 }
 function getModulosHabilitados(){
  if(!S.empresa)return[];
- var enabled=S.rol==='admin_empresa'?allKnownModuloIds():(S.empresa.modulos_habilitados||[]);
+ var enabled=(S.rol==='admin_empresa'&&!S.isDemo)?allKnownModuloIds():(S.empresa.modulos_habilitados||[]);
  var result=[];
  for(var i=0;i<enabled.length;i++){
   var id=enabled[i];
@@ -1572,6 +1573,7 @@ var CATS=getCats();
 }
 
 function tFAQ(i){S.openFAQ=S.openFAQ||{};S.openFAQ[i]=!S.openFAQ[i];render();}
+function tCat(catId){S.catOpen=S.catOpen||{};S.catOpen[catId]=!S.catOpen[catId];render();}
 function reqLive(){S.solOk=false;S.solError='';go('solicitud');}
 
 // ═══ SCREENS ═══
@@ -1623,12 +1625,18 @@ var CATS=getCats();
  var cats={};
  for(var mci=0;mci<mods.length;mci++){var mcm=mods[mci];if(!cats[mcm.cat])cats[mcm.cat]=[];cats[mcm.cat].push(mcm);}
  var catOrder=['equipos','normas','higiene','empresa'];
+ S.catOpen=S.catOpen||{};
+ if(mods.length>0)o+='<p style="font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px">Modulos</p>';
  for(var ci=0;ci<catOrder.length;ci++){
   var catId=catOrder[ci];
   if(!cats[catId])continue;
   var catMods=cats[catId];
   var catInfo=null;for(var x=0;x<CATS.length;x++){if(CATS[x].id===catId){catInfo=CATS[x];break;}}
-  o+='<p style="font-size:12px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin:12px 0 8px">'+(catInfo?catInfo.icon+' '+catInfo.label:'')+'</p>';
+  var catOpenNow=!!S.catOpen[catId];
+  o+='<div onclick="tCat(\''+catId+'\')" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--card2);border-radius:10px;margin-bottom:'+(catOpenNow?'4px':'8px')+';cursor:pointer">'
+   +'<div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">'+(catInfo?catInfo.icon:'')+'</span><span style="font-size:13px;font-weight:600">'+(catInfo?catInfo.label:catId)+'</span><span class="muted" style="font-size:11px">('+catMods.length+')</span></div>'
+   +'<span style="color:var(--mu);font-size:13px">'+(catOpenNow?'&#9650;':'&#9660;')+'</span></div>';
+  if(!catOpenNow)continue;
   for(var j=0;j<catMods.length;j++){
    var mod=catMods[j];var p=getProg(mod.id);
    var cert=p.certified&&!isExpired(p.certExpiry),expd=p.certified&&isExpired(p.certExpiry);
@@ -1674,13 +1682,13 @@ function crd(ic,t,d){return '<div style="background:var(--card2);border-radius:1
 function rSlide(mod,slide,mi,si){
  var col=slide.color||mod.color||'#8b0000';
  // device_se3
- if(slide.type==='device_se3'){var zo=null;for(var i=0;i<SE3_ZONES.length;i++){if(SE3_ZONES[i].id===S.zone)zo=SE3_ZONES[i];}return h3(slide.title,slide.sub)+se3SVG()+(zo?'<div style="border-radius:10px;padding:12px;background:var(--card2);border:1.5px solid '+zo.col+'"><p style="font-weight:500;color:'+zo.col+';margin-bottom:6px">'+zo.label+'</p><p style="font-size:13px;line-height:1.6">'+zo.desc+'</p></div>':'<p class="muted" style="text-align:center;font-size:12px;margin-top:8px">Toca cada zona del equipo para ver los detalles</p>');}
+ if(slide.type==='device_se3'){return h3(slide.title,slide.sub)+deviceZoneSVG(S.modId);}
  // device_s5
  if(slide.type==='device_s5'){return h3(slide.title,slide.sub)+s5SVG();}
  // keys_s5
  if(slide.type==='keys_s5'){var ko=S.ak;var kh='<div>';for(var ki=0;ki<S5_KEYS.length;ki++){var k=S5_KEYS[ki],ak2=(ko===ki);kh+='<div onclick="tK('+ki+')" style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:'+(ak2?'var(--card)':'var(--card2)')+';border-radius:8px;margin-bottom:6px;cursor:pointer;border:.5px solid '+(ak2?k.c:'var(--bd)')+'">'+'<div style="background:'+k.c+';color:white;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:700;min-width:72px;text-align:center">'+k.l+'</div>'+'<p style="font-size:13px;line-height:1.5">'+( ak2?k.d:'Toca para ver descripcion')+'</p></div>';}kh+='</div>';return h3(slide.title,slide.sub)+kh;}
  // device_dfm100
- if(slide.type==='device_dfm'){var zd=null;for(var i=0;i<DFM100_ZONES.length;i++){if(DFM100_ZONES[i].id===S.zone)zd=DFM100_ZONES[i];}return h3(slide.title,slide.sub)+dfm100SVG()+(zd?'<div style="border-radius:10px;padding:12px;background:var(--card2);border:1.5px solid '+zd.col+'"><p style="font-weight:500;color:'+zd.col+';margin-bottom:6px">'+zd.label+'</p><p style="font-size:13px;line-height:1.6">'+zd.desc+'</p></div>':'<p class="muted" style="text-align:center;font-size:12px;margin-top:8px">Toca cada zona del equipo para ver los detalles</p>');}
+ if(slide.type==='device_dfm'){return h3(slide.title,slide.sub)+deviceZoneSVG(S.modId);}
  // paletas
  if(slide.type==='paletas'){
   return h3(slide.title,slide.sub)+
@@ -1782,10 +1790,28 @@ function rSlide(mod,slide,mi,si){
  // device_universal (uses zonas from Supabase)
  if(slide.type==='device_universal'||slide.type==='device_equipo'){return h3(slide.title,slide.sub)+deviceZoneSVG(S.modId);}
 
+// Real photo + tappable hotspots (Builder-authored, zonas:{imagen_base,hotspots:[{id,nombre,descripcion,x,y,w,h}]})
+function hotspotImageHTML(imgUrl,hotspots){
+ var z=S.zone;
+ var o='<div style="position:relative;border-radius:10px;overflow:hidden;margin-bottom:10px;background:var(--card2);line-height:0">';
+ o+='<img src="'+imgUrl+'" style="width:100%;display:block" onerror="this.parentElement.style.display=\'none\'">';
+ for(var i=0;i<hotspots.length;i++){
+  var hp=hotspots[i],ac=(z===hp.id);
+  o+='<div onclick="tZ(\''+hp.id+'\')" style="position:absolute;left:'+(hp.x*100)+'%;top:'+(hp.y*100)+'%;width:'+(hp.w*100)+'%;height:'+(hp.h*100)+'%;border:2px solid '+(ac?'#22c55e':'rgba(255,255,255,.85)')+';background:'+(ac?'rgba(34,197,94,.28)':'rgba(0,0,0,.10)')+';border-radius:6px;cursor:pointer"></div>';
+ }
+ o+='</div>';
+ var active=null;for(var j=0;j<hotspots.length;j++)if(hotspots[j].id===z)active=hotspots[j];
+ if(active)o+='<div style="padding:10px 12px;background:var(--card2);border-radius:8px;border-left:3px solid #22c55e;margin-bottom:8px"><p style="font-weight:600;font-size:14px;margin-bottom:4px">'+(active.nombre||'')+'</p><p style="font-size:13px;color:var(--mu);line-height:1.6">'+(active.descripcion||'')+'</p></div>';
+ else o+='<p class="muted" style="text-align:center;font-size:12px">Toca una zona de la imagen para ver la descripcion</p>';
+ return o;
+}
 function deviceZoneSVG(modId){
  var d=getModData(modId);
- var zones=d&&d.zonas&&d.zonas.length>0?d.zonas:null;
- // Fallback to embedded zones for known equipment
+ var zData=d&&d.zonas;
+ // Builder's real-photo schema takes priority when populated
+ if(zData&&zData.imagen_base&&zData.hotspots&&zData.hotspots.length>0)return hotspotImageHTML(zData.imagen_base,zData.hotspots);
+ // Fallback to embedded zones for known equipment (text-only, no photo yet)
+ var zones=Array.isArray(zData)&&zData.length>0?zData:null;
  if(!zones){
   var fallbacks={'se3':typeof SE3_ZONES!=='undefined'?SE3_ZONES:[],'dfm100':typeof DFM100_ZONES!=='undefined'?DFM100_ZONES:[],'s5':typeof S5_ZONES!=='undefined'?S5_ZONES:[]};
   zones=fallbacks[modId]||[];
@@ -1839,7 +1865,7 @@ function rModule(){
  var p=getProg(S.modId);
  var o='<div class="w">';
  if(S.previewMode)o+='<div style="background:#1a3a6b22;border:.5px solid #1a3a6b44;border-radius:8px;padding:8px 12px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between"><span style="font-size:12px;color:#1a3a6b">Vista previa admin</span><button onclick="S.previewMode=false;go(\'home\')" style="background:none;border:none;color:var(--mu);cursor:pointer;font-size:11px">Salir</button></div>';
- if(S.reviewMode)o+='<div style="background:var(--ok-bg);border:.5px solid var(--ok-bd);border-radius:8px;padding:8px 12px;margin-bottom:10px;display:flex;align-items:center;gap:8px"><span>📖</span><p style="font-size:12px;color:var(--ok)">Modo repaso - Cert. vigente hasta '+p.certExpiry+'</p></div>';
+ if(S.reviewMode)o+='<div style="background:var(--ok-bg);border:.5px solid var(--ok-bd);border-radius:8px;padding:8px 12px;margin-bottom:10px;display:flex;align-items:center;gap:8px"><span>📖</span><p style="font-size:12px;color:var(--ok)">Modo repaso - Acceso habilitado hasta '+p.certExpiry+'</p></div>';
  o+='<button class="back" onclick="go(\'home\')">&larr; Inicio</button>';
  o+='<div style="display:flex;gap:10px;align-items:center;margin-bottom:10px"><span style="font-size:24px">'+(mod.icon||'📘')+'</span><div><p style="font-weight:500;font-size:15px;margin-bottom:1px">'+mod.title+'</p><p class="muted" style="font-size:12px">Paso '+(S.slideIdx+1)+' de '+total+'</p></div></div>';
  o+='<div style="display:flex;gap:3px;margin-bottom:10px">';
@@ -2381,12 +2407,11 @@ function startDemo(){
  function d(n){var dt=new Date();dt.setDate(dt.getDate()+n);return dt.toISOString().slice(0,10);}
  S.isDemo=true;
  S.user={id:'demo_user',nombre:'Ana Martinez',legajo:'D-1024'};
- S.empresa={id:'demo',nombre:'Hospital Demo SEM',codigo:'DEMO',codigo_rrhh:'DEMORH',color_principal:'#1a3a6b',estado_acceso:'activa',modulos_habilitados:['se3','s5','dfm100','iram9808','hs_basico']};
+ S.empresa={id:'demo',nombre:'Hospital Demo SEM',codigo:'DEMO',codigo_rrhh:'DEMORH',color_principal:'#1a3a6b',estado_acceso:'activa',modulos_habilitados:['se3','dfm100','iram9808','hs_basico']};
  S.rol='admin_empresa';
  S.form=Object.assign({},S.form,{nombre:'Ana Martinez',legajo:'D-1024',codigo_empresa:'DEMO',rol:'Jefa de Enfermeria'});
  S.progress={
   se3:{mods:[0,1],certified:true,certDate:d(-30),certExpiry:d(335),score:9,totalQ:10},
-  s5:{mods:[0,1,2],certified:true,certDate:d(-400),certExpiry:d(-35),score:8,totalQ:10},
   dfm100:{mods:[0],certified:false,score:0,totalQ:10}
  };
  S.adminEmpresaData={
@@ -2399,7 +2424,6 @@ function startDemo(){
   ],
   progreso:[
    {usuario_id:'demo_user',modulo_id:'se3',certificado:true,fecha_vencimiento:d(335),modulos_completados:[0,1],updated_at:d(-30)},
-   {usuario_id:'demo_user',modulo_id:'s5',certificado:true,fecha_vencimiento:d(-35),modulos_completados:[0,1,2],updated_at:d(-400)},
    {usuario_id:'u2',modulo_id:'se3',certificado:true,fecha_vencimiento:d(200),modulos_completados:[0,1],updated_at:d(-10)},
    {usuario_id:'u2',modulo_id:'hs_basico',certificado:false,modulos_completados:[0],updated_at:d(-3)},
    {usuario_id:'u3',modulo_id:'iram9808',certificado:true,fecha_vencimiento:d(100),modulos_completados:[0],updated_at:d(-15)},
