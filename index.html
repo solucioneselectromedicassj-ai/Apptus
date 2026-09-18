@@ -585,6 +585,7 @@ var MQ_EMC12={
     try{var p=localStorage.getItem('at_prog_'+s.user.id);if(p)S.progress=JSON.parse(p);}catch(e2){}
     if(S.tcAccepted)S.screen='home';
     syncModulos(S.empresa.modulos_habilitados);
+    if(S.rol==='admin_empresa')syncAllModulos();
    }
   }
  }catch(e){}
@@ -660,9 +661,18 @@ function catShellFor(catId){
  return null;
 }
 
+// admin_empresa sees every module that exists, not just the ones enabled for
+// their company; rrhh and usuario both see exactly what's in modulos_habilitados.
+function allKnownModuloIds(){
+ var ids={};
+ var CATS=getCats();
+ for(var i=0;i<CATS.length;i++){for(var j=0;j<CATS[i].modulos.length;j++){ids[CATS[i].modulos[j].id]=true;}}
+ for(var id in (S.allModulos||{}))ids[id]=true;
+ return Object.keys(ids);
+}
 function getModulosHabilitados(){
  if(!S.empresa)return[];
- var enabled=S.empresa.modulos_habilitados||[];
+ var enabled=S.rol==='admin_empresa'?allKnownModuloIds():(S.empresa.modulos_habilitados||[]);
  var result=[];
  for(var i=0;i<enabled.length;i++){
   var id=enabled[i];
@@ -811,6 +821,35 @@ async function syncModulos(modIds){
    }
   }
   if(changed&&(S.screen==='home'||S.screen==='module'))render();
+ }catch(e){}
+}
+
+// Fetches every active module in the system (not just the empresa's enabled
+// ones) so admin_empresa can see the full catalog, including Builder-only
+// modules that were never explicitly enabled for their company.
+async function syncAllModulos(){
+ try{
+  var url=SB_URL+'/rest/v1/at_modulos?select=id,nombre,sub,icono,categoria,mods,quiz,zonas,updated_at&activo=eq.true';
+  var r=await fetch(url,{headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}});
+  if(!r.ok)return;
+  var rows=await r.json();
+  S.allModulos=S.allModulos||{};
+  var changed=false;
+  for(var i=0;i<rows.length;i++){
+   var m=rows[i];
+   S.allModulos[m.id]=true;
+   var cachedVer=null;
+   try{cachedVer=localStorage.getItem('at_mod_ver_'+m.id);}catch(e){}
+   if(!cachedVer||new Date(m.updated_at)>new Date(cachedVer)){
+    S.modulCache[m.id]=m;
+    try{
+     localStorage.setItem('at_mod_'+m.id,JSON.stringify(m));
+     localStorage.setItem('at_mod_ver_'+m.id,m.updated_at);
+    }catch(e){}
+   }
+   changed=true;
+  }
+  if(changed&&S.screen==='home')render();
  }catch(e){}
 }
 
@@ -2250,6 +2289,7 @@ async function doLogin(){
  try{var p=localStorage.getItem('at_prog_'+S.user.id);if(p)S.progress=JSON.parse(p);localStorage.setItem('at_session',JSON.stringify({user:res.usuario,empresa:res.empresa,rol:res.rol,form:S.form}));}catch(e){}
  S.screen='home';
  syncModulos(S.empresa.modulos_habilitados);
+ if(S.rol==='admin_empresa')syncAllModulos();
  render();
 }
 function logout(){try{localStorage.removeItem('at_session');}catch(e){}S.user=null;S.empresa=null;S.rol=null;S.progress={};S.screen='login';render();}
