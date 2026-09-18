@@ -857,6 +857,54 @@ async function migrateAllModulos(){
 
 
 
+// Simple original torso/body diagrams for lead placement (no third-party images).
+function chestLeadsSVG(){
+ var pos={V1:[95,102],V2:[123,100],V3:[131,116],V4:[139,133],V5:[160,130],V6:[181,125]};
+ var a=S.al;
+ var s='<svg viewBox="0 0 220 200" style="width:100%;max-width:260px;display:block;margin:0 auto 14px">'
+  +'<ellipse cx="110" cy="115" rx="88" ry="90" fill="var(--card2)" stroke="var(--bd)" stroke-width="2"/>'
+  +'<circle cx="30" cy="45" r="24" fill="var(--card2)" stroke="var(--bd)" stroke-width="2"/>'
+  +'<circle cx="190" cy="45" r="24" fill="var(--card2)" stroke="var(--bd)" stroke-width="2"/>'
+  +'<rect x="95" y="8" width="30" height="22" rx="8" fill="var(--card2)" stroke="var(--bd)" stroke-width="2"/>'
+  +'<line x1="110" y1="60" x2="110" y2="185" stroke="var(--bd)" stroke-width="1.5" opacity=".5"/>';
+ for(var i=0;i<CHEST.length;i++){
+  var c=CHEST[i],p=pos[c.id],act=(a===c.id);
+  s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(act?13:10)+'" fill="'+c.col+'" stroke="white" stroke-width="2" style="cursor:pointer" onclick="tL(\''+c.id+'\')"/>';
+  s+='<text x="'+p[0]+'" y="'+(p[1]+4)+'" text-anchor="middle" font-size="9" font-weight="700" fill="white" style="pointer-events:none">'+c.id+'</text>';
+ }
+ s+='</svg>';
+ return s;
+}
+function limbLeadsSVG(){
+ var pos={RA:[55,118],LA:[165,118],RL:[85,196],LL:[135,196]};
+ var a=S.al;
+ var s='<svg viewBox="0 0 220 215" style="width:100%;max-width:220px;display:block;margin:0 auto 14px">'
+  +'<circle cx="110" cy="20" r="16" fill="var(--card2)" stroke="var(--bd)" stroke-width="2"/>'
+  +'<line x1="110" y1="36" x2="110" y2="140" stroke="var(--bd)" stroke-width="6" stroke-linecap="round"/>'
+  +'<line x1="105" y1="55" x2="'+pos.RA[0]+'" y2="'+pos.RA[1]+'" stroke="var(--bd)" stroke-width="6" stroke-linecap="round"/>'
+  +'<line x1="115" y1="55" x2="'+pos.LA[0]+'" y2="'+pos.LA[1]+'" stroke="var(--bd)" stroke-width="6" stroke-linecap="round"/>'
+  +'<line x1="105" y1="140" x2="'+pos.RL[0]+'" y2="'+pos.RL[1]+'" stroke="var(--bd)" stroke-width="6" stroke-linecap="round"/>'
+  +'<line x1="115" y1="140" x2="'+pos.LL[0]+'" y2="'+pos.LL[1]+'" stroke="var(--bd)" stroke-width="6" stroke-linecap="round"/>';
+ var order=['RA','LA','RL','LL'];
+ for(var oi=0;oi<order.length;oi++){
+  var id=order[oi],lb=null;for(var i=0;i<LIMB.length;i++)if(LIMB[i].id===id)lb=LIMB[i];
+  var p=pos[id],act=(a===id);
+  s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(act?13:10)+'" fill="'+lb.col+'" stroke="white" stroke-width="2" style="cursor:pointer" onclick="tL(\''+id+'\')"/>';
+  s+='<text x="'+p[0]+'" y="'+(p[1]+4)+'" text-anchor="middle" font-size="9" font-weight="700" fill="white" style="pointer-events:none">'+id+'</text>';
+ }
+ s+='</svg>';
+ return s;
+}
+function paddlesSVG(){
+ return '<svg viewBox="0 0 240 140" style="width:100%;max-width:280px;display:block;margin:0 auto 14px">'
+  +'<rect x="10" y="30" width="70" height="90" rx="16" fill="var(--card2)" stroke="#c62828" stroke-width="2.5"/>'
+  +'<text x="45" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="#c62828">ESTERNON</text>'
+  +'<rect x="160" y="30" width="70" height="90" rx="16" fill="var(--card2)" stroke="#1565c0" stroke-width="2.5"/>'
+  +'<text x="195" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="#1565c0">APEX</text>'
+  +'<path d="M80 55 Q120 30 140 55 T160 55" fill="none" stroke="var(--bd)" stroke-width="4" stroke-linecap="round"/>'
+  +'</svg>';
+}
+
 function se3SVG(){
  var z=S.zone;
  var zoData=typeof SE3_ZONES!=='undefined'?SE3_ZONES:[];
@@ -1584,6 +1632,7 @@ function rSlide(mod,slide,mi,si){
  // paletas
  if(slide.type==='paletas'){
   return h3(slide.title,slide.sub)+
+  paddlesSVG()+
   '<div style="background:var(--card2);border-radius:10px;padding:14px;margin-bottom:10px">' +
   '<p style="font-weight:700;font-size:15px;margin-bottom:10px">Posicion de paletas / pads adhesivos</p>' +
   '<div style="display:flex;gap:10px;margin-bottom:10px">' +
@@ -1604,9 +1653,9 @@ function rSlide(mod,slide,mi,si){
  // sinc
  if(slide.type==='sinc'){return h3(slide.title,slide.sub)+'<div style="background:var(--warn-bg);border:1px solid var(--warn-bd);border-radius:10px;padding:14px;margin-bottom:10px"><p style="font-weight:700;color:var(--warn);margin-bottom:8px">Cardioversion sincronizada (SYNC)</p><p style="font-size:13px;line-height:1.7;margin-bottom:8px">El SYNC sincroniza la descarga con la onda R del ECG para evitar el fenomeno R sobre T.</p><p style="font-size:13px;line-height:1.7"><strong>Paso 1:</strong> Conectar ECG y verificar ritmo visible.<br><strong>Paso 2:</strong> Activar SYNC en el menu del equipo.<br><strong>Paso 3:</strong> Seleccionar energia → Charge → Shock.<br><strong>Paso 4:</strong> SYNC se desactiva tras cada descarga.</p></div><div style="background:var(--err-bg);border:1px solid var(--err-bd);border-radius:10px;padding:12px"><p style="font-size:13px;color:var(--err)"><strong>Atencion:</strong> SYNC debe reactivarse manualmente en cada descarga subsecuente. Verificar siempre que el marcador SYNC aparece en pantalla antes de cargar.</p></div>';}
  // leads_limb
- if(slide.type==='leads_limb'){var o=h3(slide.title,slide.sub)+'<div>';for(var li=0;li<LIMB.length;li++){var lb=LIMB[li],alb=(S.al===lb.id);o+='<div onclick="tL(\''+lb.id+'\')" style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:'+(alb?'var(--card)':'var(--card2)')+';border-radius:8px;margin-bottom:6px;cursor:pointer;border-left:4px solid '+lb.col+'">'+'<div style="background:'+lb.col+';color:white;border-radius:4px;padding:2px 8px;font-weight:700;font-size:13px;min-width:32px;text-align:center">'+lb.id+'</div>'+'<div><p style="font-size:13px;font-weight:500">EU: '+lb.eu+' / US: '+lb.us+'</p>'+(alb?'<p style="font-size:12px;color:var(--mu);margin-top:2px">'+lb.where+'</p>':'')+'</div></div>';}o+='</div>';return o;}
+ if(slide.type==='leads_limb'){var o=h3(slide.title,slide.sub)+limbLeadsSVG()+'<div>';for(var li=0;li<LIMB.length;li++){var lb=LIMB[li],alb=(S.al===lb.id);o+='<div onclick="tL(\''+lb.id+'\')" style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:'+(alb?'var(--card)':'var(--card2)')+';border-radius:8px;margin-bottom:6px;cursor:pointer;border-left:4px solid '+lb.col+'">'+'<div style="background:'+lb.col+';color:white;border-radius:4px;padding:2px 8px;font-weight:700;font-size:13px;min-width:32px;text-align:center">'+lb.id+'</div>'+'<div><p style="font-size:13px;font-weight:500">EU: '+lb.eu+' / US: '+lb.us+'</p>'+(alb?'<p style="font-size:12px;color:var(--mu);margin-top:2px">'+lb.where+'</p>':'')+'</div></div>';}o+='</div>';return o;}
  // leads_chest
- if(slide.type==='leads_chest'){var o=h3(slide.title,slide.sub)+'<div>';for(var ci=0;ci<CHEST.length;ci++){var cb=CHEST[ci],acb=(S.al===cb.id);o+='<div onclick="tL(\''+cb.id+'\')" style="display:flex;gap:10px;align-items:center;padding:10px;background:'+(acb?'var(--card)':'var(--card2)')+';border-radius:8px;margin-bottom:6px;cursor:pointer;border-left:4px solid '+cb.col+'">'+'<div style="background:'+cb.col+';color:white;border-radius:4px;padding:2px 8px;font-weight:700;font-size:13px;min-width:32px;text-align:center">'+cb.id+'</div>'+'<p style="font-size:13px">'+(acb?cb.where:'Toca para ver posicion')+'</p></div>';}o+='</div>';return o;}
+ if(slide.type==='leads_chest'){var o=h3(slide.title,slide.sub)+chestLeadsSVG()+'<div>';for(var ci=0;ci<CHEST.length;ci++){var cb=CHEST[ci],acb=(S.al===cb.id);o+='<div onclick="tL(\''+cb.id+'\')" style="display:flex;gap:10px;align-items:center;padding:10px;background:'+(acb?'var(--card)':'var(--card2)')+';border-radius:8px;margin-bottom:6px;cursor:pointer;border-left:4px solid '+cb.col+'">'+'<div style="background:'+cb.col+';color:white;border-radius:4px;padding:2px 8px;font-weight:700;font-size:13px;min-width:32px;text-align:center">'+cb.id+'</div>'+'<p style="font-size:13px">'+(acb?cb.where:'Toca para ver posicion')+'</p></div>';}o+='</div>';return o;}
  // aviso_mon
  if(slide.type==='aviso_mon'){return h3(slide.title,slide.sub)+'<div style="background:var(--ok-bg);border:2px solid var(--ok-bd);border-radius:12px;padding:16px;margin-bottom:14px"><p style="font-weight:700;color:var(--ok);font-size:16px;margin-bottom:10px">Modo monitor - uso correcto</p><p style="font-size:14px;line-height:1.7;margin-bottom:10px">El equipo puede usarse en modo monitor para visualizar ECG, SpO2 y PANI. Si el servicio cuenta con monitores dedicados, dar prioridad a estos, reservando el desfibrilador para urgencias.</p><p style="font-size:14px;line-height:1.7">Al terminar el monitoreo, reconectar a la red y dejarlo en su lugar habitual.</p></div>';}
  // cards
