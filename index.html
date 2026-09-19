@@ -130,6 +130,7 @@ var FAQ={};
 
 // ═══ CONFIG ═══
 var API = 'https://drfyicdwwltzzahqixlz.supabase.co/functions/v1/apptus-api';
+var DEFAULT_DEMO_MODS=['se3','dfm100','iram9808','hs_basico'];
 var SB_URL = 'https://drfyicdwwltzzahqixlz.supabase.co';
 var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyZnlpY2R3d2x0enphaHFpeGx6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMjgzMDEsImV4cCI6MjA5NDkwNDMwMX0.Ar9pc4OAI09mb4Mu96wlSyimNNuLS54NZ-eqsh80pOU';
 
@@ -248,6 +249,7 @@ var S={
  qIdx:0,ans:[],chosen:null,mq:null,reviewMode:false,
  adminMonth:'',adminEmpresaData:null,
  superEmpresas:null,superEditEmpresa:null,superError:'',superLoading:false,superCreated:null,
+ superDemoPresets:null,superEditDemoPreset:null,
  form:{nombre:'',legajo:'',codigo_empresa:'',rol:'Tecnico/a'},
  loginErr:'',loading:false,
  progress:{} // local cache: {modulo_id: {...}}
@@ -612,10 +614,12 @@ var MQ_EMC12={
   if(cod)S.form.codigo_empresa=cod.toUpperCase();
  }catch(e){}
 })();
-// ── URL param: ?demo=1 drops straight into the sample walkthrough, no login ──
+// ── URL param: ?demo=1 (or ?demo=<slug> for a configurable demo) drops straight
+// into the sample walkthrough, no login ──
 (function(){
  try{
-  if(new URLSearchParams(window.location.search).get('demo')==='1')startDemo();
+  var demoParam=new URLSearchParams(window.location.search).get('demo');
+  if(demoParam)startDemo(demoParam);
  }catch(e){}
 })();
 
@@ -2295,7 +2299,8 @@ var CATS=getCats();
    quiz:rQuiz,result:rResult,expired:rExpired,admin:rAdmin,super:rSuper,
    edit_empresa:rEditEmpresa,survey:rSurvey,eventos:rEventos,nuevo_evento:rNuevoEvento,
    faq:rFAQ,bot_capacitacion:rBotCapacitacion,solicitud:rSolicitud,empresa_creada:rEmpresaCreada,pre_quiz:rPreQuiz,
-   eval_choice:rEvalChoice,mini_quiz:rMiniQuiz,mini_result:rMiniResult,eval_summary:rEvalSummary};
+   eval_choice:rEvalChoice,mini_quiz:rMiniQuiz,mini_result:rMiniResult,eval_summary:rEvalSummary,
+   demo_presets:rDemoPresets,edit_demo_preset:rEditDemoPreset};
   var fn=sc[S.screen]||rLogin;
   app.innerHTML=fn();
   setWatermark();
@@ -2539,17 +2544,20 @@ function shareEmpresaLink(codigo,nombre){doShare(codigo,nombre,window.location.h
 // Self-contained walkthrough with realistic sample data: no login, no backend calls.
 // Uses the legacy embedded modules (se3/s5/dfm100/iram9808/hs_basico) since their full
 // content ships inside this file already, so the demo works even offline.
-function startDemo(){
+function buildDemoData(mods){
  function d(n){var dt=new Date();dt.setDate(dt.getDate()+n);return dt.toISOString().slice(0,10);}
- S.isDemo=true;
- S.user={id:'demo_user',nombre:'Ana Martinez',legajo:'D-1024'};
- S.empresa={id:'demo',nombre:'Clinica Demo SEM',codigo:'DEMO',codigo_rrhh:'DEMORH',color_principal:'#1a3a6b',estado_acceso:'activa',modulos_habilitados:['se3','dfm100','iram9808','hs_basico']};
- S.rol='admin_empresa';
- S.form=Object.assign({},S.form,{nombre:'Ana Martinez',legajo:'D-1024',codigo_empresa:'DEMO',rol:'Jefa de Enfermeria'});
- S.progress={
-  se3:{mods:[0,1],certified:true,certDate:d(-30),certExpiry:d(335),score:9,totalQ:10},
-  dfm100:{mods:[0],certified:false,score:0,totalQ:10}
- };
+ S.progress={};
+ for(var i=0;i<mods.length;i++){
+  if(i===0)S.progress[mods[i]]={mods:[0,1],certified:true,certDate:d(-30),certExpiry:d(335),score:9,totalQ:10};
+  else if(i===1)S.progress[mods[i]]={mods:[0],certified:false,score:0,totalQ:10};
+ }
+ var progreso=[];
+ for(var j=0;j<mods.length;j++){
+  if(j===0)progreso.push({usuario_id:'demo_user',modulo_id:mods[j],certificado:true,fecha_vencimiento:d(335),modulos_completados:[0,1],updated_at:d(-30)});
+  else if(j===1)progreso.push({usuario_id:'u4',modulo_id:mods[j],certificado:false,modulos_completados:[],updated_at:d(-20)});
+  else if(j===2)progreso.push({usuario_id:'u3',modulo_id:mods[j],certificado:true,fecha_vencimiento:d(100),modulos_completados:[0],updated_at:d(-15)});
+ }
+ var m0=getModuloMeta(mods[0]);
  S.adminEmpresaData={
   ok:true,
   usuarios:[
@@ -2558,25 +2566,38 @@ function startDemo(){
    {id:'u3',nombre:'Laura Fernandez',legajo:'D-3355',rol:'rrhh',ultimo_acceso:d(-5),activo:true},
    {id:'u4',nombre:'Marcos Diaz',legajo:'D-4820',rol:'usuario',ultimo_acceso:d(-20),activo:false}
   ],
-  progreso:[
-   {usuario_id:'demo_user',modulo_id:'se3',certificado:true,fecha_vencimiento:d(335),modulos_completados:[0,1],updated_at:d(-30)},
-   {usuario_id:'u2',modulo_id:'se3',certificado:true,fecha_vencimiento:d(200),modulos_completados:[0,1],updated_at:d(-10)},
-   {usuario_id:'u2',modulo_id:'hs_basico',certificado:false,modulos_completados:[0],updated_at:d(-3)},
-   {usuario_id:'u3',modulo_id:'iram9808',certificado:true,fecha_vencimiento:d(100),modulos_completados:[0],updated_at:d(-15)},
-   {usuario_id:'u4',modulo_id:'dfm100',certificado:false,modulos_completados:[],updated_at:d(-20)}
-  ],
-  solicitudes:[
-   {id:'sol1',usuario_nombre:'Carlos Gimenez',usuario_rol:'usuario',fecha_solicitud:d(-2),personas:'2 a 5 personas',turno:'Manana',lugar:'Sala de reuniones',estado:'pendiente',modulo_nombre:'Philips DFM100'},
-   {id:'sol2',usuario_nombre:'Laura Fernandez',usuario_rol:'rrhh',fecha_solicitud:d(-6),personas:'Solo yo',turno:'Tarde',lugar:'Oficina RRHH',estado:'coordinado',modulo_nombre:'IRAM 9808'}
-  ]
+  progreso:progreso,
+  solicitudes:mods.length?[{id:'sol1',usuario_nombre:'Carlos Gimenez',usuario_rol:'usuario',fecha_solicitud:d(-2),personas:'2 a 5 personas',turno:'Manana',lugar:'Sala de reuniones',estado:'pendiente',modulo_nombre:m0?m0.label:mods[0]}]:[]
  };
- S.tcAccepted=true;
- try{localStorage.setItem('at_tc','1');}catch(e){}
- S.screen='home';
- render();
- // Pull the latest Builder-authored content (real photos/hotspots, edited text)
- // for the curated demo modules, so changes made in Builder show up here too.
- syncModulos(S.empresa.modulos_habilitados);
+}
+function startDemo(slug){
+ slug=(slug||'').trim();
+ S.isDemo=true;
+ S.user={id:'demo_user',nombre:'Ana Martinez',legajo:'D-1024'};
+ S.rol='admin_empresa';
+ S.form=Object.assign({},S.form,{nombre:'Ana Martinez',legajo:'D-1024',codigo_empresa:'DEMO',rol:'Jefa de Enfermeria'});
+ function applyEmpresa(nombre,color,mods){
+  S.empresa={id:'demo',nombre:nombre,codigo:'DEMO',codigo_rrhh:'DEMORH',color_principal:color||'#1a3a6b',estado_acceso:'activa',modulos_habilitados:mods};
+  buildDemoData(mods);
+  S.tcAccepted=true;
+  try{localStorage.setItem('at_tc','1');}catch(e){}
+  S.screen='home';
+  render();
+  // Pull the latest Builder-authored content (real photos/hotspots, edited text)
+  // for the curated demo modules, so changes made in Builder show up here too.
+  syncModulos(mods);
+ }
+ if(!slug||slug==='1'||slug==='default'){applyEmpresa('Clinica Demo SEM','#1a3a6b',DEFAULT_DEMO_MODS);return;}
+ // Demo configurable: trae el set de equipos elegido para esa empresa prospecto.
+ // Si no existe o falla la red, cae al set general para que el link nunca rompa.
+ fetch(SB_URL+'/rest/v1/at_demo_presets?select=nombre,color_principal,modulos_habilitados&slug=eq.'+encodeURIComponent(slug)+'&activo=eq.true',{headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}})
+  .then(function(r){return r.ok?r.json():[];})
+  .then(function(rows){
+   var p=rows&&rows[0];
+   if(p&&p.modulos_habilitados&&p.modulos_habilitados.length)applyEmpresa(p.nombre,p.color_principal,p.modulos_habilitados);
+   else applyEmpresa('Clinica Demo SEM','#1a3a6b',DEFAULT_DEMO_MODS);
+  })
+  .catch(function(){applyEmpresa('Clinica Demo SEM','#1a3a6b',DEFAULT_DEMO_MODS);});
 }
 function exitDemo(){
  S.isDemo=false;S.user=null;S.empresa=null;S.rol=null;S.progress={};S.adminEmpresaData=null;S.screen='login';
@@ -2600,6 +2621,7 @@ function rSuper(){
  o+='<h2 style="font-size:18px;font-weight:500;margin-bottom:12px">Gestionar empresas</h2>';
  o+='<button class="btn" style="background:#22c55e;color:#000;margin-bottom:12px" onclick="newEmpresa()">+ Nueva empresa</button>';
  o+='<button class="btn" style="background:#f59e0b;color:#1a1a1a;margin-bottom:12px" onclick="openDemoShare()">🎬 Super demo — ver y compartir</button>';
+ o+='<button class="btn" style="background:var(--card2);color:var(--tx);margin-bottom:12px" onclick="S.superDemoPresets=null;go(\'demo_presets\')">🎯 Demos configurables por empresa</button>';
  o+='<button class="btn" style="background:var(--card2);color:var(--mu);margin-bottom:12px;font-size:12px" onclick="migrateAllModulos()">↑ Sincronizar modulos a la nube</button>';
  if(S.superLoading)return o+'<p class="muted" style="text-align:center;padding:20px">Guardando...</p></div>';
  if(S.superEmpresas===null){loadSuperData();return o+'<p class="muted" style="text-align:center;padding:20px">Cargando...</p></div>';}
@@ -2623,6 +2645,92 @@ function rSuper(){
  }
  o+='</div>';
  return o;
+}
+
+// ═══ DEMOS CONFIGURABLES (link ?demo=<slug> sin login, con el set de modulos que elijas) ═══
+async function loadDemoPresets(){
+ try{
+  var r=await fetch(SB_URL+'/rest/v1/at_demo_presets?select=*&order=nombre.asc',{headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}});
+  S.superDemoPresets=r.ok?await r.json():[];
+ }catch(e){S.superDemoPresets=[];}
+ render();
+}
+function rDemoPresets(){
+ var o='<div class="w"><button class="back" onclick="go(\'super\')">&larr; Volver</button>';
+ o+='<h2 style="font-size:18px;font-weight:500;margin-bottom:4px">Demos configurables</h2>';
+ o+='<p class="muted" style="margin-bottom:12px;font-size:13px">Cada una genera un link <code>?demo=slug</code> sin login, mostrando solo los equipos que elijas — para ofrecerle a cada empresa prospecto una demo con sus propios equipos.</p>';
+ o+='<button class="btn" style="background:#22c55e;color:#000;margin-bottom:12px" onclick="newDemoPreset()">+ Nueva demo</button>';
+ if(S.superDemoPresets===null){loadDemoPresets();return o+'<p class="muted" style="text-align:center;padding:20px">Cargando...</p></div>';}
+ var presets=S.superDemoPresets||[];
+ var base=window.location.href.split('?')[0];
+ if(!presets.length)o+='<p class="muted" style="text-align:center;padding:16px">Todavia no creaste ninguna. La demo general (boton "Super demo") sigue funcionando aparte, con el link <code>?demo=1</code>.</p>';
+ for(var i=0;i<presets.length;i++){
+  var p=presets[i];
+  o+='<div class="urow" style="margin-bottom:10px">';
+  o+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">';
+  o+='<div><p style="font-weight:600;font-size:15px">'+(p.nombre||'Sin nombre')+'</p><p class="muted" style="font-size:11px">'+(p.modulos_habilitados||[]).length+' modulo(s) &bull; /?demo='+p.slug+'</p></div>';
+  o+='</div>';
+  o+='<div style="display:flex;gap:6px">';
+  o+='<button class="btn btn-g" style="flex:1;margin-bottom:0;padding:8px;font-size:12px" onclick="editDemoPreset(\''+p.slug+'\')">Editar</button>';
+  o+='<button class="btn" style="flex:1;margin-bottom:0;padding:8px;font-size:12px;background:#1a3a6b;color:white" onclick="doShare(\''+p.slug+'\',\''+(p.nombre||'').replace(/'/g,'')+'\',\''+base+'?demo='+p.slug+'\')">Compartir</button>';
+  o+='<button class="btn" style="flex:0 0 44px;margin-bottom:0;padding:8px;font-size:12px;background:var(--err-bg);color:var(--err)" onclick="deleteDemoPreset(\''+p.slug+'\')">🗑</button>';
+  o+='</div></div>';
+ }
+ o+='</div>';
+ return o;
+}
+function newDemoPreset(){S.superEditDemoPreset={slug:'',nombre:'',color_principal:'#1a3a6b',modulos_habilitados:[]};go('edit_demo_preset');}
+function editDemoPreset(slug){var p=(S.superDemoPresets||[]).filter(function(x){return x.slug===slug;})[0];S.superEditDemoPreset=Object.assign({},p);go('edit_demo_preset');}
+function toggleDemoPresetMod(id){
+ var e=S.superEditDemoPreset;var arr=e.modulos_habilitados||[];var idx=arr.indexOf(id);
+ if(idx>=0)arr.splice(idx,1);else arr.push(id);
+ e.modulos_habilitados=arr;render();
+}
+function slugify(s){return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'')||'demo';}
+function rEditDemoPreset(){
+ var e=S.superEditDemoPreset||{modulos_habilitados:[]};
+ var allMods=['se3','dfm100','s5','mindray_d3','cardiomax','nihon_kohden','em_c12','iram9808','hs_basico'];
+ var modLabels={'se3':'EDAN SE-3','dfm100':'Philips DFM100','s5':'COMEN S5','mindray_d3':'Mindray BeneHeart D3','cardiomax':'Instramed CardioMax','nihon_kohden':'Nihon Kohden Cardiolife','em_c12':'E&M C-12','iram9808':'IRAM 9808 Ambulancias','hs_basico':'Higiene y Seguridad'};
+ var enabled=e.modulos_habilitados||[];
+ var o='<div class="w"><button class="back" onclick="go(\'demo_presets\')">&larr; Demos</button>';
+ o+='<h2 style="font-size:18px;font-weight:500;margin-bottom:12px">'+(e.slug?'Editar demo':'Nueva demo')+'</h2>';
+ o+='<div class="card">';
+ o+='<label>Nombre a mostrar (ej: Emergencias SA)</label><input id="dp-nombre" value="'+(e.nombre||'')+'" oninput="S.superEditDemoPreset.nombre=this.value;if(!S.superEditDemoPreset._slugLocked)document.getElementById(\'dp-slug\').value=slugify(this.value)" placeholder="Nombre de la empresa prospecto">';
+ o+='<label>Slug del link (?demo=...)</label><input id="dp-slug" value="'+(e.slug||'')+'" oninput="S.superEditDemoPreset._slugLocked=true" placeholder="emergencias_sa">';
+ o+='<label>Color principal</label><input id="dp-color" type="color" value="'+(e.color_principal||'#1a3a6b')+'" style="height:42px;padding:4px">';
+ o+='</div>';
+ o+='<div class="card"><p style="font-size:12px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Equipos que tiene esta empresa</p>';
+ for(var i=0;i<allMods.length;i++){
+  var id=allMods[i],on=enabled.indexOf(id)>=0;
+  o+='<div onclick="toggleDemoPresetMod(\''+id+'\')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:'+(on?'var(--card)':'var(--card2)')+';border-radius:8px;margin-bottom:6px;cursor:pointer;border:1.5px solid '+(on?'var(--ok-bd)':'var(--bd)')+'"><span style="font-size:18px">'+(on?'✅':'⬜')+'</span><span style="font-size:14px">'+(modLabels[id]||id)+'</span></div>';
+ }
+ o+='</div>';
+ if(S.superError)o+='<p style="color:var(--err);font-size:13px;margin-bottom:8px">'+S.superError+'</p>';
+ o+='<button class="btn btn-p" style="background:#1a3a6b" onclick="saveDemoPreset()">Guardar demo</button>';
+ o+='</div>';
+ return o;
+}
+async function saveDemoPreset(){
+ var e=S.superEditDemoPreset;
+ e.nombre=(document.getElementById('dp-nombre')||{}).value||e.nombre||'';
+ var slugVal=slugify((document.getElementById('dp-slug')||{}).value||e.nombre);
+ e.color_principal=(document.getElementById('dp-color')||{}).value||e.color_principal||'#1a3a6b';
+ if(!e.nombre){S.superError='Poné un nombre';render();return;}
+ if(!e.modulos_habilitados||!e.modulos_habilitados.length){S.superError='Elegi al menos un equipo';render();return;}
+ S.superError='';
+ var oldSlug=e.slug;
+ var payload={slug:slugVal,nombre:e.nombre,color_principal:e.color_principal,modulos_habilitados:e.modulos_habilitados,activo:true,updated_at:new Date().toISOString()};
+ try{
+  var r=await fetch(SB_URL+'/rest/v1/at_demo_presets?on_conflict=slug',{method:'POST',headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=representation'},body:JSON.stringify(payload)});
+  if(!r.ok){S.superError='Error al guardar';render();return;}
+  if(oldSlug&&oldSlug!==slugVal)await fetch(SB_URL+'/rest/v1/at_demo_presets?slug=eq.'+encodeURIComponent(oldSlug),{method:'DELETE',headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}});
+ }catch(err){S.superError='Error al guardar';render();return;}
+ S.superDemoPresets=null;go('demo_presets');
+}
+async function deleteDemoPreset(slug){
+ if(!confirm('¿Eliminar esta demo?'))return;
+ try{await fetch(SB_URL+'/rest/v1/at_demo_presets?slug=eq.'+encodeURIComponent(slug),{method:'DELETE',headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}});}catch(e){}
+ S.superDemoPresets=null;render();loadDemoPresets();
 }
 
 function rEditEmpresa(){
