@@ -2710,6 +2710,8 @@ function rEditDemoPreset(){
  o+='</div>';
  return o;
 }
+// Escritura protegida por password via la edge function (la lectura publica de
+// una demo puntual sigue yendo directo a Supabase, permitida por RLS de solo-lectura).
 async function saveDemoPreset(){
  var e=S.superEditDemoPreset;
  e.nombre=(document.getElementById('dp-nombre')||{}).value||e.nombre||'';
@@ -2718,18 +2720,13 @@ async function saveDemoPreset(){
  if(!e.nombre){S.superError='Poné un nombre';render();return;}
  if(!e.modulos_habilitados||!e.modulos_habilitados.length){S.superError='Elegi al menos un equipo';render();return;}
  S.superError='';
- var oldSlug=e.slug;
- var payload={slug:slugVal,nombre:e.nombre,color_principal:e.color_principal,modulos_habilitados:e.modulos_habilitados,activo:true,updated_at:new Date().toISOString()};
- try{
-  var r=await fetch(SB_URL+'/rest/v1/at_demo_presets?on_conflict=slug',{method:'POST',headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=representation'},body:JSON.stringify(payload)});
-  if(!r.ok){S.superError='Error al guardar';render();return;}
-  if(oldSlug&&oldSlug!==slugVal)await fetch(SB_URL+'/rest/v1/at_demo_presets?slug=eq.'+encodeURIComponent(oldSlug),{method:'DELETE',headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}});
- }catch(err){S.superError='Error al guardar';render();return;}
+ var res=await apiPost('demo_preset_save',{pw:'SEM2026super',slug:slugVal,oldSlug:e.slug,nombre:e.nombre,color_principal:e.color_principal,modulos_habilitados:e.modulos_habilitados});
+ if(!res.ok){S.superError=res.error||'Error al guardar';render();return;}
  S.superDemoPresets=null;go('demo_presets');
 }
 async function deleteDemoPreset(slug){
  if(!confirm('¿Eliminar esta demo?'))return;
- try{await fetch(SB_URL+'/rest/v1/at_demo_presets?slug=eq.'+encodeURIComponent(slug),{method:'DELETE',headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}});}catch(e){}
+ await apiPost('demo_preset_delete',{pw:'SEM2026super',slug:slug});
  S.superDemoPresets=null;render();loadDemoPresets();
 }
 
