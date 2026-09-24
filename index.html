@@ -133,6 +133,9 @@ var API = 'https://drfyicdwwltzzahqixlz.supabase.co/functions/v1/apptus-api';
 var DEFAULT_DEMO_MODS=['se3','dfm100','iram9808','hs_basico'];
 var SB_URL = 'https://drfyicdwwltzzahqixlz.supabase.co';
 var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyZnlpY2R3d2x0enphaHFpeGx6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMjgzMDEsImV4cCI6MjA5NDkwNDMwMX0.Ar9pc4OAI09mb4Mu96wlSyimNNuLS54NZ-eqsh80pOU';
+// Material de promocion (armado aparte) - links rapidos para el super_admin.
+var PROMO_EMAIL_URL='https://claude.ai/artifact/T47wSHPZdZpjYmpCRcm9z3';
+var PROMO_WSP_URL='https://claude.ai/artifact/UkK9JhigKptwoERtyD9E99';
 
 var SE3_ZONES=[
  {id:'recorder',label:'Registrador/Papel',col:'#6a1b9a',x:4,y:8,w:38,h:84,desc:'Registrador termico 80mm. Para cambiar: tirar pestanas hacia arriba, insertar con lado termico hacia abajo, cerrar al clic.'},
@@ -2622,6 +2625,11 @@ function rSuper(){
  o+='<button class="btn" style="background:#22c55e;color:#000;margin-bottom:12px" onclick="newEmpresa()">+ Nueva empresa</button>';
  o+='<button class="btn" style="background:#f59e0b;color:#1a1a1a;margin-bottom:12px" onclick="openDemoShare()">🎬 Super demo — ver y compartir</button>';
  o+='<button class="btn" style="background:var(--card2);color:var(--tx);margin-bottom:12px" onclick="S.superDemoPresets=null;go(\'demo_presets\')">🎯 Demos configurables por empresa</button>';
+ o+='<p class="muted" style="font-size:11px;margin:4px 0 6px">Material de promoción</p>';
+ o+='<div style="display:flex;gap:8px;margin-bottom:12px">';
+ o+='<button class="btn" style="flex:1;background:var(--card2);color:var(--tx);margin-bottom:0" onclick="window.open(\''+PROMO_EMAIL_URL+'\',\'_blank\')">📧 Presentación (email)</button>';
+ o+='<button class="btn" style="flex:1;background:var(--card2);color:var(--tx);margin-bottom:0" onclick="window.open(\''+PROMO_WSP_URL+'\',\'_blank\')">💬 Flyer (WhatsApp)</button>';
+ o+='</div>';
  o+='<button class="btn" style="background:var(--card2);color:var(--mu);margin-bottom:12px;font-size:12px" onclick="migrateAllModulos()">↑ Sincronizar modulos a la nube</button>';
  if(S.superLoading)return o+'<p class="muted" style="text-align:center;padding:20px">Guardando...</p></div>';
  if(S.superEmpresas===null){loadSuperData();return o+'<p class="muted" style="text-align:center;padding:20px">Cargando...</p></div>';}
