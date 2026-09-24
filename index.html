@@ -670,9 +670,18 @@ async function apiGet(action, params){
 // ═══ PROGRESS ═══
 function getProg(modId){return S.progress[modId]||{mods:[],certified:false,certDate:null,certExpiry:null,score:0,totalQ:10};}
 function setCacheP(modId,data){S.progress[modId]=Object.assign({},getProg(modId),data);}
+// La vista previa del admin (S.previewMode) no debe dejar rastro en el progreso real -
+// sin esto, clics de prueba en una vista previa quedaban guardados en localStorage y
+// una vista previa posterior heredaba "secciones ya completadas" de otra sesion de
+// prueba, saltando directo al final del modulo tras la primera seccion.
+function persistProgress(){
+ if(S.previewMode)return;
+ try{localStorage.setItem('at_prog_'+S.user.id,JSON.stringify(S.progress));}catch(e){}
+}
 
 async function saveProgress(modId,data){
  setCacheP(modId,data);
+ if(S.previewMode)return;
  if(!S.user||S.user.id==='super')return;
  var p=getProg(modId);
  await apiPost('progress',{usuario_id:S.user.id,empresa_id:S.empresa.id,modulo_id:modId,modulos_completados:p.mods,certified:p.certified,fecha_cert:p.certDate,fecha_vencimiento:p.certExpiry,puntaje:p.score,total_preguntas:p.totalQ});
@@ -2405,7 +2414,7 @@ function answer(i){
    var today=new Date().toISOString().slice(0,10);
    setCacheP(S.modId,{certified:pass,certDate:pass?today:null,certExpiry:pass?calcExpiry(S.form.rol,today):null,score:score,totalQ:d.quiz.length});
    saveProgress(S.modId,getProg(S.modId));
-   try{localStorage.setItem('at_prog_'+S.user.id,JSON.stringify(S.progress));}catch(e){}
+   persistProgress();
    S.screen='result';render();
   }
  },900);
@@ -2452,7 +2461,7 @@ function advanceAfterSection(){
  if(mods.indexOf(S.modIdx)<0)mods.push(S.modIdx);
  setCacheP(S.modId,{mods:mods});
  saveProgress(S.modId,getProg(S.modId));
- try{localStorage.setItem('at_prog_'+S.user.id,JSON.stringify(S.progress));}catch(e){}
+ persistProgress();
  var mode=(S.evalChoice&&S.evalChoice[S.modId])||'final';
  if(mods.length>=(d.mods||[]).length){
   if(mode==='secciones'){finishSeccionesEval();}
@@ -2534,7 +2543,7 @@ function finishSeccionesEval(){
  var today=new Date().toISOString().slice(0,10);
  setCacheP(modId,{certified:pass,certDate:pass?today:null,certExpiry:pass?calcExpiry(S.form.rol,today):null,score:totalScore,totalQ:totalQ});
  saveProgress(modId,getProg(modId));
- try{localStorage.setItem('at_prog_'+S.user.id,JSON.stringify(S.progress));}catch(e){}
+ persistProgress();
  S.screen='eval_summary';render();
 }
 function rEvalSummary(){
@@ -2828,7 +2837,7 @@ function resetModProgress(){
  if(!confirm('Reiniciar el progreso de este modulo? Tus evaluaciones anteriores se borran.'))return;
  setCacheP(S.modId,{mods:[],done:false,score:null,date:null,certified:false,certDate:null,certExpiry:null});
  saveProgress(S.modId,getProg(S.modId));
- try{localStorage.setItem('at_prog_'+S.user.id,JSON.stringify(S.progress));}catch(e){}
+ persistProgress();
  S.modIdx=0;S.slideIdx=0;S.zone=null;S.ak=null;S.al=null;S.reviewMode=false;
  render();
 }
@@ -2838,6 +2847,9 @@ async function openModPreview(modId){
  S.modId=modId;S.modIdx=0;S.slideIdx=0;
  S.zone=null;S.ak=null;S.al=null;
  S.previewMode=true;
+ // Arranca siempre en limpio: pruebas anteriores en otras vistas previas no deben
+ // hacer que esta parezca "ya avanzada" (ver comentario en persistProgress).
+ S.progress[modId]={mods:[],certified:false,certDate:null,certExpiry:null,score:0,totalQ:10};
  S.screen='module';render();
  // La vista previa del admin no dependia de tener el modulo ya sincronizado -
  // si este admin nunca lo habia abierto como usuario normal, getModData caia
