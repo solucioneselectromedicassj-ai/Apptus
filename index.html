@@ -1806,6 +1806,9 @@ function rSlide(mod,slide,mi,si){
  if(slide.type==='imagen'){
   var oi=h3(slide.title,slide.sub);
   var imgUrl=slide.url||slide.imagen_url||slide.img||'';
+  // Slide-level clickable zones (Builder's "Zonas clickeables" checkbox on an image
+  // slide, independent per slide - not the module-wide device_universal zonas).
+  if(slide.interactive&&slide.hotspots&&slide.hotspots.length>0&&imgUrl)return oi+hotspotImageHTML(imgUrl,slide.hotspots);
   if(imgUrl)oi+='<img src="'+imgUrl+'" alt="'+(slide.alt||slide.title)+'" style="width:100%;border-radius:10px;margin-bottom:10px" onerror="this.style.display=\'none\'">';
   if(slide.caption)oi+='<p class="muted" style="text-align:center;font-size:12px;margin-top:4px">'+slide.caption+'</p>';
   var imgBody=slide.body||slide.cuerpo||slide.msg||'';
