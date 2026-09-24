@@ -175,6 +175,29 @@ var CHEST=[
  {id:'V5',col:'#1565c0',where:'Linea axilar anterior izquierda, misma altura que V4'},
  {id:'V6',col:'#6a1b9a',where:'Linea axilar media izquierda, misma altura que V4 y V5'},
 ];
+// Shared electrode-placement diagram (limb/chest), real photo+hotspots from Builder,
+// module-independent (used by se3, em_c12, etc.) - falls back to the hardcoded SVG below
+// until someone uploads a photo via Builder.
+var LEADS_ZONAS={limb:null,chest:null};
+function loadLeadsZonas(){
+ try{
+  var cached=localStorage.getItem('at_leads_zonas');
+  if(cached)LEADS_ZONAS=JSON.parse(cached);
+ }catch(e){}
+ fetch(SB_URL+'/rest/v1/at_leads_zonas?select=tipo,imagen_base,hotspots',{headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}})
+  .then(function(r){return r.ok?r.json():[];})
+  .then(function(rows){
+   var changed=false;
+   for(var i=0;i<rows.length;i++){
+    var row=rows[i];
+    if(row.tipo==='limb'||row.tipo==='chest'){LEADS_ZONAS[row.tipo]=row;changed=true;}
+   }
+   if(changed){
+    try{localStorage.setItem('at_leads_zonas',JSON.stringify(LEADS_ZONAS));}catch(e){}
+    if(S.screen==='module')render();
+   }
+  }).catch(function(){});
+}
 var PASS_QUIZ = 8;
 var EXPIRY = {'Residente':6,'Medico/a':12,'Enfermero/a':12,'Tecnico/a':12,'Operario/a':12,'Conductor/a':12,'Administrativo/a':12,'RRHH':12,'Gerente':12,'Otro':12};
 
@@ -611,6 +634,7 @@ var MQ_EMC12={
   }
  }catch(e){}
 })();
+loadLeadsZonas();
 // ── URL param: ?codigo=XXX pre-fills company code ──
 (function(){
  try{
@@ -1721,9 +1745,15 @@ function rSlide(mod,slide,mi,si){
  // sinc
  if(slide.type==='sinc'){return h3(slide.title,slide.sub)+'<div style="background:var(--warn-bg);border:1px solid var(--warn-bd);border-radius:10px;padding:14px;margin-bottom:10px"><p style="font-weight:700;color:var(--warn);margin-bottom:8px">Cardioversion sincronizada (SYNC)</p><p style="font-size:13px;line-height:1.7;margin-bottom:8px">El SYNC sincroniza la descarga con la onda R del ECG para evitar el fenomeno R sobre T.</p><p style="font-size:13px;line-height:1.7"><strong>Paso 1:</strong> Conectar ECG y verificar ritmo visible.<br><strong>Paso 2:</strong> Activar SYNC en el menu del equipo.<br><strong>Paso 3:</strong> Seleccionar energia → Charge → Shock.<br><strong>Paso 4:</strong> SYNC se desactiva tras cada descarga.</p></div><div style="background:var(--err-bg);border:1px solid var(--err-bd);border-radius:10px;padding:12px"><p style="font-size:13px;color:var(--err)"><strong>Atencion:</strong> SYNC debe reactivarse manualmente en cada descarga subsecuente. Verificar siempre que el marcador SYNC aparece en pantalla antes de cargar.</p></div>';}
  // leads_limb
- if(slide.type==='leads_limb'){var o=h3(slide.title,slide.sub)+limbLeadsSVG()+'<div>';for(var li=0;li<LIMB.length;li++){var lb=LIMB[li],alb=(S.al===lb.id);o+='<div onclick="tL(\''+lb.id+'\')" style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:'+(alb?'var(--card)':'var(--card2)')+';border-radius:8px;margin-bottom:6px;cursor:pointer;border-left:4px solid '+lb.col+'">'+'<div style="background:'+lb.col+';color:white;border-radius:4px;padding:2px 8px;font-weight:700;font-size:13px;min-width:32px;text-align:center">'+lb.id+'</div>'+'<div><p style="font-size:13px;font-weight:500">EU: '+lb.eu+' / US: '+lb.us+'</p>'+(alb?'<p style="font-size:12px;color:var(--mu);margin-top:2px">'+lb.where+'</p>':'')+'</div></div>';}o+='</div>';return o;}
+ if(slide.type==='leads_limb'){
+  var lzLimb=LEADS_ZONAS.limb;
+  if(lzLimb&&lzLimb.imagen_base&&lzLimb.hotspots&&lzLimb.hotspots.length>0)return h3(slide.title,slide.sub)+hotspotImageHTML(lzLimb.imagen_base,lzLimb.hotspots);
+  var o=h3(slide.title,slide.sub)+limbLeadsSVG()+'<div>';for(var li=0;li<LIMB.length;li++){var lb=LIMB[li],alb=(S.al===lb.id);o+='<div onclick="tL(\''+lb.id+'\')" style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:'+(alb?'var(--card)':'var(--card2)')+';border-radius:8px;margin-bottom:6px;cursor:pointer;border-left:4px solid '+lb.col+'">'+'<div style="background:'+lb.col+';color:white;border-radius:4px;padding:2px 8px;font-weight:700;font-size:13px;min-width:32px;text-align:center">'+lb.id+'</div>'+'<div><p style="font-size:13px;font-weight:500">EU: '+lb.eu+' / US: '+lb.us+'</p>'+(alb?'<p style="font-size:12px;color:var(--mu);margin-top:2px">'+lb.where+'</p>':'')+'</div></div>';}o+='</div>';return o;}
  // leads_chest
- if(slide.type==='leads_chest'){var o=h3(slide.title,slide.sub)+chestLeadsSVG()+'<div>';for(var ci=0;ci<CHEST.length;ci++){var cb=CHEST[ci],acb=(S.al===cb.id);o+='<div onclick="tL(\''+cb.id+'\')" style="display:flex;gap:10px;align-items:center;padding:10px;background:'+(acb?'var(--card)':'var(--card2)')+';border-radius:8px;margin-bottom:6px;cursor:pointer;border-left:4px solid '+cb.col+'">'+'<div style="background:'+cb.col+';color:white;border-radius:4px;padding:2px 8px;font-weight:700;font-size:13px;min-width:32px;text-align:center">'+cb.id+'</div>'+'<p style="font-size:13px">'+(acb?cb.where:'Toca para ver posicion')+'</p></div>';}o+='</div>';return o;}
+ if(slide.type==='leads_chest'){
+  var lzChest=LEADS_ZONAS.chest;
+  if(lzChest&&lzChest.imagen_base&&lzChest.hotspots&&lzChest.hotspots.length>0)return h3(slide.title,slide.sub)+hotspotImageHTML(lzChest.imagen_base,lzChest.hotspots);
+  var o=h3(slide.title,slide.sub)+chestLeadsSVG()+'<div>';for(var ci=0;ci<CHEST.length;ci++){var cb=CHEST[ci],acb=(S.al===cb.id);o+='<div onclick="tL(\''+cb.id+'\')" style="display:flex;gap:10px;align-items:center;padding:10px;background:'+(acb?'var(--card)':'var(--card2)')+';border-radius:8px;margin-bottom:6px;cursor:pointer;border-left:4px solid '+cb.col+'">'+'<div style="background:'+cb.col+';color:white;border-radius:4px;padding:2px 8px;font-weight:700;font-size:13px;min-width:32px;text-align:center">'+cb.id+'</div>'+'<p style="font-size:13px">'+(acb?cb.where:'Toca para ver posicion')+'</p></div>';}o+='</div>';return o;}
  // aviso_mon
  if(slide.type==='aviso_mon'){return h3(slide.title,slide.sub)+'<div style="background:var(--ok-bg);border:2px solid var(--ok-bd);border-radius:12px;padding:16px;margin-bottom:14px"><p style="font-weight:700;color:var(--ok);font-size:16px;margin-bottom:10px">Modo monitor - uso correcto</p><p style="font-size:14px;line-height:1.7;margin-bottom:10px">El equipo puede usarse en modo monitor para visualizar ECG, SpO2 y PANI. Si el servicio cuenta con monitores dedicados, dar prioridad a estos, reservando el desfibrilador para urgencias.</p><p style="font-size:14px;line-height:1.7">Al terminar el monitoreo, reconectar a la red y dejarlo en su lugar habitual.</p></div>';}
  // cards
