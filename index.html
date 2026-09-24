@@ -1056,7 +1056,7 @@ var MODS_IRAM9808=[
  {id:0,icon:'🚑',title:'Clasificacion de ambulancias',desc:'Tipos de vehiculos segun IRAM 9808',color:'#b71c1c',slides:[
   {type:'cards',title:'Clasificacion segun IRAM 9808',sub:'Tres tipos segun complejidad asistencial',items:[
    {ic:'🟢',t:'Tipo A - Soporte Vital Basico (SVB)',d:'Transporte de pacientes en condicion estable. No requiere atencion medica durante el traslado. Equipamiento basico: oxigeno, botiquin, inmovilizadores, camilla.\n\nPersonal: conductor y socorrista/auxiliar de enfermeria.'},
-   {ic:'🟡',t:'Tipo B - Soporte Vital Avanzado (SVA)',d:'Asistencia de emergencias con riesgo vital. Monitoreo y soporte cardiovascular. Equipamiento: monitor-desfibrilador, ventilador, bomba de infusion, RCP.\n\nPersonal: conductor, medico y/o enfermero con capacitacion en emergencias.'},
+   {ic:'🟡',t:'Tipo B - Soporte Vital Avanzado (SVA)',d:'Asistencia de emergencias con riesgo vital. Monitoreo y soporte cardiovascular. Equipamiento: monitor-desfibrilador, ventilador, bomba de infusion, RCP.\n\nPersonal: conductor, medico y/o enfermero con orientacion tecnica en emergencias.'},
    {ic:'🔴',t:'Tipo C - Unidad de Cuidados Intensivos Movil (UCIM)',d:'Atencion de pacientes criticos en traslado. Equipamiento equivalente a una UTI: respirador, monitor multiparametrico, bomba de jeringa, capnografo.\n\nPersonal: conductor, medico especialista (terapia intensiva) y enfermero.'},
   ]},
   {type:'steps',title:'Cuando usar cada tipo',sub:'Criterios de seleccion',color:'#b71c1c',items:[
@@ -1089,13 +1089,13 @@ var MODS_IRAM9808=[
  {id:2,icon:'👤',title:'Tripulacion y competencias',desc:'Requisitos del personal segun tipo de unidad',color:'#2e7d32',slides:[
   {type:'steps',title:'Conductor de ambulancia',sub:'Requisitos generales para todos los tipos',color:'#455a64',items:[
    {t:'Licencia de conducir profesional vigente para la categoria del vehiculo',d:''},
-   {t:'Capacitacion en manejo defensivo y emergencias',d:''},
+   {t:'Orientacion tecnica en manejo defensivo y emergencias',d:''},
    {t:'Conocimientos basicos de RCP y primeros auxilios',d:'Certificacion vigente requerida'},
    {t:'Conocimiento de la normativa de transito para vehiculos de emergencia',d:'Uso de sirena y balizas, prioridad de paso, estacionamiento'},
   ]},
   {type:'steps',title:'Competencias clinicas requeridas',sub:'Segun tipo de unidad',color:'#2e7d32',items:[
-   {t:'Tipo A: auxiliar de enfermeria o socorrista con capacitacion en SVB',d:'RCP basico, manejo de oxigeno, inmovilizacion, vendajes'},
-   {t:'Tipo B: enfermero/a profesional o medico con capacitacion en emergencias',d:'ACLS/ATLS, manejo de via aerea avanzada, desfibrilacion'},
+   {t:'Tipo A: auxiliar de enfermeria o socorrista con orientacion tecnica en SVB',d:'RCP basico, manejo de oxigeno, inmovilizacion, vendajes'},
+   {t:'Tipo B: enfermero/a profesional o medico con orientacion tecnica en emergencias',d:'ACLS/ATLS, manejo de via aerea avanzada, desfibrilacion'},
    {t:'Tipo C: medico especialista en medicina critica o emergentologia',d:'ARM, drogas vasoactivas, manejo hemodinamico, procedimientos invasivos'},
   ]},
  ]},
@@ -1120,12 +1120,12 @@ var QUIZ_IRAM9808=[
  {q:'Segun IRAM 9808, que tipo de ambulancia se usa para traslado de pacientes UTI a UTI?',ops:['Tipo A','Tipo B','Tipo C','Cualquier tipo'],ans:2},
  {q:'El desfibrilador en una ambulancia Tipo A es:',ops:['No requerido','DEA (Desfibrilador Externo Automatico)','Monitor-desfibrilador con electrodos manuales','Monitor multiparametrico'],ans:1},
  {q:'Cual es el nivel minimo de carga de oxigeno requerido al iniciar el turno?',ops:['25%','50%','75%','100%'],ans:2},
- {q:'Que personal minimo requiere una ambulancia Tipo B?',ops:['Solo el conductor','Conductor y socorrista','Conductor y enfermero o medico con capacitacion en emergencias','Conductor, medico especialista y enfermero'],ans:2},
+ {q:'Que personal minimo requiere una ambulancia Tipo B?',ops:['Solo el conductor','Conductor y socorrista','Conductor y enfermero o medico con orientacion tecnica en emergencias','Conductor, medico especialista y enfermero'],ans:2},
  {q:'El checklist diario del vehiculo debe archivarse por minimo:',ops:['1 mes','3 meses','6 meses','1 ano'],ans:3},
  {q:'Una ambulancia Tipo A esta indicada para:',ops:['Emergencias con riesgo vital','Traslado de pacientes criticos en ARM','Traslado de pacientes estables o deambulatorios','Pacientes neonatales'],ans:2},
  {q:'El ventilador de transporte es obligatorio en:',ops:['Tipo A','Tipo B','Tipo C','Tipos B y C'],ans:2},
  {q:'Que documentacion debe quedar firmada al inicio de cada guardia?',ops:['Solo el libro de guardia','El checklist de verificacion del vehiculo','El registro de medicamentos','Todos los anteriores'],ans:3},
- {q:'Para el conductor de ambulancia es obligatorio:',ops:['Licencia comun de conducir','Licencia profesional y capacitacion en manejo defensivo','Solo licencia de conducir vigente','Licencia profesional y titulo universitario'],ans:1},
+ {q:'Para el conductor de ambulancia es obligatorio:',ops:['Licencia comun de conducir','Licencia profesional y orientacion tecnica en manejo defensivo','Solo licencia de conducir vigente','Licencia profesional y titulo universitario'],ans:1},
  {q:'Una ambulancia tiene el oxigeno al 60% al inicio del turno. Que debes hacer?',ops:['Continuar el turno normalmente','Recargar el tubo antes de salir en servicio','Salir solo si el turno es corto','Usar solo el tubo portatil'],ans:1},
 ];
 var MQ_IRAM9808={
@@ -1138,7 +1138,7 @@ var MQ_IRAM9808={
 // ═══ HIGIENE Y SEGURIDAD ═══
 var MODS_HS=[
  {id:0,icon:'⛑️',title:'EPP - Equipos de Proteccion Personal',desc:'Uso correcto de elementos de proteccion',color:'#e65100',slides:[
-  {type:'notice',title:'Por que usar EPP',sub:'',msg:'El EPP es la ultima barrera de proteccion entre el trabajador y el riesgo. No reemplaza la eliminacion del peligro, pero cuando el riesgo no puede eliminarse, el EPP es obligatorio.',params:[['Marco legal','Ley 19587 y Dto. 351/79'],['Responsabilidad empleador','Proveer EPP certificado y capacitar en su uso'],['Responsabilidad empleado','Usar el EPP provisto y en buen estado']],warn:'No usar el EPP asignado puede resultar en accidente laboral sin cobertura y en sancion disciplinaria.'},
+  {type:'notice',title:'Por que usar EPP',sub:'',msg:'El EPP es la ultima barrera de proteccion entre el trabajador y el riesgo. No reemplaza la eliminacion del peligro, pero cuando el riesgo no puede eliminarse, el EPP es obligatorio.',params:[['Marco legal','Ley 19587 y Dto. 351/79'],['Responsabilidad empleador','Proveer EPP certificado y dar orientacion tecnica en su uso'],['Responsabilidad empleado','Usar el EPP provisto y en buen estado']],warn:'No usar el EPP asignado puede resultar en accidente laboral sin cobertura y en sancion disciplinaria.'},
   {type:'cards',title:'EPP segun tipo de riesgo',sub:'',items:[
    {ic:'🧤',t:'Proteccion de manos',d:'Guantes de nitrilo para riesgo biologico y quimico.\nGuantes de cuero para riesgo mecanico y calor.\nGuantes dielectricos para riesgo electrico (tension baja hasta 1000V, alta hasta 30kV).\nVerificar el estado antes de cada uso.'},
    {ic:'👓',t:'Proteccion ocular y facial',d:'Anteojos de seguridad para proyeccion de particulas.\nMascara facial completa para salpicaduras de quimicos.\nMascara de soldar con filtro IR para soldadura o metalizado.\nNunca usar lentes comunes como EPP.'},
@@ -1508,7 +1508,7 @@ function rNuevoEvento(){
  var o = '<div class="w"><button class="back" onclick="go(\'eventos\')">&larr; Eventos</button>';
  o += '<h2 style="font-size:18px;font-weight:500;margin-bottom:12px">' + (ev.id?'Editar evento':'Nuevo evento') + '</h2>';
  o += '<div class="card">';
- o += '<label>Título</label><input id="ev_titulo" value="' + (ev.titulo||'') + '" placeholder="Ej: Capacitación DFM100 - Turno mañana">';
+ o += '<label>Título</label><input id="ev_titulo" value="' + (ev.titulo||'') + '" placeholder="Ej: Orientación técnica DFM100 - Turno mañana">';
  o += '<label>Tipo</label><select id="ev_tipo"><option value="conferencia"' + (ev.tipo==='conferencia'?' selected':'') + '>Conferencia / Charla</option><option value="capacitacion"' + (ev.tipo==='capacitacion'?' selected':'') + '>Asistencia tecnica presencial</option><option value="repaso"' + (ev.tipo==='repaso'?' selected':'') + '>Repaso y consultas</option></select>';
  o += '<div class="g2"><div><label>Fecha</label><input type="date" id="ev_fecha" value="' + (ev.fecha||'') + '"></div><div><label>Hora</label><input type="time" id="ev_hora" value="' + (ev.hora||'') + '"></div></div>';
  o += '<label>Módulo relacionado (opcional)</label><select id="ev_modulo"><option value="">-- Sin módulo específico --</option>';
