@@ -2834,11 +2834,28 @@ function resetModProgress(){
 }
 
 
-function openModPreview(modId){
+async function openModPreview(modId){
  S.modId=modId;S.modIdx=0;S.slideIdx=0;
  S.zone=null;S.ak=null;S.al=null;
  S.previewMode=true;
  S.screen='module';render();
+ // La vista previa del admin no dependia de tener el modulo ya sincronizado -
+ // si este admin nunca lo habia abierto como usuario normal, getModData caia
+ // directo al contenido viejo embebido (sin la foto/zonas reales de Builder).
+ // Trae siempre lo ultimo de Supabase, sin filtrar por "activo" para poder
+ // previsualizar borradores tambien.
+ try{
+  var url=SB_URL+'/rest/v1/at_modulos?select=id,nombre,sub,icono,categoria,mods,quiz,zonas,updated_at&id=eq.'+encodeURIComponent(modId);
+  var r=await fetch(url,{headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}});
+  if(r.ok){
+   var rows=await r.json();
+   if(rows[0]){
+    S.modulCache[modId]=rows[0];
+    try{localStorage.setItem('at_mod_'+modId,JSON.stringify(rows[0]));localStorage.setItem('at_mod_ver_'+modId,rows[0].updated_at);}catch(e){}
+    if(S.screen==='module'&&S.modId===modId)render();
+   }
+  }
+ }catch(e){}
 }
 
 
